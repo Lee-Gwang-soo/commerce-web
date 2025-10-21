@@ -1,0 +1,60 @@
+# E-Commerce Project Rules for Cursor AI
+
+## Project Context
+- Next.js 14 App Router E-Commerce website
+- TypeScript, Tailwind CSS, Supabase, TanStack Query
+- Atomic Design Pattern architecture
+- shadcn/ui for UI components
+
+## Coding Standards
+- Use TypeScript strict mode
+- Prefer functional components with hooks
+- Use Tailwind CSS for styling (no CSS modules)
+- Follow Atomic Design Pattern for components
+- Use React Query for server state management
+- Use Zustand for client state management
+- Implement proper error boundaries and loading states
+
+## Component Rules
+- All components must have proper TypeScript interfaces
+- Use forwardRef for components that need ref forwarding
+- Include proper accessibility attributes
+- Follow naming convention: PascalCase for components
+- Export components as named exports with default export
+
+## File Structure
+- components/atoms/ - Basic UI elements (Button, Input, etc.)
+- components/molecules/ - Simple combinations (SearchBar, ProductCard)
+- components/organisms/ - Complex combinations (Header, ProductGrid)
+- components/templates/ - Page layouts
+- hooks/ - Custom React hooks with 'use' prefix
+- lib/ - Utility functions and configurations
+- types/ - TypeScript type definitions
+- stores/ - Zustand state stores
+
+## Import Order
+1. React and Next.js imports
+2. Third-party libraries
+3. Internal components (atoms → molecules → organisms)
+4. Hooks and utilities
+5. Types and constants
+
+## Supabase Integration
+- Use Row Level Security (RLS) policies
+- Implement proper error handling for database operations
+- Use TypeScript types generated from Supabase schema
+- Handle authentication state properly
+
+## Performance Considerations
+- Use React.memo for expensive components
+- Implement proper loading states
+- Use Next.js Image component for images
+- Implement infinite scrolling with React Query
+- Use proper caching strategies
+
+## Never Do
+- Don't use inline styles
+- Don't ignore TypeScript errors
+- Don't forget error handling
+- Don't skip loading states
+- Don't use any type unless absolutely necessary

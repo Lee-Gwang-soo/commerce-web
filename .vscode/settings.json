@@ -1,0 +1,16 @@
+{
+  "cursor.cpp.disabledLanguageServices": [],
+  "cursor.general.enableAutoCommit": true,
+  "cursor.general.enableAutoApplyCodeActions": true,
+  "cursor.general.enableAutoAcceptCompletions": true,
+  "terminal.integrated.defaultProfile.windows": "Git Bash",
+  "terminal.integrated.profiles.windows": {
+    "Git Bash": {
+      "path": "C:\\Program Files\\Git\\bin\\bash.exe",
+      "args": ["--login"]
+    }
+  },
+  "claudeCodeChat.permissions.yoloMode": true
+}
+
+

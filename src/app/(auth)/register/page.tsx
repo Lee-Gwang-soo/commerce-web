@@ -1,16 +1,16 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Layout } from "@/components/templates/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/atoms/Typography";
 import { CircleCheck } from "lucide-react";
+import { useRegister } from "@/hooks/auth/useAuth";
 
 // Zod 스키마 정의
 const signupSchema = z
@@ -29,7 +29,6 @@ const signupSchema = z
       .string()
       .min(1, "이메일을 입력해주세요")
       .email("올바른 이메일 형식이 아닙니다"),
-    emailDomain: z.string().min(1, "이메일 도메인을 선택해주세요"),
     phone: z
       .string()
       .min(1, "휴대폰 번호를 입력해주세요")
@@ -60,7 +59,6 @@ const terms = [
 ];
 
 export default function RegisterPage() {
-  const router = useRouter();
   const [showAddressModal, setShowAddressModal] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState("");
   const [agreements, setAgreements] = useState<Record<string, boolean>>({
@@ -71,6 +69,8 @@ export default function RegisterPage() {
     age: false,
   });
 
+  const { mutate: registerUser, isPending } = useRegister();
+
   const {
     register,
     handleSubmit,
@@ -80,36 +80,58 @@ export default function RegisterPage() {
   } = useForm<SignupFormData>({
     resolver: zodResolver(signupSchema),
     mode: "onChange",
+    defaultValues: {
+      userId: "",
+      password: "",
+      confirmPassword: "",
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+    },
   });
 
   const password = watch("password");
   const confirmPassword = watch("confirmPassword");
 
-  const passwordMatch = password === confirmPassword;
+  const passwordMatch = useMemo(
+    () => password === confirmPassword,
+    [password, confirmPassword]
+  );
 
   // 전체 동의 상태 확인
-  const isAllAgreed = Object.values(agreements).every(Boolean);
-  const requiredAgreements = terms.filter((term) => term.required);
-  const isRequiredAgreed = requiredAgreements.every(
-    (term) => agreements[term.id]
+  const isAllAgreed = useMemo(
+    () => Object.values(agreements).every(Boolean),
+    [agreements]
+  );
+  const requiredAgreements = useMemo(
+    () => terms.filter((term) => term.required),
+    []
+  );
+  const isRequiredAgreed = useMemo(
+    () => requiredAgreements.every((term) => agreements[term.id]),
+    [requiredAgreements, agreements]
   );
 
   // 전체 동의 토글
-  const handleAllAgreement = (checked: boolean) => {
+  const handleAllAgreement = useCallback((checked: boolean) => {
     const newAgreements = terms.reduce((acc, term) => {
       acc[term.id] = checked;
       return acc;
     }, {} as Record<string, boolean>);
     setAgreements(newAgreements);
-  };
+  }, []);
 
   // 개별 동의 토글
-  const handleIndividualAgreement = (termId: string, checked: boolean) => {
-    setAgreements((prev) => ({
-      ...prev,
-      [termId]: checked,
-    }));
-  };
+  const handleIndividualAgreement = useCallback(
+    (termId: string, checked: boolean) => {
+      setAgreements((prev) => ({
+        ...prev,
+        [termId]: checked,
+      }));
+    },
+    []
+  );
 
   // 주소 검색 모달 열기
   const openAddressModal = () => {
@@ -119,18 +141,42 @@ export default function RegisterPage() {
   // 주소 선택 완료
   const handleAddressSelect = (address: string) => {
     setSelectedAddress(address);
-    setValue("address", address);
+    setValue("address", address, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
     setShowAddressModal(false);
   };
 
+  // RHF 필드 등록: 주소는 입력 필드가 없으므로 명시적으로 등록
+  useEffect(() => {
+    register("address");
+  }, [register]);
+
   // 폼 제출
-  const onSubmit = (data: SignupFormData) => {
-    // 임시로 회원가입 완료 페이지로 이동
-    router.push(`/register/complete?name=${encodeURIComponent(data.name)}`);
+  const onSubmit = async (data: SignupFormData) => {
+    registerUser(
+      {
+        userId: data.userId,
+        password: data.password,
+        name: data.name,
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        marketing_agreed: agreements.marketing,
+        benefits_agreed: agreements.benefits,
+      },
+      {
+        onError: (error) => {
+          alert(error.message || "회원가입 처리 중 오류가 발생했습니다.");
+        },
+      }
+    );
   };
 
   // 폼 유효성 검사
-  const isFormValid = isValid && isRequiredAgreed && selectedAddress;
+  const isFormValid = isValid && isRequiredAgreed;
 
   return (
     <Layout>
@@ -225,21 +271,15 @@ export default function RegisterPage() {
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   이메일 <span className="text-red-500">*</span>
                 </label>
-                <div className="flex gap-2">
-                  <Input
-                    {...register("email")}
-                    placeholder="예: marketkurly"
-                    className={`flex-1 ${errors.email ? "border-red-500" : ""}`}
-                  />
-                </div>
+                <Input
+                  {...register("email")}
+                  type="email"
+                  placeholder="예: user@example.com"
+                  className={errors.email ? "border-red-500" : ""}
+                />
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">
                     {errors.email.message}
-                  </p>
-                )}
-                {errors.emailDomain && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.emailDomain.message}
                   </p>
                 )}
               </div>
@@ -274,8 +314,14 @@ export default function RegisterPage() {
                   onClick={openAddressModal}
                   className="w-full justify-start"
                 >
-                  Q 주소 검색
+                  주소 검색
                 </Button>
+                {/* RHF 주소 값 동기화를 위한 hidden input */}
+                <input
+                  type="hidden"
+                  {...register("address")}
+                  value={selectedAddress}
+                />
                 {selectedAddress && (
                   <p className="text-sm text-gray-600 mt-2">
                     {selectedAddress}
@@ -339,9 +385,9 @@ export default function RegisterPage() {
               <Button
                 type="submit"
                 className="w-full bg-purple-600 hover:bg-purple-700 text-white py-3 text-lg font-medium"
-                disabled={!isFormValid}
+                disabled={!isFormValid || isPending}
               >
-                가입하기
+                {isPending ? "처리 중..." : "가입하기"}
               </Button>
             </form>
           </div>

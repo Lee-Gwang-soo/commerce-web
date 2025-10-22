@@ -18,7 +18,7 @@ import { SearchBar } from "@/components/molecules/SearchBar";
 import { NavigationItem } from "@/components/molecules/NavigationItem";
 import { Typography } from "@/components/atoms/Typography";
 import Banner from "@/components/atoms/Banner";
-import { useAuth } from "@/hooks/auth/use-auth";
+import { useAuth } from "@/hooks/auth/useAuth";
 import { useCartItemCount } from "@/hooks/cart/use-cart";
 
 const headerVariants = cva(
@@ -142,7 +142,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                       className="text-purple-600 hover:text-purple-600 px-3 py-1 text-xs"
                       asChild
                     >
-                      <Link href="/signup">회원가입</Link>
+                      <Link href="/register">회원가입</Link>
                     </Button>
                     <div className="w-px h-3 bg-gray-300 mx-1" />
                     <Button

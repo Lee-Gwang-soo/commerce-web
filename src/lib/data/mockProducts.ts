@@ -227,3 +227,4 @@ export const searchProducts = (query: string): Product[] => {
 
 
 
+

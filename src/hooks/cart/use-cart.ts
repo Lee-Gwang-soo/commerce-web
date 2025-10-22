@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { cartApi } from "@/lib/api/cart";
-import { useAuth } from "../auth/use-auth";
+import { useAuth } from "../auth/useAuth";
 import { toast } from "sonner";
 import {
   getCartItems,

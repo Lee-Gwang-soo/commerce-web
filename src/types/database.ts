@@ -4,6 +4,47 @@
 export interface Database {
   public: {
     Tables: {
+      commerce_user: {
+        Row: {
+          id: string;
+          user_id: string;
+          password: string;
+          name: string;
+          email: string;
+          phone: string;
+          address: string;
+          marketing_agreed: boolean;
+          benefits_agreed: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id: string;
+          password: string;
+          name: string;
+          email: string;
+          phone: string;
+          address: string;
+          marketing_agreed?: boolean;
+          benefits_agreed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          password?: string;
+          name?: string;
+          email?: string;
+          phone?: string;
+          address?: string;
+          marketing_agreed?: boolean;
+          benefits_agreed?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       profiles: {
         Row: {
           id: string;
@@ -322,6 +363,7 @@ export interface Database {
 }
 
 // 편의를 위한 타입 별칭들
+export type CommerceUser = Database["public"]["Tables"]["commerce_user"]["Row"];
 export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
 export type Category = Database["public"]["Tables"]["categories"]["Row"];
 export type Product = Database["public"]["Tables"]["products"]["Row"];
@@ -332,6 +374,7 @@ export type Wishlist = Database["public"]["Tables"]["wishlists"]["Row"];
 export type Review = Database["public"]["Tables"]["reviews"]["Row"];
 
 // Insert 타입들
+export type CommerceUserInsert = Database["public"]["Tables"]["commerce_user"]["Insert"];
 export type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
 export type CategoryInsert =
   Database["public"]["Tables"]["categories"]["Insert"];
@@ -346,6 +389,7 @@ export type WishlistInsert =
 export type ReviewInsert = Database["public"]["Tables"]["reviews"]["Insert"];
 
 // Update 타입들
+export type CommerceUserUpdate = Database["public"]["Tables"]["commerce_user"]["Update"];
 export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
 export type CategoryUpdate =
   Database["public"]["Tables"]["categories"]["Update"];
@@ -358,3 +402,55 @@ export type CartItemUpdate =
 export type WishlistUpdate =
   Database["public"]["Tables"]["wishlists"]["Update"];
 export type ReviewUpdate = Database["public"]["Tables"]["reviews"]["Update"];
+
+// API Request/Response 타입들
+export interface RegisterRequest {
+  userId: string;
+  password: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  marketing_agreed?: boolean;
+  benefits_agreed?: boolean;
+}
+
+export interface LoginRequest {
+  userId: string;
+  password: string;
+}
+
+export interface UpdateUserRequest {
+  email?: string;
+  password?: string;
+  name?: string;
+  phone?: string;
+  address?: string;
+  marketing_agreed?: boolean;
+  benefits_agreed?: boolean;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message: string;
+  data?: {
+    id: string;
+    userId: string;
+    name: string;
+    email: string;
+  };
+  token?: string;
+}
+
+export interface UserData {
+  id: string;
+  userId: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  marketing_agreed: boolean;
+  benefits_agreed: boolean;
+  created_at: string;
+  updated_at: string;
+}

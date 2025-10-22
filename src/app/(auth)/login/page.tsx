@@ -2,37 +2,32 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Layout } from "@/components/templates/Layout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { Typography } from "@/components/atoms/Typography";
-import { useAuth } from "@/hooks/auth/use-auth";
 import { Eye, EyeOff } from "lucide-react";
+import { useLogin } from "@/hooks/auth/useAuth";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
-  const { user } = useAuth();
+
+  const { mutate: login, isPending } = useLogin();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsLoading(true);
 
-    try {
-      // Mock login - in real app would call actual auth service
-      setTimeout(() => {
-        router.push("/");
-      }, 1000);
-    } catch (error) {
-      console.error("Login failed:", error);
-    } finally {
-      setIsLoading(false);
-    }
+    login(
+      { userId, password },
+      {
+        onError: (error) => {
+          alert(error.message || "로그인에 실패했습니다.");
+        },
+      }
+    );
   };
 
   return (
@@ -47,14 +42,14 @@ export default function LoginPage() {
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            {/* Email Field */}
+            {/* User ID Field */}
             <div>
               <Input
-                id="email"
-                type="email"
+                id="userId"
+                type="text"
                 placeholder="아이디를 입력해주세요"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={userId}
+                onChange={(e) => setUserId(e.target.value)}
                 className="h-12 text-base"
                 required
               />
@@ -100,9 +95,9 @@ export default function LoginPage() {
             <Button
               type="submit"
               className="w-full h-12 bg-purple-600 hover:bg-purple-700 text-white font-medium"
-              disabled={isLoading}
+              disabled={isPending}
             >
-              {isLoading ? "로그인 중..." : "로그인"}
+              {isPending ? "로그인 중..." : "로그인"}
             </Button>
 
             {/* Register Button */}

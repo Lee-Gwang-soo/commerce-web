@@ -128,8 +128,8 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
 
           {/* Content */}
           <div className="relative z-10 flex items-center justify-center h-full">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-              <div className="max-w-4xl mx-auto text-center text-white space-y-6">
+            <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="max-w-6xl mx-auto text-center text-white space-y-6">
                 <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-lg">
                   신선한 식재료
                 </h1>

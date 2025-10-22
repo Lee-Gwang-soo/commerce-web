@@ -16,7 +16,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react";
-import { useProduct, useRelatedProducts } from "@/hooks/products/use-products";
+import { useProduct, useProductReviews, useProducts } from "@/hooks/product/useProducts";
 import { useAddToCart, useIsInCart } from "@/hooks/cart/use-cart";
 import type {
   SelectedOptions,
@@ -103,54 +103,45 @@ const getProductOptions = (productId: string): ProductOptionGroup[] => {
   return baseOptions;
 };
 
-// 임시 리뷰 데이터
-const mockReviews = [
-  {
-    id: "1",
-    user: "김**",
-    rating: 5,
-    date: "2024-01-15",
-    content: "음질이 정말 좋아요! 노이즈 캔슬링도 훌륭합니다.",
-    images: ["/images/review-1.jpg"],
-  },
-  {
-    id: "2",
-    user: "이**",
-    rating: 4,
-    date: "2024-01-10",
-    content: "디자인이 세련되고 착용감도 편해요. 다만 가격이 조금 아쉽네요.",
-  },
-  {
-    id: "3",
-    user: "박**",
-    rating: 5,
-    date: "2024-01-05",
-    content: "배터리 지속시간이 정말 긴 편이에요. 출장 갈 때 유용합니다.",
-  },
-];
-
 export default function ProductDetailPage() {
   const params = useParams();
   const productId = params.id as string;
 
-  // 상품 정보 조회
+  // 상품 정보 조회 (새로운 API)
   const {
-    data: product,
+    data: productData,
     isLoading: productLoading,
     error: productError,
   } = useProduct(productId);
+
+  const product = productData?.data;
+
+  // 리뷰 데이터 조회 (새로운 API)
+  const { data: reviewsData, isLoading: reviewsLoading } = useProductReviews(productId, {
+    page: 1,
+    limit: 10,
+  });
+
+  const reviews = reviewsData?.data || [];
+  const totalReviews = reviewsData?.total || 0;
+
+  // 관련 상품 조회 (같은 카테고리의 다른 상품)
+  const { data: relatedProductsData } = useProducts(
+    {
+      category: product?.category,
+      limit: 4,
+    },
+    {
+      enabled: !!product?.category,
+    }
+  );
+
+  const relatedProducts = relatedProductsData?.data?.filter(p => p.id !== productId) || [];
 
   // 상태 관리
   const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
-
-  // 관련 상품 조회
-  const { data: relatedProducts = [] } = useRelatedProducts(
-    productId,
-    product?.category_id || "",
-    4
-  );
 
   // 장바구니 관련
   const { data: isInCart = false } = useIsInCart(productId);
@@ -244,8 +235,13 @@ export default function ProductDetailPage() {
     );
   }
 
-  const isOutOfStock = product.stock_quantity <= 0;
+  // stock과 stock_quantity 둘 다 지원
+  const availableStock = product.stock ?? product.stock_quantity ?? 0;
+  const isOutOfStock = availableStock <= 0;
   const hasDiscount = product.sale_price && product.sale_price < product.price;
+  const discountRate = product.discount_rate || (hasDiscount
+    ? Math.round(((product.price - product.sale_price!) / product.price) * 100)
+    : 0);
 
   return (
     <Layout>
@@ -275,14 +271,12 @@ export default function ProductDetailPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Typography variant="small" color="muted">
-                  {product.category_id === "electronics"
-                    ? "전자기기"
-                    : product.category_id === "fashion"
-                    ? "패션"
-                    : "생활용품"}
+                  {product.category || "일반 상품"}
                 </Typography>
                 {product.is_featured && <Badge variant="secondary">추천</Badge>}
-                {hasDiscount && <Badge variant="destructive">할인</Badge>}
+                {hasDiscount && (
+                  <Badge variant="destructive">{discountRate}% 할인</Badge>
+                )}
                 {isOutOfStock && <Badge variant="outline">품절</Badge>}
               </div>
 
@@ -294,13 +288,24 @@ export default function ProductDetailPage() {
                 {product.short_description}
               </Typography>
 
-              {/* 평점 */}
-              <div className="flex items-center gap-4 mb-4">
-                <Rating rating={4.5} size="sm" showText showCount count={32} />
-                <Button variant="link" className="p-0 h-auto">
-                  리뷰 32개 보기
-                </Button>
-              </div>
+              {/* 평점 및 리뷰 */}
+              {totalReviews > 0 && (
+                <div className="flex items-center gap-4 mb-4">
+                  <Rating rating={4.5} size="sm" showText showCount count={totalReviews} />
+                  <Button
+                    variant="link"
+                    className="p-0 h-auto"
+                    onClick={() => setActiveTab("reviews")}
+                  >
+                    리뷰 {totalReviews}개 보기
+                  </Button>
+                </div>
+              )}
+              {totalReviews === 0 && (
+                <Typography variant="small" color="muted" className="mb-4">
+                  아직 리뷰가 없습니다. 첫 번째 리뷰를 작성해보세요!
+                </Typography>
+              )}
             </div>
 
             {/* 가격 */}
@@ -345,11 +350,11 @@ export default function ProductDetailPage() {
                 value={quantity}
                 onChange={setQuantity}
                 min={1}
-                max={Math.min(product.stock_quantity, 10)}
+                max={Math.min(availableStock, 10)}
                 disabled={isOutOfStock}
               />
               <Typography variant="small" color="muted">
-                재고 {product.stock_quantity}개
+                재고 {availableStock}개
               </Typography>
             </div>
 
@@ -405,20 +410,12 @@ export default function ProductDetailPage() {
 
             {/* 상품 정보 */}
             <div className="text-sm text-muted-foreground space-y-1">
-              <div>
-                SKU: {product.id}-
-                {Math.random().toString(36).substr(2, 5).toUpperCase()}
-              </div>
-              <div>
-                브랜드:{" "}
-                {product.category_id === "electronics"
-                  ? "전자기기"
-                  : product.category_id === "fashion"
-                  ? "패션"
-                  : "생활용품"}
-              </div>
-              <div>카테고리: {product.category_id}</div>
-              <div>재고: {product.stock_quantity}개</div>
+              <div>상품 ID: {product.id.slice(0, 8).toUpperCase()}</div>
+              <div>카테고리: {product.category}</div>
+              <div>재고: {availableStock}개</div>
+              {product.review_count > 0 && (
+                <div>리뷰: {product.review_count}개</div>
+              )}
             </div>
           </div>
         </div>
@@ -428,7 +425,9 @@ export default function ProductDetailPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="description">상품 상세</TabsTrigger>
-              <TabsTrigger value="reviews">리뷰 (32)</TabsTrigger>
+              <TabsTrigger value="reviews">
+                리뷰 ({totalReviews})
+              </TabsTrigger>
               <TabsTrigger value="qna">문의</TabsTrigger>
             </TabsList>
 
@@ -453,69 +452,75 @@ export default function ProductDetailPage() {
             </TabsContent>
 
             <TabsContent value="reviews" className="mt-6">
-              <div className="space-y-6">
-                {/* 리뷰 요약 */}
-                <div className="flex items-center gap-6 p-6 bg-muted/30 rounded-lg">
-                  <div className="text-center">
-                    <Typography variant="h2" className="mb-1">
-                      4.5
-                    </Typography>
-                    <Rating rating={4.5} size="sm" />
-                    <Typography variant="small" color="muted" className="mt-1">
-                      32개 리뷰
-                    </Typography>
+              {reviewsLoading ? (
+                <div className="text-center py-12">
+                  <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+                  <Typography variant="muted">리뷰를 불러오는 중...</Typography>
+                </div>
+              ) : totalReviews === 0 ? (
+                <div className="text-center py-12">
+                  <Typography variant="h5" className="mb-2">
+                    아직 리뷰가 없습니다
+                  </Typography>
+                  <Typography variant="muted" className="mb-6">
+                    이 상품의 첫 번째 리뷰를 작성해보세요!
+                  </Typography>
+                  <Button>리뷰 작성하기</Button>
+                </div>
+              ) : (
+                <div className="space-y-6">
+                  {/* 리뷰 요약 */}
+                  <div className="flex items-center gap-6 p-6 bg-muted/30 rounded-lg">
+                    <div className="text-center">
+                      <Typography variant="h2" className="mb-1">
+                        4.5
+                      </Typography>
+                      <Rating rating={4.5} size="sm" />
+                      <Typography variant="small" color="muted" className="mt-1">
+                        {totalReviews}개 리뷰
+                      </Typography>
+                    </div>
                   </div>
-                  <div className="flex-1">
-                    {/* 별점 분포 (임시) */}
-                    {[5, 4, 3, 2, 1].map((star) => (
-                      <div key={star} className="flex items-center gap-2 mb-1">
-                        <span className="text-sm w-2">{star}</span>
-                        <div className="flex-1 h-2 bg-muted rounded-full overflow-hidden">
-                          <div
-                            className="h-full bg-primary"
-                            style={{ width: `${Math.random() * 80 + 10}%` }}
-                          />
+
+                  {/* 리뷰 목록 */}
+                  <div className="space-y-6">
+                    {reviews.map((review) => (
+                      <div
+                        key={review.id}
+                        className="border-b pb-6 last:border-b-0"
+                      >
+                        <div className="flex items-center gap-4 mb-3">
+                          <Typography variant="h6">{review.user_name}</Typography>
+                          <Typography variant="small" color="muted">
+                            {new Date(review.created_at).toLocaleDateString("ko-KR")}
+                          </Typography>
                         </div>
+                        <Typography variant="p" className="whitespace-pre-wrap">
+                          {review.content}
+                        </Typography>
+                        {review.images && review.images.length > 0 && (
+                          <div className="flex gap-2 mt-3 flex-wrap">
+                            {review.images.map((image, index) => (
+                              <img
+                                key={index}
+                                src={image}
+                                alt={`리뷰 이미지 ${index + 1}`}
+                                className="w-24 h-24 object-cover rounded border hover:scale-105 transition-transform cursor-pointer"
+                              />
+                            ))}
+                          </div>
+                        )}
                       </div>
                     ))}
                   </div>
-                </div>
 
-                {/* 리뷰 목록 */}
-                <div className="space-y-6">
-                  {mockReviews.map((review) => (
-                    <div
-                      key={review.id}
-                      className="border-b pb-6 last:border-b-0"
-                    >
-                      <div className="flex items-center gap-4 mb-3">
-                        <Typography variant="h6">{review.user}</Typography>
-                        <Rating rating={review.rating} size="sm" />
-                        <Typography variant="small" color="muted">
-                          {review.date}
-                        </Typography>
-                      </div>
-                      <Typography variant="p">{review.content}</Typography>
-                      {review.images && (
-                        <div className="flex gap-2 mt-3">
-                          {review.images.map((image, index) => (
-                            <img
-                              key={index}
-                              src={image}
-                              alt={`리뷰 이미지 ${index + 1}`}
-                              className="w-20 h-20 object-cover rounded border"
-                            />
-                          ))}
-                        </div>
-                      )}
-                    </div>
-                  ))}
+                  {totalReviews > 10 && (
+                    <Button variant="outline" className="w-full">
+                      리뷰 더보기
+                    </Button>
+                  )}
                 </div>
-
-                <Button variant="outline" className="w-full">
-                  리뷰 더보기
-                </Button>
-              </div>
+              )}
             </TabsContent>
 
             <TabsContent value="qna" className="mt-6">

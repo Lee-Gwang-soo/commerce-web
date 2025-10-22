@@ -7,10 +7,7 @@ import { Layout } from "@/components/templates/Layout";
 import { Typography } from "@/components/atoms/Typography";
 import { ProductGrid } from "@/components/organisms/ProductGrid";
 import Banner from "@/components/atoms/Banner";
-import {
-  useFeaturedProducts,
-  useLatestProducts,
-} from "@/hooks/products/use-products";
+import { useProducts } from "@/hooks/product/useProducts";
 
 // Hero 배너 섹션
 function HeroBannerSection() {
@@ -110,10 +107,24 @@ function CategoriesSection() {
 
 // 메인 페이지 컴포넌트
 export default function HomePage() {
-  const { data: featuredProducts = [], isLoading: featuredLoading } =
-    useFeaturedProducts(8);
-  const { data: latestProducts = [], isLoading: latestLoading } =
-    useLatestProducts(8);
+  // 최신 상품 조회 (8개, 최신순)
+  const { data: latestProductsData, isLoading: latestLoading } = useProducts({
+    page: 1,
+    limit: 8,
+    sort: "created_at",
+    order: "desc",
+  });
+
+  // 할인 상품 조회 (8개, 리뷰 많은 순) - featured 대신 사용
+  const { data: featuredProductsData, isLoading: featuredLoading } = useProducts({
+    page: 1,
+    limit: 8,
+    sort: "review_count",
+    order: "desc",
+  });
+
+  const featuredProducts = featuredProductsData?.data || [];
+  const latestProducts = latestProductsData?.data || [];
 
   return (
     <Layout showBanner={true}>

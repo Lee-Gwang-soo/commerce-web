@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef } from "react";
+import { forwardRef, useState } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -89,6 +89,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
     const router = useRouter();
     const { user } = useAuth();
     const { data: cartItemCount = 0 } = useCartItemCount();
+    const [categoryOpen, setCategoryOpen] = useState(false);
 
     const handleSearchSubmit = (query: string) => {
       onSearchSubmit?.(query);
@@ -121,7 +122,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
           ref={ref}
           className={cn(headerVariants({ variant, size }), className)}
         >
-          <div className="container mx-auto px-4 py-2">
+          <div className="max-w-6xl mx-auto px-4 py-2">
             {/* Top Row - Auth Links */}
             <div className="flex justify-end border-gray-100">
               <div className="flex items-center space-x-1 text-sm">
@@ -173,29 +174,37 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                 </Link>
 
                 {/* Category Dropdown */}
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="ghost"
-                      className="flex items-center gap-1 px-3 py-2 h-auto font-medium text-gray-700 hover:text-purple-600 hover:bg-gray-50"
-                    >
-                      카테고리
-                      <ChevronDown className="h-4 w-4" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-40">
-                    {categories.map((category) => (
-                      <DropdownMenuItem key={category.slug} asChild>
-                        <Link
-                          href={`/categories/${category.slug}`}
-                          className="cursor-pointer"
-                        >
-                          {category.label}
-                        </Link>
-                      </DropdownMenuItem>
-                    ))}
-                  </DropdownMenuContent>
-                </DropdownMenu>
+                <div
+                  onMouseEnter={() => setCategoryOpen(true)}
+                  onMouseLeave={() => setCategoryOpen(false)}
+                >
+                  <DropdownMenu
+                    open={categoryOpen}
+                    onOpenChange={setCategoryOpen}
+                  >
+                    <DropdownMenuTrigger asChild>
+                      <Button
+                        variant="ghost"
+                        className="flex items-center gap-1 px-3 py-2 h-auto font-medium text-gray-700 hover:text-purple-600 hover:bg-gray-50 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:bg-transparent data-[state=open]:text-gray-700"
+                      >
+                        카테고리
+                        <ChevronDown className="h-4 w-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-40">
+                      {categories.map((category) => (
+                        <DropdownMenuItem key={category.slug} asChild>
+                          <Link
+                            href={`/categories/${category.slug}`}
+                            className="cursor-pointer"
+                          >
+                            {category.label}
+                          </Link>
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
 
               {/* Center Section: Navigation */}

@@ -56,6 +56,7 @@ export interface ProductCardProps
     name: string;
     price: number;
     images?: string[];
+    stock?: number; // 새로운 API용
   };
   showWishlistButton?: boolean;
   showCartButton?: boolean;
@@ -99,15 +100,21 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       sale_price,
       images = [],
       short_description,
-      stock_quantity = 0,
+      stock_quantity,
+      stock,
       is_featured,
       tags = [],
     } = product;
 
     const mainImage = images[0] || "/images/placeholder-product.jpg";
     const hasDiscount = sale_price && sale_price < price;
-    const isOutOfStock = stock_quantity <= 0;
+    // stock과 stock_quantity 둘 다 지원
+    const availableStock = stock ?? stock_quantity ?? 0;
+    const isOutOfStock = availableStock <= 0;
     const finalPrice = sale_price || price;
+    const discountRate = hasDiscount
+      ? Math.round(((price - sale_price!) / price) * 100)
+      : 0;
 
     const handleWishlistClick = (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -171,7 +178,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
                     size="sm"
                     className="bg-red-100 text-red-700 border-red-200 whitespace-nowrap"
                   >
-                    할인
+                    {discountRate}% 할인
                   </Badge>
                 )}
                 {isOutOfStock && (

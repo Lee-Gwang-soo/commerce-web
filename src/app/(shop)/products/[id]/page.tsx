@@ -1,11 +1,10 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { ProductImageGallery } from "@/components/molecules/ProductImageGallery";
-import { ProductOptions } from "@/components/molecules/ProductOptions";
 import { ProductGrid } from "@/components/organisms/ProductGrid";
 import { Typography } from "@/components/atoms/Typography";
 import { Price } from "@/components/atoms/Price";
@@ -18,94 +17,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react";
 import { useProduct, useProductReviews, useProducts } from "@/hooks/product/useProducts";
 import { useAddToCart, useIsInCart } from "@/hooks/cart/use-cart";
-import type {
-  SelectedOptions,
-  ProductOptionGroup,
-} from "@/components/molecules/ProductOptions";
-
-// 임시 상품 옵션 데이터 (실제로는 API에서 가져올 예정)
-const getProductOptions = (productId: string): ProductOptionGroup[] => {
-  // 상품별로 다른 옵션 반환
-  const baseOptions: ProductOptionGroup[] = [
-    {
-      id: "color",
-      name: "색상",
-      type: "color",
-      required: true,
-      values: [
-        {
-          id: "black",
-          label: "블랙",
-          value: "black",
-          color: "#000000",
-          available: true,
-        },
-        {
-          id: "white",
-          label: "화이트",
-          value: "white",
-          color: "#FFFFFF",
-          available: true,
-        },
-        {
-          id: "gray",
-          label: "그레이",
-          value: "gray",
-          color: "#808080",
-          available: true,
-        },
-      ],
-    },
-  ];
-
-  if (productId === "1" || productId === "2") {
-    // 전자제품에는 보증 옵션 추가
-    baseOptions.push({
-      id: "warranty",
-      name: "보증 옵션",
-      type: "text",
-      required: false,
-      values: [
-        {
-          id: "basic",
-          label: "기본 보증",
-          value: "basic",
-          description: "1년 제조사 보증",
-          price: 0,
-        },
-        {
-          id: "extended",
-          label: "연장 보증",
-          value: "extended",
-          description: "3년 연장 보증",
-          price: 50000,
-        },
-      ],
-    });
-  }
-
-  if (productId === "5" || productId === "6") {
-    // 의류/신발에는 사이즈 옵션 추가
-    baseOptions.push({
-      id: "size",
-      name: "사이즈",
-      type: "text",
-      required: true,
-      values: [
-        { id: "s", label: "S", value: "s", available: true },
-        { id: "m", label: "M", value: "m", available: true },
-        { id: "l", label: "L", value: "l", available: true },
-        { id: "xl", label: "XL", value: "xl", available: false },
-      ],
-    });
-  }
-
-  return baseOptions;
-};
+import { useAuthStore } from "@/store/authStore";
+import { toast } from "sonner";
 
 export default function ProductDetailPage() {
   const params = useParams();
+  const router = useRouter();
   const productId = params.id as string;
+  const { isAuthenticated } = useAuthStore();
 
   // 상품 정보 조회 (새로운 API)
   const {
@@ -139,7 +58,6 @@ export default function ProductDetailPage() {
   const relatedProducts = relatedProductsData?.data?.filter(p => p.id !== productId) || [];
 
   // 상태 관리
-  const [selectedOptions, setSelectedOptions] = useState<SelectedOptions>({});
   const [quantity, setQuantity] = useState(1);
   const [activeTab, setActiveTab] = useState("description");
 
@@ -147,53 +65,24 @@ export default function ProductDetailPage() {
   const { data: isInCart = false } = useIsInCart(productId);
   const addToCart = useAddToCart();
 
-  // 상품 옵션
-  const productOptions = product ? getProductOptions(productId) : [];
-
-  // 가격 계산 (옵션 가격 포함)
+  // 가격 계산
   const totalPrice = useMemo(() => {
     if (!product) return 0;
-    let basePrice = product.sale_price || product.price;
-
-    // 옵션 추가 가격 계산
-    Object.entries(selectedOptions).forEach(([groupId, valueId]) => {
-      const group = productOptions.find((g) => g.id === groupId);
-      const value = group?.values.find((v) => v.id === valueId);
-      if (value?.price) {
-        basePrice += value.price;
-      }
-    });
-
-    return basePrice;
-  }, [selectedOptions, product, productOptions]);
-
-  // 필수 옵션 선택 여부 확인
-  const allRequiredOptionsSelected = useMemo(() => {
-    return productOptions
-      .filter((option) => option.required)
-      .every((option) => selectedOptions[option.id]);
-  }, [selectedOptions, productOptions]);
+    return product.sale_price || product.price;
+  }, [product]);
 
   // 장바구니 추가
   const handleAddToCart = () => {
-    if (!allRequiredOptionsSelected) {
-      alert("필수 옵션을 선택해주세요.");
+    if (!isAuthenticated) {
+      toast.error("로그인이 필요합니다.");
+      router.push("/login");
       return;
     }
 
     addToCart.mutate({
       product_id: productId,
       quantity,
-      options: selectedOptions,
     });
-  };
-
-  // 옵션 변경 핸들러
-  const handleOptionChange = (groupId: string, valueId: string) => {
-    setSelectedOptions((prev) => ({
-      ...prev,
-      [groupId]: valueId,
-    }));
   };
 
   // 로딩 상태
@@ -329,20 +218,6 @@ export default function ProductDetailPage() {
 
             <Separator />
 
-            {/* 상품 옵션 */}
-            {productOptions.length > 0 && (
-              <div>
-                <ProductOptions
-                  options={productOptions}
-                  selectedOptions={selectedOptions}
-                  onOptionChange={handleOptionChange}
-                  showPrices
-                />
-              </div>
-            )}
-
-            <Separator />
-
             {/* 수량 선택 */}
             <div className="flex items-center gap-4">
               <Typography variant="h6">수량</Typography>
@@ -364,12 +239,7 @@ export default function ProductDetailPage() {
                 className="flex-1"
                 size="lg"
                 onClick={handleAddToCart}
-                disabled={
-                  isOutOfStock ||
-                  !allRequiredOptionsSelected ||
-                  addToCart.isPending
-                }
-                // loading={addToCart.isPending}
+                disabled={isOutOfStock || addToCart.isPending}
               >
                 <ShoppingCart className="mr-2 h-5 w-5" />
                 {isInCart ? "장바구니에 추가됨" : "장바구니 담기"}
@@ -385,7 +255,7 @@ export default function ProductDetailPage() {
               variant="outline"
               size="lg"
               className="w-full"
-              disabled={isOutOfStock || !allRequiredOptionsSelected}
+              disabled={isOutOfStock}
             >
               즉시 구매
             </Button>

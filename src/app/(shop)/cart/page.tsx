@@ -18,7 +18,6 @@ import {
   useCartItems,
   useUpdateCartItem,
   useRemoveFromCart,
-  useClearCart,
 } from "@/hooks/cart/use-cart";
 
 export default function CartPage() {
@@ -29,7 +28,6 @@ export default function CartPage() {
   // const { data: cartTotal = 0 } = useCartTotal();
   const updateCartItem = useUpdateCartItem();
   const removeFromCart = useRemoveFromCart();
-  const clearCart = useClearCart();
 
   // 전체 선택/해제
   const handleSelectAll = (checked: boolean) => {
@@ -69,10 +67,12 @@ export default function CartPage() {
     setSelectedItems([]);
   };
 
-  // 장바구니 비우기
+  // 장바구니 비우기 (모든 아이템 삭제)
   const handleClearCart = () => {
     if (confirm("장바구니를 모두 비우시겠습니까?")) {
-      clearCart.mutate();
+      cartItems.forEach((item) => {
+        removeFromCart.mutate(item.id);
+      });
       setSelectedItems([]);
     }
   };
@@ -207,29 +207,21 @@ export default function CartPage() {
                           <div className="flex justify-between items-start mb-2">
                             <div>
                               <Link
-                                href={`/products/${item.product_id}`}
+                                href={`/products/${item.product.id}`}
                                 className="text-sm font-medium hover:text-primary line-clamp-2"
                               >
                                 {item.product?.name}
                               </Link>
 
-                              {/* 선택된 옵션 표시 */}
-                              {item.options &&
-                                Object.keys(item.options).length > 0 && (
-                                  <div className="flex flex-wrap gap-1 mt-1">
-                                    {Object.entries(item.options).map(
-                                      ([key, value]) => (
-                                        <Badge
-                                          key={key}
-                                          variant="outline"
-                                          className="text-xs"
-                                        >
-                                          {value}
-                                        </Badge>
-                                      )
-                                    )}
-                                  </div>
-                                )}
+                              {/* 카테고리 표시 */}
+                              {item.product?.category && (
+                                <Badge
+                                  variant="outline"
+                                  className="text-xs mt-1"
+                                >
+                                  {item.product.category}
+                                </Badge>
+                              )}
                             </div>
 
                             <Button

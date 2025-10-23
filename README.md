@@ -24,7 +24,9 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
 ### ✅ 완료된 작업
 
 #### 1. 데이터베이스 구조 설계 및 구현
+
 - **products 테이블 업데이트**
+
   - `description` (TEXT) - 상품 설명
   - `sale_price` (NUMERIC) - 할인가
   - `images` (TEXT[]) - 이미지 배열 (최대 8개, 첫 번째가 썸네일)
@@ -32,6 +34,7 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
   - 기존 `image_url` → `images` 배열로 마이그레이션
 
 - **reviews 테이블 생성**
+
   - `id`, `product_id`, `user_id`
   - `user_name` (TEXT) - 리뷰 작성자 이름
   - `content` (TEXT) - 리뷰 내용
@@ -42,13 +45,16 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
   - 리뷰 추가/삭제 시 `products.review_count` 자동 업데이트
 
 #### 2. API 구현
+
 - **GET `/api/products`** - 상품 목록 조회
+
   - 페이지네이션 지원 (page, limit)
   - 카테고리 필터
   - 검색 기능 (상품명)
   - 정렬 (created_at, price, name, review_count)
 
 - **GET `/api/products/[id]`** - 상품 상세 조회
+
   - 할인율 자동 계산
   - 할인 금액 자동 계산
 
@@ -57,18 +63,22 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
   - 최신순 정렬
 
 #### 3. React Query 훅
+
 - `useProducts` - 상품 목록 조회
 - `useProduct` - 상품 상세 조회
 - `useProductReviews` - 리뷰 목록 조회
 - TypeScript 타입 정의 (`src/types/product.ts`)
 
 #### 4. 프론트엔드 개선
+
 - **홈페이지** (`/`)
+
   - 실제 API 데이터 연동
   - 최신 상품 섹션 (8개, created_at DESC)
   - 인기 상품 섹션 (8개, review_count DESC)
 
 - **상품 상세 페이지** (`/products/[id]`)
+
   - 새로운 API 연동
   - 실제 리뷰 데이터 표시
   - 리뷰 이미지 갤러리
@@ -76,11 +86,13 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
   - 할인율 배지 표시
 
 - **ProductCard 컴포넌트**
+
   - 할인율 배지 표시 (예: "20% 할인")
   - `stock` / `stock_quantity` 모두 지원
   - 품절 상태 자동 감지
 
 - **Header 컴포넌트**
+
   - 카테고리 드롭다운 hover 기능 추가
   - 포커스 스타일 개선
 
@@ -88,6 +100,7 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
   - Hero 배너 width 증가 (`max-w-6xl`)
 
 #### 5. 테스트 데이터
+
 - 8개 샘플 상품 (할인가, 이미지 배열 포함)
 - 3개 샘플 리뷰 (작성자, 내용, 이미지)
 - review_count 자동 업데이트 확인 완료
@@ -97,24 +110,28 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
 ## 🎯 다음 작업 예정
 
 ### 1. 장바구니/주문 시스템
+
 - products 테이블의 새로운 구조 반영
 - 장바구니에 할인 상품 표시
 - 주문 시 재고 관리
 - cart_items 테이블 업데이트
 
 ### 2. 관리자 기능
+
 - 상품 등록/수정 API
 - 이미지 업로드 기능
 - 재고 관리 대시보드
 - 리뷰 관리
 
 ### 3. 검색/필터 개선
+
 - 카테고리별 필터 강화
 - 가격 범위 필터
 - 정렬 기능 고도화
 - 검색 자동완성
 
 ### 4. 성능 최적화
+
 - 이미지 최적화 (Next.js Image)
 - 무한 스크롤 구현
 - React Query 캐싱 전략
@@ -192,6 +209,7 @@ src/
 ## 🗄️ 데이터베이스 스키마
 
 ### products 테이블
+
 ```sql
 - id (uuid, PK)
 - name (text)
@@ -207,6 +225,7 @@ src/
 ```
 
 ### reviews 테이블
+
 ```sql
 - id (uuid, PK)
 - product_id (uuid, FK → products.id)
@@ -221,6 +240,7 @@ src/
 ```
 
 ### commerce_user 테이블
+
 ```sql
 - id (uuid, PK)
 - user_id (varchar, unique)
@@ -242,6 +262,7 @@ src/
 ### ✅ 완료된 기능
 
 #### 인증 시스템
+
 - ✅ 회원가입 (React Query + Zustand)
 - ✅ 로그인/로그아웃
 - ✅ 마이페이지
@@ -251,6 +272,7 @@ src/
 - ✅ 세션 기반 인증 (HTTP-only 쿠키)
 
 #### 상품 시스템
+
 - ✅ 상품 목록 조회 (페이지네이션, 검색, 필터, 정렬)
 - ✅ 상품 상세 조회 (할인율 자동 계산)
 - ✅ 할인 배지 표시 (퍼센트)
@@ -259,6 +281,7 @@ src/
 - ✅ 관련 상품 추천 (같은 카테고리)
 
 #### 리뷰 시스템
+
 - ✅ 리뷰 목록 조회 (페이지네이션)
 - ✅ 리뷰 작성자 이름 표시
 - ✅ 리뷰 이미지 갤러리
@@ -266,6 +289,7 @@ src/
 - ✅ 빈 상태 처리
 
 #### UI/UX
+
 - ✅ 반응형 디자인
 - ✅ Hero 배너 (이미지 슬라이더)
 - ✅ 카테고리 드롭다운 (hover)
@@ -287,6 +311,7 @@ src/
 ## 🔧 개발 가이드
 
 ### 환경 변수 (.env.local)
+
 ```env
 NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
@@ -297,6 +322,7 @@ TOSS_SECRET_KEY=test_sk_...
 ```
 
 ### 설치 및 실행
+
 ```bash
 # 의존성 설치
 npm install
@@ -312,6 +338,7 @@ npm start
 ```
 
 ### 코딩 규칙
+
 - TypeScript 엄격 모드 사용
 - Tailwind CSS로 스타일링
 - Atomic Design Pattern 준수
@@ -319,6 +346,7 @@ npm start
 - Zustand로 클라이언트 상태 관리
 
 ### 컴포넌트 작성 규칙
+
 - 모든 컴포넌트에 TypeScript 인터페이스 정의
 - forwardRef 사용 시 ref 전달 고려
 - 접근성 속성 포함
@@ -353,6 +381,7 @@ npm start
 - 예: `feat:`, `fix:`, `docs:`, `style:`, `refactor:`, `test:`, `chore:`
 
 ### 최근 커밋
+
 ```
 e2855fb - feat: 상품 API 및 리뷰 시스템 완전 구현 (2025-10-23)
 b6838ac - feat: 완전한 인증 시스템 및 회원정보 관리 구현
@@ -384,7 +413,16 @@ tree src/ -L 2
 npm run dev
 ```
 
+🎯 다음 세션 시작 시 이렇게 요청하세요:
+
+README를 확인하고 다음 작업을 제안해줘
+
+또는
+
+최근 커밋을 확인하고 장바구니 기능 구현을 도와줘
+
 **다음 작업 제안 요청 예시**:
+
 - "최근 커밋을 확인하고 다음 작업을 제안해줘"
 - "장바구니 기능 구현을 도와줘"
 - "관리자 페이지 만들어줘"

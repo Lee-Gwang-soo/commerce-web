@@ -8,6 +8,10 @@ import { Typography } from "@/components/atoms/Typography";
 import { ProductGrid } from "@/components/organisms/ProductGrid";
 import Banner from "@/components/atoms/Banner";
 import { useProducts } from "@/hooks/product/useProducts";
+import { useAddToCart } from "@/hooks/cart/use-cart";
+import { useAuthStore } from "@/store/authStore";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 // Hero 배너 섹션
 function HeroBannerSection() {
@@ -107,6 +111,10 @@ function CategoriesSection() {
 
 // 메인 페이지 컴포넌트
 export default function HomePage() {
+  const router = useRouter();
+  const { isAuthenticated } = useAuthStore();
+  const addToCart = useAddToCart();
+
   // 최신 상품 조회 (8개, 최신순)
   const { data: latestProductsData, isLoading: latestLoading } = useProducts({
     page: 1,
@@ -125,6 +133,17 @@ export default function HomePage() {
 
   const featuredProducts = featuredProductsData?.data || [];
   const latestProducts = latestProductsData?.data || [];
+
+  // 장바구니 담기 핸들러
+  const handleAddToCart = (productId: string) => {
+    if (!isAuthenticated) {
+      toast.error("로그인이 필요합니다.");
+      router.push("/login");
+      return;
+    }
+
+    addToCart.mutate({ product_id: productId, quantity: 1 });
+  };
 
   return (
     <Layout showBanner={true}>
@@ -163,6 +182,7 @@ export default function HomePage() {
               gap="md"
               emptyMessage="추천 상품이 없습니다"
               emptyDescription="다양한 상품들을 준비 중입니다"
+              onAddToCart={handleAddToCart}
             />
           </div>
         </section>
@@ -195,6 +215,7 @@ export default function HomePage() {
               gap="md"
               emptyMessage="신상품이 없습니다"
               emptyDescription="새로운 상품들을 준비 중입니다"
+              onAddToCart={handleAddToCart}
             />
           </div>
         </section>

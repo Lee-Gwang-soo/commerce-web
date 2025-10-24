@@ -50,7 +50,7 @@ export default function MyPage() {
       title: "주문내역",
       description: "주문한 상품의 배송 현황을 확인하세요",
       onClick: () => router.push("/mypage/orders"),
-      disabled: true,
+      disabled: false,
     },
     {
       icon: Settings,

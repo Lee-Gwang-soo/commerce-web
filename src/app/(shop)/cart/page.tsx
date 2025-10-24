@@ -374,7 +374,7 @@ export default function CartPage() {
                       asChild={selectedCount > 0}
                     >
                       {selectedCount > 0 ? (
-                        <Link href="/checkout">
+                        <Link href={`/checkout?selectedIds=${selectedItems.join(",")}`}>
                           주문하기 ({selectedCount}개)
                         </Link>
                       ) : (

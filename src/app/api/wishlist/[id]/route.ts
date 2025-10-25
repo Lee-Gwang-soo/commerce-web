@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 // DELETE - 찜목록에서 상품 제거
 export async function DELETE(
@@ -20,10 +20,9 @@ export async function DELETE(
 
     const { id } = await params;
 
-    const supabase = await createClient();
 
     // 찜목록 아이템 삭제
-    const { error } = await supabase
+    const { error } = await supabaseAdmin
       .from("wishlist")
       .delete()
       .eq("id", id)

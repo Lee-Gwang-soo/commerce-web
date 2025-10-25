@@ -1,6 +1,6 @@
 // app/api/confirm-payment/route.ts
 import { NextRequest, NextResponse } from "next/server";
-import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 
 const secretKey = process.env.TOSS_SECRET_KEY!;
@@ -30,10 +30,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
 
     // 주문 확인
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
       .select("*")
       .eq("order_id", orderId)
@@ -85,7 +84,7 @@ export async function POST(request: NextRequest) {
       });
 
       // 주문 상태를 결제 실패로 업데이트
-      await supabase
+      await supabaseAdmin
         .from("orders")
         .update({
           payment_status: "failed",
@@ -97,7 +96,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 결제 승인 성공 - 주문 상태 업데이트
-    const { error: updateError } = await supabase
+    const { error: updateError } = await supabaseAdmin
       .from("orders")
       .update({
         payment_status: "paid",
@@ -112,7 +111,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 장바구니 비우기
-    await supabase
+    await supabaseAdmin
       .from("cart_items")
       .delete()
       .eq("user_id", userId);

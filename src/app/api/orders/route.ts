@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 // GET - 주문 목록 조회
 export async function GET(request: NextRequest) {
@@ -20,10 +20,8 @@ export async function GET(request: NextRequest) {
     const limit = parseInt(searchParams.get("limit") || "10");
     const offset = (page - 1) * limit;
 
-    const supabase = await createClient();
-
     // 주문 목록 조회 (order_items 포함)
-    const { data: orders, error, count } = await supabase
+    const { data: orders, error, count } = await supabaseAdmin
       .from("orders")
       .select(`
         *,
@@ -107,11 +105,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
-
     // 장바구니 아이템 검증 및 가격 계산
     const productIds = cart_items.map((item: any) => item.product_id);
-    const { data: products, error: productsError } = await supabase
+    const { data: products, error: productsError } = await supabaseAdmin
       .from("products")
       .select("id, name, price, sale_price, stock")
       .in("id", productIds);
@@ -124,7 +120,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 재고 확인 및 총 금액 계산
-    let totalAmount = 0;
+    let subtotalAmount = 0; // 상품 금액 합계
     const orderItems = [];
 
     for (const cartItem of cart_items) {
@@ -145,7 +141,7 @@ export async function POST(request: NextRequest) {
       }
 
       const price = product.sale_price || product.price;
-      totalAmount += price * cartItem.quantity;
+      subtotalAmount += price * cartItem.quantity;
 
       orderItems.push({
         product_id: product.id,
@@ -154,8 +150,12 @@ export async function POST(request: NextRequest) {
       });
     }
 
+    // 배송비 계산 (3만원 미만 3000원)
+    const shippingFee = subtotalAmount >= 30000 ? 0 : 3000;
+    const totalAmount = subtotalAmount + shippingFee;
+
     // 주문 생성
-    const { data: order, error: orderError } = await supabase
+    const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
       .insert({
         user_id: userId,
@@ -176,7 +176,12 @@ export async function POST(request: NextRequest) {
     if (orderError || !order) {
       console.error("Order creation error:", orderError);
       return NextResponse.json(
-        { code: "CREATE_ERROR", message: "주문 생성에 실패했습니다." },
+        {
+          code: "CREATE_ERROR",
+          message: "주문 생성에 실패했습니다.",
+          details: orderError?.message || "Unknown error",
+          hint: orderError?.hint,
+        },
         { status: 500 }
       );
     }
@@ -187,16 +192,21 @@ export async function POST(request: NextRequest) {
       order_id: order.id,
     }));
 
-    const { error: itemsError } = await supabase
+    const { error: itemsError } = await supabaseAdmin
       .from("order_items")
       .insert(orderItemsWithOrderId);
 
     if (itemsError) {
       console.error("Order items creation error:", itemsError);
       // 주문 롤백
-      await supabase.from("orders").delete().eq("id", order.id);
+      await supabaseAdmin.from("orders").delete().eq("id", order.id);
       return NextResponse.json(
-        { code: "CREATE_ERROR", message: "주문 아이템 생성에 실패했습니다." },
+        {
+          code: "CREATE_ERROR",
+          message: "주문 아이템 생성에 실패했습니다.",
+          details: itemsError?.message || "Unknown error",
+          hint: itemsError?.hint,
+        },
         { status: 500 }
       );
     }
@@ -205,7 +215,7 @@ export async function POST(request: NextRequest) {
     for (const item of orderItems) {
       const product = products.find((p) => p.id === item.product_id);
       if (product) {
-        await supabase
+        await supabaseAdmin
           .from("products")
           .update({ stock: product.stock - item.quantity })
           .eq("id", item.product_id);
@@ -213,10 +223,14 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(order, { status: 201 });
-  } catch (error) {
+  } catch (error: any) {
     console.error("Orders POST error:", error);
     return NextResponse.json(
-      { code: "SERVER_ERROR", message: "서버 오류가 발생했습니다." },
+      {
+        code: "SERVER_ERROR",
+        message: "서버 오류가 발생했습니다.",
+        details: error?.message || String(error),
+      },
       { status: 500 }
     );
   }

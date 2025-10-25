@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 // GET - 찜목록 조회
 export async function GET(request: NextRequest) {
@@ -15,10 +15,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
 
     // 찜목록 조회 (product 정보 포함)
-    const { data: wishlistItems, error } = await supabase
+    const { data: wishlistItems, error } = await supabaseAdmin
       .from("wishlist")
       .select(`
         id,
@@ -78,10 +77,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = await createClient();
 
     // 이미 찜목록에 있는지 확인
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseAdmin
       .from("wishlist")
       .select("id")
       .eq("user_id", userId)
@@ -96,7 +94,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 찜목록에 추가
-    const { data: wishlistItem, error } = await supabase
+    const { data: wishlistItem, error } = await supabaseAdmin
       .from("wishlist")
       .insert({
         user_id: userId,

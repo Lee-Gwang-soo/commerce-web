@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
-import { createClient } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 // GET - 주문 상세 조회
 export async function GET(
@@ -20,10 +20,8 @@ export async function GET(
 
     const { id } = await params;
 
-    const supabase = await createClient();
-
     // 주문 상세 조회 (order_items 포함)
-    const { data: order, error } = await supabase
+    const { data: order, error } = await supabaseAdmin
       .from("orders")
       .select(`
         *,
@@ -83,10 +81,8 @@ export async function PATCH(
     const body = await request.json();
     const { status, payment_status, payment_key } = body;
 
-    const supabase = await createClient();
-
     // 주문 소유권 확인
-    const { data: existingOrder } = await supabase
+    const { data: existingOrder } = await supabaseAdmin
       .from("orders")
       .select("id")
       .eq("id", id)
@@ -109,7 +105,7 @@ export async function PATCH(
     if (payment_status) updateData.payment_status = payment_status;
     if (payment_key) updateData.payment_key = payment_key;
 
-    const { data: updatedOrder, error } = await supabase
+    const { data: updatedOrder, error } = await supabaseAdmin
       .from("orders")
       .update(updateData)
       .eq("id", id)

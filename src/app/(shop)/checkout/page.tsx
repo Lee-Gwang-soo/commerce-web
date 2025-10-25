@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
+import Script from "next/script";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { Typography } from "@/components/atoms/Typography";
@@ -14,8 +15,14 @@ import { useCreateOrder } from "@/hooks/order/use-order";
 import { useAuthStore } from "@/store/authStore";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { toast } from "sonner";
-import { loadTossPayments } from "@tosspayments/payment-sdk";
 import Image from "next/image";
+
+// TossPayments 타입 선언
+declare global {
+  interface Window {
+    TossPayments: any;
+  }
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -24,6 +31,9 @@ export default function CheckoutPage() {
   const { user } = useAuth();
   const { data: cartItems = [], isLoading } = useCartItems();
   const createOrder = useCreateOrder();
+
+  // TossPayments SDK 로드 상태
+  const [isSDKLoaded, setIsSDKLoaded] = useState(false);
 
   // 선택된 상품만 주문 (selectedIds가 URL에 있는 경우)
   const selectedIdsParam = searchParams.get("selectedIds");
@@ -91,6 +101,12 @@ export default function CheckoutPage() {
 
   // 주문하기 버튼 클릭
   const handleCheckout = async () => {
+    // SDK 로드 확인
+    if (!isSDKLoaded) {
+      toast.error("결제 모듈을 로딩중입니다. 잠시만 기다려주세요.");
+      return;
+    }
+
     // 유효성 검사
     if (!customerInfo.name || !customerInfo.email || !customerInfo.phone || !customerInfo.address) {
       toast.error("모든 필수 정보를 입력해주세요.");
@@ -118,8 +134,8 @@ export default function CheckoutPage() {
         order_id: orderId,
       });
 
-      // 토스페이먼츠 결제 연동
-      const tossPayments = await loadTossPayments(
+      // 토스페이먼츠 결제 연동 (Script 방식)
+      const tossPayments = window.TossPayments(
         process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
       );
 
@@ -158,6 +174,13 @@ export default function CheckoutPage() {
 
   return (
     <Layout>
+      {/* 토스페이먼츠 SDK 로드 */}
+      <Script
+        src="https://js.tosspayments.com/v1/payment"
+        onLoad={() => setIsSDKLoaded(true)}
+        onError={() => toast.error("결제 모듈 로딩에 실패했습니다.")}
+      />
+
       <PageLayout breadcrumbs={[{ label: "홈", href: "/" }, { label: "주문하기" }]}>
         <Typography variant="h1" className="mb-8">
           주문하기
@@ -322,9 +345,13 @@ export default function CheckoutPage() {
                 className="w-full"
                 size="lg"
                 onClick={handleCheckout}
-                disabled={createOrder.isPending}
+                disabled={!isSDKLoaded || createOrder.isPending}
               >
-                {createOrder.isPending ? "처리 중..." : "결제하기"}
+                {!isSDKLoaded
+                  ? "로딩 중..."
+                  : createOrder.isPending
+                  ? "처리 중..."
+                  : "결제하기"}
               </Button>
 
               <Typography variant="small" color="muted" className="mt-4 text-center">

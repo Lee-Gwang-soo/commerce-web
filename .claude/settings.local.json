@@ -33,7 +33,9 @@
       "Bash(rm:*)",
       "Bash(git reset:*)",
       "Bash(git log:*)",
-      "Bash(npx supabase:*)"
+      "Bash(npx supabase:*)",
+      "mcp__playwright__browser_console_messages",
+      "Bash(curl:*)"
     ],
     "deny": [],
     "ask": []

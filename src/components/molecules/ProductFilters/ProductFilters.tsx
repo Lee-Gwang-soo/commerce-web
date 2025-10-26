@@ -179,7 +179,65 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-4 space-y-4">
-              <div className="px-2">
+              {/* 가격 프리셋 버튼 */}
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === maxPrice ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: maxPrice })}
+                  className="text-xs"
+                >
+                  전체
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 10000 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: 10000 })}
+                  className="text-xs"
+                >
+                  ~1만원
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 30000 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: 30000 })}
+                  className="text-xs"
+                >
+                  ~3만원
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 50000 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: 50000 })}
+                  className="text-xs"
+                >
+                  ~5만원
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 100000 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: 100000 })}
+                  className="text-xs"
+                >
+                  ~10만원
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 100000 && selectedPriceRange.max === maxPrice ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 100000, max: maxPrice })}
+                  className="text-xs"
+                >
+                  10만원~
+                </Button>
+              </div>
+
+              {/* 가격 범위 슬라이더 */}
+              <div className="px-2 pt-2">
+                <div className="mb-3">
+                  <Typography variant="small" className="text-muted-foreground mb-2">
+                    직접 설정
+                  </Typography>
+                </div>
                 <Slider
                   value={[selectedPriceRange.min, selectedPriceRange.max]}
                   max={maxPrice}

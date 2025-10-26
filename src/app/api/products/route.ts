@@ -11,6 +11,8 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get("sort") || "created_at";
     const order = searchParams.get("order") || "desc";
     const isNew = searchParams.get("new") === "true"; // 신상품 필터
+    const minPrice = searchParams.get("minPrice");
+    const maxPrice = searchParams.get("maxPrice");
 
     const offset = (page - 1) * limit;
 
@@ -33,6 +35,21 @@ export async function GET(request: NextRequest) {
       const threeMonthsAgo = new Date();
       threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
       query = query.gte("created_at", threeMonthsAgo.toISOString());
+    }
+
+    // 가격 범위 필터
+    if (minPrice) {
+      const min = parseInt(minPrice);
+      if (!isNaN(min)) {
+        query = query.gte("price", min);
+      }
+    }
+
+    if (maxPrice) {
+      const max = parseInt(maxPrice);
+      if (!isNaN(max)) {
+        query = query.lte("price", max);
+      }
     }
 
     // Sorting

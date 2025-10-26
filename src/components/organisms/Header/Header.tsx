@@ -19,10 +19,7 @@ import { NavigationItem } from "@/components/molecules/NavigationItem";
 import { Typography } from "@/components/atoms/Typography";
 import Banner from "@/components/atoms/Banner";
 import { useAuth } from "@/hooks/auth/useAuth";
-import { useAuthStore } from "@/store/authStore";
 import { useCartItemCount } from "@/hooks/cart/use-cart";
-import { useWishlistItemCount } from "@/hooks/wishlist/use-wishlist";
-import { CATEGORIES } from "@/lib/constants/categories";
 
 const headerVariants = cva(
   "sticky top-0 z-50 w-full border-b bg-white shadow-sm",
@@ -51,9 +48,21 @@ interface NavigationItem {
   badge?: string | number;
 }
 
+interface Category {
+  slug: string;
+  label: string;
+}
+
 const navigationItems: NavigationItem[] = [
-  { href: "/new", label: "신상품" },
-  { href: "/best", label: "베스트" },
+  { href: "/categories/new", label: "신상품" },
+  { href: "/categories/best", label: "베스트" },
+];
+
+const categories: Category[] = [
+  { slug: "ELECTRONIC", label: "전자기기" },
+  { slug: "SPORT", label: "스포츠" },
+  { slug: "FOOD", label: "식품" },
+  { slug: "FASHION", label: "패션" },
 ];
 
 export interface HeaderProps
@@ -79,9 +88,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
   ) => {
     const router = useRouter();
     const { user } = useAuth();
-    const { isHydrated } = useAuthStore();
     const { data: cartItemCount = 0 } = useCartItemCount();
-    const { data: wishlistItemCount = 0 } = useWishlistItemCount();
     const [categoryOpen, setCategoryOpen] = useState(false);
 
     const handleSearchSubmit = (query: string) => {
@@ -115,14 +122,11 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
           ref={ref}
           className={cn(headerVariants({ variant, size }), className)}
         >
-          <div className="max-w-6xl mx-auto px-4 py-2">
+          <div className="container mx-auto px-4 py-2">
             {/* Top Row - Auth Links */}
             <div className="flex justify-end border-gray-100">
-              <div className="flex items-center space-x-1 text-sm min-h-[24px]">
-                {!isHydrated ? (
-                  // Hydration 대기 중 - 빈 공간 유지
-                  <div className="w-32 h-6" />
-                ) : user ? (
+              <div className="flex items-center space-x-1 text-sm">
+                {user ? (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -181,21 +185,20 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="flex items-center gap-1 px-3 py-2 h-auto font-medium text-gray-700 hover:text-purple-600 hover:bg-gray-50 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:bg-transparent data-[state=open]:text-gray-700"
+                        className="flex items-center gap-1 px-3 py-2 h-auto font-medium text-gray-700 hover:text-purple-600 "
                       >
                         카테고리
                         <ChevronDown className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-48">
-                      {CATEGORIES.map((category) => (
+                    <DropdownMenuContent align="start" className="w-40">
+                      {categories.map((category) => (
                         <DropdownMenuItem key={category.slug} asChild>
                           <Link
                             href={`/categories/${category.slug}`}
-                            className="cursor-pointer flex items-center gap-2"
+                            className="cursor-pointer"
                           >
-                            <span className="text-lg">{category.icon}</span>
-                            <span>{category.label}</span>
+                            {category.label}
                           </Link>
                         </DropdownMenuItem>
                       ))}
@@ -242,14 +245,6 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                 >
                   <Link href="/wishlist">
                     <Heart className="h-6 w-6 text-gray-700 hover:text-purple-600" />
-                    {wishlistItemCount > 0 && (
-                      <Badge
-                        variant="destructive"
-                        className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
-                      >
-                        {wishlistItemCount > 99 ? "99+" : wishlistItemCount}
-                      </Badge>
-                    )}
                   </Link>
                 </Button>
 

@@ -103,6 +103,16 @@ export const useInfiniteProducts = (params?: {
         queryParams.append("new", "true");
       }
 
+      // 가격 범위 필터
+      if (params?.priceRange) {
+        if (params.priceRange.min > 0) {
+          queryParams.append("minPrice", params.priceRange.min.toString());
+        }
+        if (params.priceRange.max < 1000000) {
+          queryParams.append("maxPrice", params.priceRange.max.toString());
+        }
+      }
+
       const response = await fetch(`/api/products?${queryParams.toString()}`);
       if (!response.ok) {
         throw new Error("상품 조회 실패");

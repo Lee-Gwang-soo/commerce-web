@@ -57,9 +57,9 @@ export const useInfiniteProducts = (params?: {
         limit: (params?.limit || 20).toString(),
       });
 
-      // 카테고리 필터
+      // 카테고리 필터 (여러 카테고리를 콤마로 구분하여 전달)
       if (params?.categories?.length) {
-        queryParams.append("category", params.categories[0]);
+        queryParams.append("categories", params.categories.join(","));
       }
 
       // 검색 필터

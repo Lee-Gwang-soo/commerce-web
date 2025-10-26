@@ -7,33 +7,14 @@ import { PageLayout } from "@/components/templates/PageLayout";
 import { ProductGrid } from "@/components/organisms/ProductGrid";
 import { ProductFilters } from "@/components/molecules/ProductFilters";
 import { ProductSort } from "@/components/molecules/ProductSort";
-import { SearchBar } from "@/components/molecules/SearchBar";
 import { Typography } from "@/components/atoms/Typography";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  useSearchProducts,
-  useInfiniteProducts,
-} from "@/hooks/products/use-products";
+import { useInfiniteProducts } from "@/hooks/products/use-products";
 import type {
   FilterOption,
   PriceRange,
 } from "@/components/molecules/ProductFilters/ProductFilters";
-
-// 임시 필터 데이터
-const mockCategories: FilterOption[] = [
-  { id: "electronics", label: "전자기기", count: 152 },
-  { id: "fashion", label: "패션", count: 234 },
-  { id: "home", label: "홈&리빙", count: 89 },
-];
-
-const mockBrands: FilterOption[] = [
-  { id: "samsung", label: "삼성", count: 45 },
-  { id: "lg", label: "LG", count: 32 },
-  { id: "apple", label: "Apple", count: 28 },
-  { id: "nike", label: "Nike", count: 56 },
-  { id: "adidas", label: "Adidas", count: 41 },
-];
 
 export default function SearchPage() {
   const searchParams = useSearchParams();
@@ -45,14 +26,23 @@ export default function SearchPage() {
   // 상태
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState<PriceRange>({
     min: 0,
     max: 1000000,
   });
   const [sortBy, setSortBy] = useState("relevance");
 
-  // 검색 결과 조회
+  // 카테고리 개수 계산용 - 카테고리 필터 없이 검색어와 가격만으로 조회
+  const {
+    data: allSearchResults = [],
+  } = useInfiniteProducts({
+    search: searchQuery,
+    priceRange: selectedPriceRange,
+    sortBy: "latest",
+    limit: 100, // 개수 계산을 위해 더 많은 결과 가져오기
+  });
+
+  // 검색 결과 조회 (실제 표시용 - 카테고리 필터 적용)
   const {
     data: searchResults = [],
     isLoading: searchLoading,
@@ -63,36 +53,47 @@ export default function SearchPage() {
   } = useInfiniteProducts({
     search: searchQuery,
     categories: selectedCategories,
-    brands: selectedBrands,
     priceRange: selectedPriceRange,
     sortBy: sortBy === "relevance" ? "latest" : sortBy,
     limit: 12,
   });
 
+  // 검색 결과를 기반으로 카테고리별 개수 계산 (카테고리 필터 제외한 전체 결과 사용)
+  const categoriesWithCount = useMemo(() => {
+    const baseCategoriesData = [
+      { id: "ELECTRONIC", label: "전자기기" },
+      { id: "SPORT", label: "스포츠" },
+      { id: "FOOD", label: "식품" },
+      { id: "FASHION", label: "패션" },
+    ];
+
+    // 카테고리별 상품 개수 계산 (카테고리 필터가 적용되지 않은 전체 검색 결과 사용)
+    const categoryCounts = allSearchResults.reduce((acc, product) => {
+      const category = product.category;
+      if (category) {
+        acc[category] = (acc[category] || 0) + 1;
+      }
+      return acc;
+    }, {} as Record<string, number>);
+
+    // 개수와 함께 카테고리 데이터 반환
+    return baseCategoriesData.map(cat => ({
+      ...cat,
+      count: categoryCounts[cat.id] || 0
+    }));
+  }, [allSearchResults]);
+
   // 활성 필터 수 계산
   const activeFiltersCount = useMemo(() => {
     return (
       selectedCategories.length +
-      selectedBrands.length +
       (selectedPriceRange.min > 0 || selectedPriceRange.max < 1000000 ? 1 : 0)
     );
-  }, [selectedCategories, selectedBrands, selectedPriceRange]);
-
-  // 검색 핸들러
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    // URL 업데이트
-    const params = new URLSearchParams();
-    if (query) {
-      params.set("q", query);
-    }
-    router.push(`/search?${params.toString()}`);
-  };
+  }, [selectedCategories, selectedPriceRange]);
 
   // 필터 초기화
   const handleClearFilters = () => {
     setSelectedCategories([]);
-    setSelectedBrands([]);
     setSelectedPriceRange({ min: 0, max: 1000000 });
   };
 
@@ -101,9 +102,6 @@ export default function SearchPage() {
     switch (type) {
       case "category":
         setSelectedCategories((prev) => prev.filter((cat) => cat !== value));
-        break;
-      case "brand":
-        setSelectedBrands((prev) => prev.filter((brand) => brand !== value));
         break;
       case "price":
         setSelectedPriceRange({ min: 0, max: 1000000 });
@@ -131,30 +129,15 @@ export default function SearchPage() {
         }
         breadcrumbs={[{ label: "홈", href: "/" }, { label: "검색" }]}
       >
-        {/* 검색바 */}
-        <div className="mb-8">
-          <SearchBar
-            placeholder="상품명, 브랜드, 카테고리로 검색해보세요"
-            value={searchQuery}
-            onSearch={handleSearch}
-            showRecentSearches
-            showSuggestions
-            className="max-w-2xl mx-auto"
-          />
-        </div>
-
         {hasQuery ? (
           <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             {/* 필터 사이드바 */}
             <div className="lg:col-span-1">
               <ProductFilters
-                categories={mockCategories}
-                brands={mockBrands}
+                categories={categoriesWithCount}
                 selectedCategories={selectedCategories}
-                selectedBrands={selectedBrands}
                 selectedPriceRange={selectedPriceRange}
                 onCategoryChange={setSelectedCategories}
-                onBrandChange={setSelectedBrands}
                 onPriceRangeChange={setSelectedPriceRange}
                 onClearFilters={handleClearFilters}
                 activeFiltersCount={activeFiltersCount}
@@ -178,7 +161,7 @@ export default function SearchPage() {
                   {activeFiltersCount > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {selectedCategories.map((categoryId) => {
-                        const category = mockCategories.find(
+                        const category = categoriesWithCount.find(
                           (cat) => cat.id === categoryId
                         );
                         return category ? (
@@ -189,20 +172,6 @@ export default function SearchPage() {
                             onClick={() => removeFilter("category", categoryId)}
                           >
                             {category.label} ×
-                          </Badge>
-                        ) : null;
-                      })}
-
-                      {selectedBrands.map((brandId) => {
-                        const brand = mockBrands.find((b) => b.id === brandId);
-                        return brand ? (
-                          <Badge
-                            key={brandId}
-                            variant="secondary"
-                            className="cursor-pointer"
-                            onClick={() => removeFilter("brand", brandId)}
-                          >
-                            {brand.label} ×
                           </Badge>
                         ) : null;
                       })}
@@ -274,7 +243,7 @@ export default function SearchPage() {
                   key={keyword}
                   variant="outline"
                   size="sm"
-                  onClick={() => handleSearch(keyword)}
+                  onClick={() => router.push(`/search?q=${encodeURIComponent(keyword)}`)}
                 >
                   {keyword}
                 </Button>

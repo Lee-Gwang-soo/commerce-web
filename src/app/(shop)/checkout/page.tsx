@@ -27,7 +27,7 @@ declare global {
 export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isHydrated } = useAuthStore();
   const { user } = useAuth();
   const { data: cartItems = [], isLoading } = useCartItems();
   const createOrder = useCreateOrder();
@@ -65,9 +65,31 @@ export default function CheckoutPage() {
     }
   }, [user]);
 
-  // 로그인 체크
+  // 로그인 체크 (hydration 완료 후)
+  useEffect(() => {
+    if (isHydrated && !isAuthenticated) {
+      router.push("/login?redirect=/checkout");
+    }
+  }, [isHydrated, isAuthenticated, router]);
+
+  // Hydration 대기 중
+  if (!isHydrated) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+              <Typography variant="muted">로딩 중...</Typography>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // 인증되지 않음 (리다이렉트 중)
   if (!isAuthenticated) {
-    router.push("/login?redirect=/checkout");
     return null;
   }
 

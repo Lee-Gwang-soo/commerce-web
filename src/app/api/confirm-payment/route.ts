@@ -46,6 +46,18 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // 이미 결제 완료된 주문인지 확인 (중복 요청 방지)
+    if (order.payment_status === "paid" && order.payment_key) {
+      console.log("이미 결제 완료된 주문:", orderId);
+      return NextResponse.json({
+        orderId: order.order_id,
+        totalAmount: order.total_amount,
+        method: order.payment_method,
+        orderDbId: order.id,
+        status: "ALREADY_PROCESSED",
+      });
+    }
+
     // 금액 검증
     if (order.total_amount !== amount) {
       return NextResponse.json(
@@ -82,6 +94,29 @@ export async function POST(request: NextRequest) {
         code: result.code,
         message: result.message,
       });
+
+      // 중복 요청 에러인 경우 (이미 처리된 경우)
+      if (result.code === "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING" ||
+          result.code === "ALREADY_PROCESSED_PAYMENT") {
+        // DB에서 최신 주문 상태 확인
+        const { data: latestOrder } = await supabaseAdmin
+          .from("orders")
+          .select("*")
+          .eq("order_id", orderId)
+          .single();
+
+        // 이미 결제 완료 상태라면 성공 응답
+        if (latestOrder && latestOrder.payment_status === "paid") {
+          console.log("중복 요청이지만 결제 이미 완료됨:", orderId);
+          return NextResponse.json({
+            orderId: latestOrder.order_id,
+            totalAmount: latestOrder.total_amount,
+            method: latestOrder.payment_method,
+            orderDbId: latestOrder.id,
+            status: "ALREADY_PROCESSED",
+          });
+        }
+      }
 
       // 주문 상태를 결제 실패로 업데이트
       await supabaseAdmin

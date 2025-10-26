@@ -11,106 +11,28 @@ import { Typography } from "@/components/atoms/Typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useInfiniteProducts } from "@/hooks/products/use-products";
+import { CATEGORIES, getCategoryInfo } from "@/lib/constants/categories";
+import type { Category } from "@/types/product";
 import type {
   FilterOption,
   PriceRange,
 } from "@/components/molecules/ProductFilters/ProductFilters";
 
-// 카테고리 매핑 (실제로는 API에서 가져올 예정)
+// 카테고리 매핑
 const categoryMap: Record<
   string,
-  { id: string; name: string; description: string; parentId?: string }
-> = {
-  electronics: {
-    id: "electronics",
-    name: "전자기기",
-    description: "스마트폰, 노트북, 태블릿 등 최신 전자제품",
-  },
-  sports: {
-    id: "sports",
-    name: "스포츠",
-    description: "운동복, 운동기구, 스포츠 용품",
-  },
-  lifestyle: {
-    id: "lifestyle",
-    name: "생활용품",
-    description: "주방용품, 욕실용품, 청소용품 등 생활 필수품",
-  },
-  fashion: {
-    id: "fashion",
-    name: "패션",
-    description: "의류, 신발, 액세서리 등 패션 아이템",
-  },
-  home: {
-    id: "home",
-    name: "홈&리빙",
-    description: "가구, 인테리어, 생활용품",
-  },
-  beauty: {
-    id: "beauty",
-    name: "뷰티",
-    description: "화장품, 스킨케어, 향수 등 뷰티 제품",
-  },
-  books: {
-    id: "books",
-    name: "도서",
-    description: "소설, 전문서, 만화 등 다양한 도서",
-  },
-  new: {
-    id: "new",
-    name: "신상품",
-    description: "최신 출시 상품",
-  },
-  best: {
-    id: "best",
-    name: "베스트",
-    description: "인기 상품",
-  },
-};
+  { id: string; name: string; description: string }
+> = CATEGORIES.reduce((acc, cat) => {
+  acc[cat.slug] = {
+    id: cat.slug,
+    name: cat.label,
+    description: cat.description,
+  };
+  return acc;
+}, {} as Record<string, { id: string; name: string; description: string }>);
 
-// 카테고리별 서브카테고리 (실제로는 API에서 가져올 예정)
-const subcategoryMap: Record<string, FilterOption[]> = {
-  electronics: [
-    { id: "smartphones", label: "스마트폰", count: 45 },
-    { id: "laptops", label: "노트북", count: 32 },
-    { id: "tablets", label: "태블릿", count: 28 },
-    { id: "headphones", label: "헤드폰", count: 67 },
-    { id: "cameras", label: "카메라", count: 23 },
-  ],
-  sports: [
-    { id: "exercise-equipment", label: "운동기구", count: 56 },
-    { id: "sports-wear", label: "운동복", count: 89 },
-    { id: "shoes", label: "운동화", count: 67 },
-    { id: "outdoor", label: "아웃도어", count: 45 },
-    { id: "yoga", label: "요가용품", count: 34 },
-  ],
-  lifestyle: [
-    { id: "kitchen", label: "주방용품", count: 78 },
-    { id: "bathroom", label: "욕실용품", count: 56 },
-    { id: "cleaning", label: "청소용품", count: 45 },
-    { id: "storage", label: "수납/정리", count: 67 },
-    { id: "laundry", label: "세탁용품", count: 34 },
-  ],
-  fashion: [
-    { id: "mens", label: "남성의류", count: 89 },
-    { id: "womens", label: "여성의류", count: 124 },
-    { id: "shoes", label: "신발", count: 67 },
-    { id: "accessories", label: "액세서리", count: 45 },
-    { id: "bags", label: "가방", count: 34 },
-  ],
-  home: [
-    { id: "furniture", label: "가구", count: 56 },
-    { id: "decor", label: "인테리어", count: 78 },
-    { id: "kitchen", label: "주방용품", count: 89 },
-    { id: "bedding", label: "침구", count: 45 },
-  ],
-  beauty: [
-    { id: "skincare", label: "스킨케어", count: 67 },
-    { id: "makeup", label: "메이크업", count: 89 },
-    { id: "fragrance", label: "향수", count: 23 },
-    { id: "haircare", label: "헤어케어", count: 34 },
-  ],
-};
+// 서브카테고리는 일단 빈 배열로 (필요시 나중에 추가)
+const subcategoryMap: Record<string, FilterOption[]> = {};
 
 export default function CategoryPage() {
   const params = useParams();

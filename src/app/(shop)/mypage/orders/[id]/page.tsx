@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
@@ -34,12 +35,34 @@ export default function OrderDetailPage() {
   const params = useParams();
   const router = useRouter();
   const orderId = params.id as string;
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isHydrated } = useAuthStore();
   const { data: order, isLoading, error } = useOrder(orderId);
 
-  // 로그인 체크
+  // 로그인 체크 (hydration 완료 후)
+  useEffect(() => {
+    if (isHydrated && !isAuthenticated) {
+      router.push("/login?redirect=/mypage/orders");
+    }
+  }, [isHydrated, isAuthenticated, router]);
+
+  // Hydration 대기 중
+  if (!isHydrated) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+              <Typography variant="muted">로딩 중...</Typography>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // 인증되지 않음 (리다이렉트 중)
   if (!isAuthenticated) {
-    router.push("/login?redirect=/mypage/orders");
     return null;
   }
 
@@ -96,10 +119,14 @@ export default function OrderDetailPage() {
             <Typography variant="muted" className="font-mono">
               {order.order_id || order.id}
             </Typography>
+            {/* 주문 상태 */}
             <Badge>{statusLabels[order.status] || order.status}</Badge>
-            <Badge variant="outline">
-              {paymentStatusLabels[order.payment_status] || order.payment_status}
-            </Badge>
+            {/* 결제 상태 - 실패/취소/환불 시에만 표시 */}
+            {["failed", "cancelled", "refunded"].includes(order.payment_status) && (
+              <Badge variant="destructive">
+                {paymentStatusLabels[order.payment_status]}
+              </Badge>
+            )}
           </div>
         </div>
 

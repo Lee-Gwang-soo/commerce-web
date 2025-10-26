@@ -84,7 +84,7 @@ type UpdateFormData = z.infer<typeof updateSchema>;
 
 export default function UpdatePage() {
   const router = useRouter();
-  const { user, isAuthenticated } = useAuthStore();
+  const { user, isAuthenticated, isHydrated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -135,8 +135,9 @@ export default function UpdatePage() {
     mode: "onChange",
   });
 
+  // 로그인 체크 (hydration 완료 후)
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (isHydrated && !isAuthenticated) {
       setShowAuthModal(true);
       return;
     }
@@ -149,7 +150,7 @@ export default function UpdatePage() {
       });
       setSelectedAddress(currentUser.address);
     }
-  }, [isAuthenticated, currentUser, reset]);
+  }, [isHydrated, isAuthenticated, currentUser, reset]);
 
   const openAddressModal = () => {
     setShowAddressModal(true);
@@ -206,6 +207,23 @@ export default function UpdatePage() {
     deleteAccount();
   };
 
+  // Hydration 대기 중
+  if (!isHydrated) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+              <Typography variant="muted">로딩 중...</Typography>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // 인증되지 않음
   if (!isAuthenticated || !currentUser) {
     return <AuthRequiredModal isOpen={showAuthModal} />;
   }

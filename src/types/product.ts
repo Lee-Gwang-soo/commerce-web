@@ -1,13 +1,16 @@
+export type Category = 'ELECTRONIC' | 'FASHION' | 'FOOD' | 'SPORT';
+
 export interface Product {
   id: string;
   name: string;
   description: string | null;
   price: number;
   sale_price: number | null;
-  category: string;
+  category: Category;
   stock: number;
   images: string[];
   review_count: number;
+  sales_count: number;
   created_at: string;
   updated_at: string;
 }

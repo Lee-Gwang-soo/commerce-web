@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
@@ -44,13 +44,35 @@ const statusColors: Record<string, "default" | "secondary" | "destructive" | "ou
 
 export default function OrdersPage() {
   const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, isHydrated } = useAuthStore();
   const [page, setPage] = useState(1);
   const { data: ordersData, isLoading } = useOrders({ page, limit: 10 });
 
-  // 로그인 체크
+  // 로그인 체크 (hydration 완료 후)
+  useEffect(() => {
+    if (isHydrated && !isAuthenticated) {
+      router.push("/login?redirect=/mypage/orders");
+    }
+  }, [isHydrated, isAuthenticated, router]);
+
+  // Hydration 대기 중
+  if (!isHydrated) {
+    return (
+      <Layout>
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center min-h-[400px]">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
+              <Typography variant="muted">로딩 중...</Typography>
+            </div>
+          </div>
+        </div>
+      </Layout>
+    );
+  }
+
+  // 인증되지 않음 (리다이렉트 중)
   if (!isAuthenticated) {
-    router.push("/login?redirect=/mypage/orders");
     return null;
   }
 
@@ -132,12 +154,16 @@ export default function OrdersPage() {
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
+                    {/* 주문 상태 */}
                     <Badge variant={statusColors[order.status] || "default"}>
                       {statusLabels[order.status] || order.status}
                     </Badge>
-                    <Badge variant="outline">
-                      {paymentStatusLabels[order.payment_status] || order.payment_status}
-                    </Badge>
+                    {/* 결제 상태 - 실패/취소/환불 시에만 표시 */}
+                    {["failed", "cancelled", "refunded"].includes(order.payment_status) && (
+                      <Badge variant="destructive">
+                        {paymentStatusLabels[order.payment_status]}
+                      </Badge>
+                    )}
                   </div>
                 </div>
 

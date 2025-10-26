@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Layout } from "@/components/templates/Layout";
 import { Typography } from "@/components/atoms/Typography";
@@ -14,7 +14,15 @@ export default function CheckoutSuccessPage() {
   const [error, setError] = useState<string | null>(null);
   const [orderDbId, setOrderDbId] = useState<string | null>(null);
 
+  // 중복 실행 방지
+  const hasConfirmed = useRef(false);
+
   useEffect(() => {
+    // 이미 실행했으면 스킵
+    if (hasConfirmed.current) {
+      return;
+    }
+
     const confirmPayment = async () => {
       const paymentKey = searchParams.get("paymentKey");
       const orderId = searchParams.get("orderId");
@@ -25,6 +33,9 @@ export default function CheckoutSuccessPage() {
         setIsProcessing(false);
         return;
       }
+
+      // 실행 표시
+      hasConfirmed.current = true;
 
       try {
         // 결제 승인 API 호출

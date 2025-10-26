@@ -19,8 +19,10 @@ import { NavigationItem } from "@/components/molecules/NavigationItem";
 import { Typography } from "@/components/atoms/Typography";
 import Banner from "@/components/atoms/Banner";
 import { useAuth } from "@/hooks/auth/useAuth";
+import { useAuthStore } from "@/store/authStore";
 import { useCartItemCount } from "@/hooks/cart/use-cart";
 import { useWishlistItemCount } from "@/hooks/wishlist/use-wishlist";
+import { CATEGORIES } from "@/lib/constants/categories";
 
 const headerVariants = cva(
   "sticky top-0 z-50 w-full border-b bg-white shadow-sm",
@@ -49,21 +51,9 @@ interface NavigationItem {
   badge?: string | number;
 }
 
-interface Category {
-  slug: string;
-  label: string;
-}
-
 const navigationItems: NavigationItem[] = [
-  { href: "/categories/new", label: "신상품" },
-  { href: "/categories/best", label: "베스트" },
-];
-
-const categories: Category[] = [
-  { slug: "electronics", label: "전자기기" },
-  { slug: "sports", label: "스포츠" },
-  { slug: "lifestyle", label: "생활용품" },
-  { slug: "fashion", label: "패션" },
+  { href: "/new", label: "신상품" },
+  { href: "/best", label: "베스트" },
 ];
 
 export interface HeaderProps
@@ -89,6 +79,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
   ) => {
     const router = useRouter();
     const { user } = useAuth();
+    const { isHydrated } = useAuthStore();
     const { data: cartItemCount = 0 } = useCartItemCount();
     const { data: wishlistItemCount = 0 } = useWishlistItemCount();
     const [categoryOpen, setCategoryOpen] = useState(false);
@@ -127,8 +118,11 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
           <div className="max-w-6xl mx-auto px-4 py-2">
             {/* Top Row - Auth Links */}
             <div className="flex justify-end border-gray-100">
-              <div className="flex items-center space-x-1 text-sm">
-                {user ? (
+              <div className="flex items-center space-x-1 text-sm min-h-[24px]">
+                {!isHydrated ? (
+                  // Hydration 대기 중 - 빈 공간 유지
+                  <div className="w-32 h-6" />
+                ) : user ? (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -193,14 +187,15 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                         <ChevronDown className="h-4 w-4" />
                       </Button>
                     </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-40">
-                      {categories.map((category) => (
+                    <DropdownMenuContent align="start" className="w-48">
+                      {CATEGORIES.map((category) => (
                         <DropdownMenuItem key={category.slug} asChild>
                           <Link
                             href={`/categories/${category.slug}`}
-                            className="cursor-pointer"
+                            className="cursor-pointer flex items-center gap-2"
                           >
-                            {category.label}
+                            <span className="text-lg">{category.icon}</span>
+                            <span>{category.label}</span>
                           </Link>
                         </DropdownMenuItem>
                       ))}

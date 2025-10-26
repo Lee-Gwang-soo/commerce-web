@@ -10,6 +10,7 @@ export async function GET(request: NextRequest) {
     const search = searchParams.get("search");
     const sort = searchParams.get("sort") || "created_at";
     const order = searchParams.get("order") || "desc";
+    const isNew = searchParams.get("new") === "true"; // 신상품 필터
 
     const offset = (page - 1) * limit;
 
@@ -27,8 +28,15 @@ export async function GET(request: NextRequest) {
       query = query.ilike("name", `%${search}%`);
     }
 
+    // 신상품 필터 (3개월 이내)
+    if (isNew) {
+      const threeMonthsAgo = new Date();
+      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
+      query = query.gte("created_at", threeMonthsAgo.toISOString());
+    }
+
     // Sorting
-    const validSorts = ["created_at", "price", "name", "review_count"];
+    const validSorts = ["created_at", "price", "name", "review_count", "sales_count"];
     const sortField = validSorts.includes(sort) ? sort : "created_at";
     const sortOrder = order === "asc" ? { ascending: true } : { ascending: false };
 

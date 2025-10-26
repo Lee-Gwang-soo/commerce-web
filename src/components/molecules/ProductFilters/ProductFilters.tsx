@@ -232,23 +232,79 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
               </div>
 
               {/* 가격 범위 슬라이더 */}
-              <div className="px-2 pt-2">
-                <div className="mb-3">
-                  <Typography variant="small" className="text-muted-foreground mb-2">
+              <div className="pt-4 space-y-4">
+                <div className="space-y-3">
+                  <Typography variant="small" className="text-muted-foreground font-medium">
                     직접 설정
                   </Typography>
-                </div>
-                <Slider
-                  value={[selectedPriceRange.min, selectedPriceRange.max]}
-                  max={maxPrice}
-                  min={0}
-                  step={10000}
-                  onValueChange={handlePriceChange}
-                  className="w-full"
-                />
-                <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                  <span>{selectedPriceRange.min.toLocaleString()}원</span>
-                  <span>{selectedPriceRange.max.toLocaleString()}원</span>
+
+                  {/* 입력 필드 */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="min-price" className="text-xs text-muted-foreground">
+                        최소 금액
+                      </Label>
+                      <div className="relative">
+                        <input
+                          id="min-price"
+                          type="number"
+                          value={selectedPriceRange.min}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || 0;
+                            onPriceRangeChange?.({
+                              min: Math.max(0, Math.min(value, selectedPriceRange.max)),
+                              max: selectedPriceRange.max
+                            });
+                          }}
+                          className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+                          placeholder="0"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                          원
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="max-price" className="text-xs text-muted-foreground">
+                        최대 금액
+                      </Label>
+                      <div className="relative">
+                        <input
+                          id="max-price"
+                          type="number"
+                          value={selectedPriceRange.max}
+                          onChange={(e) => {
+                            const value = parseInt(e.target.value) || maxPrice;
+                            onPriceRangeChange?.({
+                              min: selectedPriceRange.min,
+                              max: Math.min(maxPrice, Math.max(value, selectedPriceRange.min))
+                            });
+                          }}
+                          className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+                          placeholder={maxPrice.toString()}
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                          원
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 슬라이더 */}
+                  <div className="pt-4 pb-2">
+                    <Slider
+                      value={[selectedPriceRange.min, selectedPriceRange.max]}
+                      max={maxPrice}
+                      min={0}
+                      step={10000}
+                      onValueChange={handlePriceChange}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between mt-3 text-xs text-muted-foreground">
+                      <span>{selectedPriceRange.min.toLocaleString()}원</span>
+                      <span>{selectedPriceRange.max.toLocaleString()}원</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CollapsibleContent>

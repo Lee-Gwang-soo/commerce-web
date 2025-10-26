@@ -19,7 +19,7 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
 
 ---
 
-## 🚀 최근 작업 현황 (2025-10-23)
+## 🚀 최근 작업 현황 (2025-10-25)
 
 ### ✅ 완료된 작업
 
@@ -44,60 +44,129 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
 - **자동 트리거**
   - 리뷰 추가/삭제 시 `products.review_count` 자동 업데이트
 
+- **wishlist 테이블 생성**
+
+  - `id`, `user_id`, `product_id`
+  - 사용자별 찜목록 관리
+  - 중복 방지 (UNIQUE 제약)
+
+- **orders 테이블 업데이트**
+  - `customer_phone` - 주문자 전화번호
+  - `shipping_postcode` - 배송지 우편번호
+  - `payment_key` - 토스페이먼츠 결제 키
+  - `order_id` - 토스페이먼츠 주문 ID
+  - `payment_status` - 결제 상태
+
 #### 2. API 구현
 
+##### 상품 API
 - **GET `/api/products`** - 상품 목록 조회
-
   - 페이지네이션 지원 (page, limit)
   - 카테고리 필터
   - 검색 기능 (상품명)
   - 정렬 (created_at, price, name, review_count)
-
 - **GET `/api/products/[id]`** - 상품 상세 조회
-
   - 할인율 자동 계산
   - 할인 금액 자동 계산
 
+##### 리뷰 API
 - **GET `/api/reviews/[productId]`** - 리뷰 목록 조회
   - 페이지네이션 지원
   - 최신순 정렬
 
+##### 장바구니 API
+- **GET `/api/cart`** - 장바구니 조회
+- **POST `/api/cart`** - 장바구니 추가
+- **PATCH `/api/cart/[id]`** - 수량 변경
+- **DELETE `/api/cart/[id]`** - 상품 삭제
+
+##### 찜목록 API
+- **GET `/api/wishlist`** - 찜목록 조회
+- **POST `/api/wishlist`** - 찜목록 추가
+- **DELETE `/api/wishlist/[id]`** - 찜목록 삭제
+
+##### 주문/결제 API
+- **POST `/api/orders`** - 주문 생성
+  - 장바구니 검증
+  - 재고 확인 및 자동 감소
+  - 주문 및 주문 아이템 생성
+- **GET `/api/orders`** - 주문 목록 조회 (페이지네이션)
+- **GET `/api/orders/[id]`** - 주문 상세 조회
+- **PATCH `/api/orders/[id]`** - 주문 상태 업데이트
+- **POST `/api/confirm-payment`** - 결제 승인
+  - 토스페이먼츠 API 연동
+  - 주문 금액 검증
+  - 주문 상태 자동 업데이트
+  - 장바구니 자동 비우기
+
 #### 3. React Query 훅
 
+##### 상품 훅
 - `useProducts` - 상품 목록 조회
 - `useProduct` - 상품 상세 조회
 - `useProductReviews` - 리뷰 목록 조회
-- TypeScript 타입 정의 (`src/types/product.ts`)
 
-#### 4. 프론트엔드 개선
+##### 장바구니 훅
+- `useCartItems` - 장바구니 아이템 조회
+- `useCartItemCount` - 장바구니 개수 조회 (실시간 업데이트)
+- `useAddToCart` - 장바구니 추가
+- `useUpdateCartItem` - 수량 변경
+- `useRemoveFromCart` - 장바구니 삭제
+- `useIsInCart` - 상품 장바구니 포함 여부
 
+##### 찜목록 훅
+- `useWishlistItems` - 찜목록 조회
+- `useWishlistItemCount` - 찜목록 개수 조회 (실시간 업데이트)
+- `useAddToWishlist` - 찜목록 추가
+- `useRemoveFromWishlist` - 찜목록 삭제
+- `useIsInWishlist` - 상품 찜목록 포함 여부
+
+##### 주문 훅
+- `useOrders` - 주문 목록 조회 (페이지네이션)
+- `useOrder` - 주문 상세 조회
+- `useCreateOrder` - 주문 생성
+- `useUpdateOrder` - 주문 상태 업데이트
+
+#### 4. 프론트엔드 페이지
+
+##### 쇼핑 페이지
 - **홈페이지** (`/`)
+  - 최신 상품/인기 상품 섹션
+- **상품 목록** (`/products`)
+  - 검색, 필터, 정렬
+- **상품 상세** (`/products/[id]`)
+  - 리뷰 표시, 관련 상품 추천
+  - 장바구니/찜목록 추가
+- **장바구니** (`/cart`)
+  - 상품 선택, 수량 변경
+  - 주문하기 버튼
+- **찜목록** (`/wishlist`)
+  - 찜한 상품 관리
+  - 장바구니 담기
 
-  - 실제 API 데이터 연동
-  - 최신 상품 섹션 (8개, created_at DESC)
-  - 인기 상품 섹션 (8개, review_count DESC)
+##### 주문/결제 페이지
+- **주문서** (`/checkout`)
+  - 주문자/배송지 정보 입력
+  - 결제 금액 계산
+  - 토스페이먼츠 연동
+- **결제 성공** (`/checkout/success`)
+  - 결제 승인 처리
+  - 주문 완료 안내
+- **결제 실패** (`/checkout/fail`)
+  - 실패 사유 표시
+  - 재시도 옵션
 
-- **상품 상세 페이지** (`/products/[id]`)
-
-  - 새로운 API 연동
-  - 실제 리뷰 데이터 표시
-  - 리뷰 이미지 갤러리
-  - 같은 카테고리 관련 상품 추천
-  - 할인율 배지 표시
-
-- **ProductCard 컴포넌트**
-
-  - 할인율 배지 표시 (예: "20% 할인")
-  - `stock` / `stock_quantity` 모두 지원
-  - 품절 상태 자동 감지
-
-- **Header 컴포넌트**
-
-  - 카테고리 드롭다운 hover 기능 추가
-  - 포커스 스타일 개선
-
-- **Banner 컴포넌트**
-  - Hero 배너 width 증가 (`max-w-6xl`)
+##### 마이페이지
+- **마이페이지** (`/mypage`)
+  - 주문내역, 정보수정, 로그아웃
+- **주문 내역** (`/mypage/orders`)
+  - 주문 목록 (페이지네이션)
+  - 주문/결제 상태 배지
+- **주문 상세** (`/mypage/orders/[id]`)
+  - 주문 상품, 배송/결제 정보
+- **정보 수정** (`/mypage/update`)
+  - 회원정보 수정
+  - 비밀번호 변경
 
 #### 5. 테스트 데이터
 
@@ -109,33 +178,36 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
 
 ## 🎯 다음 작업 예정
 
-### 1. 장바구니/주문 시스템
+### 1. 관리자 기능
 
-- products 테이블의 새로운 구조 반영
-- 장바구니에 할인 상품 표시
-- 주문 시 재고 관리
-- cart_items 테이블 업데이트
-
-### 2. 관리자 기능
-
-- 상품 등록/수정 API
-- 이미지 업로드 기능
+- 상품 등록/수정/삭제 API
+- 이미지 업로드 기능 (Supabase Storage)
 - 재고 관리 대시보드
+- 주문 관리 (상태 변경)
 - 리뷰 관리
 
-### 3. 검색/필터 개선
+### 2. 검색/필터 고도화
 
-- 카테고리별 필터 강화
 - 가격 범위 필터
-- 정렬 기능 고도화
+- 다중 카테고리 필터
 - 검색 자동완성
+- 최근 검색어 저장
+
+### 3. 사용자 경험 개선
+
+- 상품 비교 기능
+- 최근 본 상품
+- 리뷰 작성 기능
+- 상품 문의 기능
+- 배송 추적
 
 ### 4. 성능 최적화
 
 - 이미지 최적화 (Next.js Image)
 - 무한 스크롤 구현
-- React Query 캐싱 전략
+- React Query 캐싱 전략 고도화
 - 코드 스플리팅
+- SSR/ISR 적용
 
 ---
 
@@ -145,28 +217,52 @@ Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트입니
 src/
 ├── app/
 │   ├── (shop)/
-│   │   ├── page.tsx                    # 홈페이지 (API 연동 완료)
+│   │   ├── page.tsx                    # 홈페이지 ✅
 │   │   ├── products/
-│   │   │   ├── page.tsx                # 상품 목록
-│   │   │   └── [id]/page.tsx           # 상품 상세 (API 연동 완료)
-│   │   ├── cart/                       # 장바구니
-│   │   ├── mypage/                     # 마이페이지
-│   │   └── categories/[slug]/          # 카테고리별 상품
+│   │   │   ├── page.tsx                # 상품 목록 ✅
+│   │   │   └── [id]/page.tsx           # 상품 상세 ✅
+│   │   ├── cart/
+│   │   │   └── page.tsx                # 장바구니 ✅
+│   │   ├── wishlist/
+│   │   │   └── page.tsx                # 찜목록 ✅
+│   │   ├── checkout/
+│   │   │   ├── page.tsx                # 주문서 ✅
+│   │   │   ├── success/page.tsx        # 결제 성공 ✅
+│   │   │   └── fail/page.tsx           # 결제 실패 ✅
+│   │   └── mypage/
+│   │       ├── page.tsx                # 마이페이지 ✅
+│   │       ├── orders/
+│   │       │   ├── page.tsx            # 주문 목록 ✅
+│   │       │   └── [id]/page.tsx       # 주문 상세 ✅
+│   │       ├── update/page.tsx         # 정보 수정 ✅
+│   │       └── password-check/         # 비밀번호 확인 ✅
 │   ├── (auth)/
-│   │   ├── login/                      # 로그인
-│   │   └── register/                   # 회원가입
+│   │   ├── login/page.tsx              # 로그인 ✅
+│   │   └── register/page.tsx           # 회원가입 ✅
 │   └── api/
 │       ├── products/
 │       │   ├── route.ts                # 상품 목록 API ✅
 │       │   └── [id]/route.ts           # 상품 상세 API ✅
 │       ├── reviews/
 │       │   └── [productId]/route.ts    # 리뷰 조회 API ✅
-│       └── auth/                       # 인증 API
+│       ├── cart/
+│       │   ├── route.ts                # 장바구니 조회/추가 ✅
+│       │   └── [id]/route.ts           # 장바구니 수정/삭제 ✅
+│       ├── wishlist/
+│       │   ├── route.ts                # 찜목록 조회/추가 ✅
+│       │   └── [id]/route.ts           # 찜목록 삭제 ✅
+│       ├── orders/
+│       │   ├── route.ts                # 주문 생성/목록 ✅
+│       │   └── [id]/route.ts           # 주문 상세/수정 ✅
+│       ├── confirm-payment/route.ts    # 결제 승인 ✅
+│       └── auth/                       # 인증 API ✅
 │           ├── login/route.ts
 │           ├── register/route.ts
 │           ├── logout/route.ts
 │           ├── me/route.ts
-│           └── update/route.ts
+│           ├── update/route.ts
+│           ├── verify-password/route.ts
+│           └── delete-account/route.ts
 ├── components/
 │   ├── atoms/                          # 기본 UI 요소
 │   │   ├── Banner/                     # 배너 (Hero 포함)
@@ -176,9 +272,12 @@ src/
 │   ├── molecules/                      # 조합 컴포넌트
 │   │   ├── ProductCard/                # 상품 카드 (할인율 표시)
 │   │   ├── SearchBar/                  # 검색바
-│   │   └── ProductImageGallery/        # 이미지 갤러리
+│   │   ├── ProductImageGallery/        # 이미지 갤러리
+│   │   ├── ErrorModal/                 # 에러 모달 ✅
+│   │   ├── ConfirmModal/               # 확인 모달 ✅
+│   │   └── AuthRequiredModal/          # 로그인 필요 모달 ✅
 │   ├── organisms/                      # 복합 컴포넌트
-│   │   ├── Header/                     # 헤더 (hover 드롭다운)
+│   │   ├── Header/                     # 헤더 (장바구니/찜목록 카운트) ✅
 │   │   ├── ProductGrid/                # 상품 그리드
 │   │   └── Footer/                     # 푸터
 │   └── templates/                      # 레이아웃
@@ -186,19 +285,27 @@ src/
 │       └── PageLayout/
 ├── hooks/
 │   ├── auth/
-│   │   └── useAuth.ts                  # 인증 훅
+│   │   └── useAuth.ts                  # 인증 훅 ✅
 │   ├── cart/
-│   │   └── use-cart.ts                 # 장바구니 훅
+│   │   └── use-cart.ts                 # 장바구니 훅 ✅
+│   ├── wishlist/
+│   │   └── use-wishlist.ts             # 찜목록 훅 ✅
+│   ├── order/
+│   │   └── use-order.ts                # 주문 훅 ✅
 │   └── product/
 │       └── useProducts.ts              # 상품/리뷰 React Query 훅 ✅
 ├── lib/
+│   ├── api/
+│   │   ├── cart.ts                     # 장바구니 API 클라이언트 ✅
+│   │   ├── wishlist.ts                 # 찜목록 API 클라이언트 ✅
+│   │   └── order.ts                    # 주문 API 클라이언트 ✅
 │   ├── supabase/
 │   │   ├── client.ts                   # Supabase 클라이언트
 │   │   └── server.ts                   # Supabase Admin (서버용)
 │   └── react-query/
 │       └── provider.tsx                # React Query 설정
 ├── store/
-│   └── authStore.ts                    # Zustand 인증 상태
+│   └── authStore.ts                    # Zustand 인증 상태 (localStorage 지속성)
 └── types/
     ├── database.ts                     # 데이터베이스 타입
     └── product.ts                      # 상품/리뷰 타입 ✅
@@ -296,15 +403,40 @@ src/
 - ✅ 로딩 상태 표시
 - ✅ 에러 모달 (ErrorModal, ConfirmModal, AuthRequiredModal)
 
+#### 장바구니 시스템
+
+- ✅ 장바구니 조회 (실시간 카운트)
+- ✅ 상품 추가/삭제
+- ✅ 수량 변경
+- ✅ 선택 주문 기능
+- ✅ 헤더 카운트 배지
+
+#### 찜목록 시스템
+
+- ✅ 찜목록 조회 (실시간 카운트)
+- ✅ 찜목록 추가/삭제
+- ✅ 장바구니 담기 (자동 찜목록 제거)
+- ✅ 헤더 카운트 배지
+
+#### 주문/결제 시스템
+
+- ✅ 주문서 작성 (주문자/배송지 정보)
+- ✅ 토스페이먼츠 결제 연동
+- ✅ 결제 승인 처리
+- ✅ 주문 생성 및 재고 자동 감소
+- ✅ 결제 성공/실패 페이지
+- ✅ 주문 내역 조회 (페이지네이션)
+- ✅ 주문 상세 조회
+- ✅ 결제 후 장바구니 자동 비우기
+
 ### ⏳ 진행 예정
 
-- ⏳ 장바구니 기능 (products 새 구조 반영)
-- ⏳ 주문/결제 시스템
-- ⏳ 관리자 페이지
-- ⏳ 상품 등록/수정
-- ⏳ 이미지 업로드
+- ⏳ 관리자 페이지 (상품/주문 관리)
+- ⏳ 리뷰 작성 기능
+- ⏳ 이미지 업로드 (Supabase Storage)
 - ⏳ 검색 자동완성
 - ⏳ 무한 스크롤
+- ⏳ 배송 추적
 
 ---
 
@@ -383,6 +515,13 @@ npm start
 ### 최근 커밋
 
 ```
+feat: 완전한 주문/결제 시스템 및 찜목록 구현 (2025-10-25)
+- 주문/결제 시스템 완전 구현
+- 찜목록 기능 구현
+- 장바구니 선택 주문 기능
+- 토스페이먼츠 통합
+- 주문 내역 및 상세 페이지
+
 e2855fb - feat: 상품 API 및 리뷰 시스템 완전 구현 (2025-10-23)
 b6838ac - feat: 완전한 인증 시스템 및 회원정보 관리 구현
 6045449 - feat: 커머스 웹페이지 기본적인 UI 구현, tossPayment Test 연동

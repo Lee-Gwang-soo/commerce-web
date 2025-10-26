@@ -49,7 +49,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
       containerClassName,
       size,
       variant,
-      value = "",
+      value,
       onChange,
       onSearch,
       onClear,
@@ -63,7 +63,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
     },
     ref
   ) => {
-    const [internalValue, setInternalValue] = useState(value);
+    const [internalValue, setInternalValue] = useState("");
     const currentValue = value !== undefined ? value : internalValue;
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

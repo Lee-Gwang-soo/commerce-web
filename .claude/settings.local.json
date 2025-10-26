@@ -27,7 +27,16 @@
       "mcp__playwright__browser_handle_dialog",
       "mcp__playwright__browser_snapshot",
       "mcp__playwright__browser_wait_for",
-      "mcp__playwright__browser_take_screenshot"
+      "mcp__playwright__browser_take_screenshot",
+      "Bash(cat:*)",
+      "Bash(git checkout:*)",
+      "Bash(rm:*)",
+      "Bash(git reset:*)",
+      "Bash(git log:*)",
+      "Bash(npx supabase:*)",
+      "mcp__playwright__browser_console_messages",
+      "Bash(curl:*)",
+      "mcp__playwright__browser_press_key"
     ],
     "deny": [],
     "ask": []

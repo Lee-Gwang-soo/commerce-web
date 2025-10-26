@@ -12,6 +12,8 @@ import { useAddToCart } from "@/hooks/cart/use-cart";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
+import { CATEGORIES } from "@/lib/constants/categories";
+import Link from "next/link";
 
 // Hero 배너 섹션
 function HeroBannerSection() {
@@ -35,73 +37,38 @@ function HeroBannerSection() {
 
 // 카테고리 섹션 컴포넌트
 function CategoriesSection() {
-  const categories = [
-    {
-      name: "채소",
-      href: "/categories/vegetables",
-      image: "🥬",
-      count: "300+",
-    },
-    {
-      name: "과일·견과·쌀",
-      href: "/categories/fruits",
-      image: "🍎",
-      count: "500+",
-    },
-    {
-      name: "수산·해산·건어물",
-      href: "/categories/seafood",
-      image: "🐟",
-      count: "200+",
-    },
-    { name: "정육·계란", href: "/categories/meat", image: "🥩", count: "150+" },
-    {
-      name: "국·반찬·메인요리",
-      href: "/categories/meals",
-      image: "🍲",
-      count: "400+",
-    },
-    {
-      name: "샐러드·간편식",
-      href: "/categories/salad",
-      image: "🥗",
-      count: "250+",
-    },
-  ];
-
   return (
     <section className="py-16 bg-gray-50 mb-12">
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <Typography variant="h2" className="mb-4 text-gray-900">
-            이런 상품은 어때요?
+            카테고리별 쇼핑
           </Typography>
           <Typography variant="lead" className="text-gray-600">
-            Commerce의 특별한 상품을 만나보세요
+            원하시는 카테고리의 상품을 만나보세요
           </Typography>
         </div>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          {categories.map((category, index) => (
-            <Card
-              key={index}
-              className="text-center p-6 hover:shadow-lg transition-all cursor-pointer group bg-white border-gray-200 hover:border-blue-200"
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          {CATEGORIES.map((category) => (
+            <Link
+              key={category.slug}
+              href={`/categories/${category.slug}`}
             >
-              <CardContent className="p-0">
-                <div className="text-4xl mb-3 group-hover:scale-110 transition-transform">
-                  {category.image}
-                </div>
-                <Typography variant="h6" className="mb-1 text-gray-900">
-                  {category.name}
-                </Typography>
-                <Badge
-                  variant="secondary"
-                  className="bg-purple-100 text-purple-700"
-                >
-                  {category.count}
-                </Badge>
-              </CardContent>
-            </Card>
+              <Card className="text-center p-8 hover:shadow-xl transition-all cursor-pointer group bg-white border-2 border-gray-200 hover:border-purple-400 h-full">
+                <CardContent className="p-0">
+                  <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">
+                    {category.icon}
+                  </div>
+                  <Typography variant="h5" className="mb-2 text-gray-900 font-bold">
+                    {category.label}
+                  </Typography>
+                  <Typography variant="small" className="text-gray-600">
+                    {category.description}
+                  </Typography>
+                </CardContent>
+              </Card>
+            </Link>
           ))}
         </div>
       </div>

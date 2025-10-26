@@ -35,6 +35,7 @@ export const useInfiniteProducts = (params?: {
   search?: string;
   sortBy?: string;
   featured?: boolean;
+  isNew?: boolean;
 }) => {
   // 빈 배열이나 기본값 처리
   const filteredParams = {
@@ -49,63 +50,81 @@ export const useInfiniteProducts = (params?: {
 
   return useInfiniteQuery({
     queryKey: ["products", "infinite", filteredParams],
-    queryFn: ({ pageParam = 1 }) => {
-      // Mock 데이터 필터링
-      let filteredProducts = [...mockProducts];
+    queryFn: async ({ pageParam = 1 }) => {
+      // API 엔드포인트 호출
+      const queryParams = new URLSearchParams({
+        page: pageParam.toString(),
+        limit: (params?.limit || 20).toString(),
+      });
 
-      // 카테고리 필터
+      // 카테고리 필터 (여러 카테고리를 콤마로 구분하여 전달)
       if (params?.categories?.length) {
-        filteredProducts = filteredProducts.filter((product) =>
-          params.categories!.includes(product.category_id)
-        );
+        queryParams.append("categories", params.categories.join(","));
       }
 
       // 검색 필터
       if (params?.search) {
-        filteredProducts = searchProducts(params.search);
+        queryParams.append("search", params.search);
       }
 
       // 정렬
       if (params?.sortBy) {
+        let sort = "created_at";
+        let order = "desc";
+
         switch (params.sortBy) {
           case "latest":
-            filteredProducts.sort(
-              (a, b) =>
-                new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime()
-            );
+          case "created_at":
+            sort = "created_at";
+            order = "desc";
             break;
           case "price-low":
-            filteredProducts.sort(
-              (a, b) => (a.sale_price || a.price) - (b.sale_price || b.price)
-            );
+            sort = "price";
+            order = "asc";
             break;
           case "price-high":
-            filteredProducts.sort(
-              (a, b) => (b.sale_price || b.price) - (a.sale_price || a.price)
-            );
+            sort = "price";
+            order = "desc";
             break;
-          case "popular":
-            filteredProducts.sort(
-              (a, b) => (b.is_featured ? 1 : 0) - (a.is_featured ? 1 : 0)
-            );
+          case "sales_count":
+            sort = "sales_count";
+            order = "desc";
             break;
+          default:
+            sort = params.sortBy;
+        }
+
+        queryParams.append("sort", sort);
+        queryParams.append("order", order);
+      }
+
+      // 신상품 필터
+      if (params?.isNew) {
+        queryParams.append("new", "true");
+      }
+
+      // 가격 범위 필터
+      if (params?.priceRange) {
+        if (params.priceRange.min > 0) {
+          queryParams.append("minPrice", params.priceRange.min.toString());
+        }
+        if (params.priceRange.max < 1000000) {
+          queryParams.append("maxPrice", params.priceRange.max.toString());
         }
       }
 
-      // 페이지네이션
-      const limit = params?.limit || 12;
-      const start = (pageParam - 1) * limit;
-      const end = start + limit;
-      const pageData = filteredProducts.slice(start, end);
-      const totalPages = Math.ceil(filteredProducts.length / limit);
+      const response = await fetch(`/api/products?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error("상품 조회 실패");
+      }
 
-      return Promise.resolve({
-        data: pageData,
-        page: pageParam,
-        totalPages,
-        totalCount: filteredProducts.length,
-      });
+      const result = await response.json();
+      return {
+        data: result.data || [],
+        page: result.page,
+        totalPages: Math.ceil(result.total / (params?.limit || 20)),
+        totalCount: result.total,
+      };
     },
     getNextPageParam: (lastPage) => {
       if (lastPage.page < lastPage.totalPages) {

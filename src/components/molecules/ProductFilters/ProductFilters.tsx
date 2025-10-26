@@ -1,6 +1,6 @@
 "use client";
 
-import { forwardRef, useState } from "react";
+import { forwardRef, useState, useEffect } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
 import { Filter, X, ChevronDown, Check } from "lucide-react";
@@ -110,7 +110,48 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
       onPriceRangeChange?.({ min: values[0], max: values[1] });
     };
 
-    const FilterContent = () => (
+    // 입력 필드용 로컬 state
+    const [localMinPrice, setLocalMinPrice] = useState(selectedPriceRange.min.toString());
+    const [localMaxPrice, setLocalMaxPrice] = useState(selectedPriceRange.max.toString());
+
+    // selectedPriceRange.min과 max가 변경되면 로컬 state도 업데이트 (객체 참조가 아닌 값으로 비교)
+    useEffect(() => {
+      setLocalMinPrice(selectedPriceRange.min.toString());
+    }, [selectedPriceRange.min]);
+
+    useEffect(() => {
+      setLocalMaxPrice(selectedPriceRange.max.toString());
+    }, [selectedPriceRange.max]);
+
+    // 입력 완료 시 필터 적용
+    const handleMinPriceBlur = () => {
+      const value = parseInt(localMinPrice) || 0;
+      onPriceRangeChange?.({
+        min: Math.max(0, Math.min(value, selectedPriceRange.max)),
+        max: selectedPriceRange.max
+      });
+    };
+
+    const handleMaxPriceBlur = () => {
+      const value = parseInt(localMaxPrice) || maxPrice;
+      onPriceRangeChange?.({
+        min: selectedPriceRange.min,
+        max: Math.min(maxPrice, Math.max(value, selectedPriceRange.min))
+      });
+    };
+
+    // Enter 키로도 적용 가능
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, type: 'min' | 'max') => {
+      if (e.key === 'Enter') {
+        if (type === 'min') {
+          handleMinPriceBlur();
+        } else {
+          handleMaxPriceBlur();
+        }
+      }
+    };
+
+    const filterContentJsx = (
       <div className="space-y-6">
         {/* 카테고리 필터 */}
         {categories.length > 0 && (
@@ -148,7 +189,7 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                       className="flex-1 text-sm cursor-pointer"
                     >
                       {category.label}
-                      {category.count && (
+                      {typeof category.count === 'number' && (
                         <span className="ml-2 text-muted-foreground">
                           ({category.count})
                         </span>
@@ -179,18 +220,124 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
               </Button>
             </CollapsibleTrigger>
             <CollapsibleContent className="mt-4 space-y-4">
-              <div className="px-2">
-                <Slider
-                  value={[selectedPriceRange.min, selectedPriceRange.max]}
-                  max={maxPrice}
-                  min={0}
-                  step={10000}
-                  onValueChange={handlePriceChange}
-                  className="w-full"
-                />
-                <div className="flex justify-between mt-2 text-sm text-muted-foreground">
-                  <span>{selectedPriceRange.min.toLocaleString()}원</span>
-                  <span>{selectedPriceRange.max.toLocaleString()}원</span>
+              {/* 가격 프리셋 버튼 */}
+              <div className="grid grid-cols-2 gap-2">
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === maxPrice ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: maxPrice })}
+                  className="text-xs"
+                >
+                  전체
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 10000 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: 10000 })}
+                  className="text-xs"
+                >
+                  ~1만원
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 30000 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: 30000 })}
+                  className="text-xs"
+                >
+                  ~3만원
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 50000 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: 50000 })}
+                  className="text-xs"
+                >
+                  ~5만원
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 100000 ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 0, max: 100000 })}
+                  className="text-xs"
+                >
+                  ~10만원
+                </Button>
+                <Button
+                  variant={selectedPriceRange.min === 100000 && selectedPriceRange.max === maxPrice ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => onPriceRangeChange?.({ min: 100000, max: maxPrice })}
+                  className="text-xs"
+                >
+                  10만원~
+                </Button>
+              </div>
+
+              {/* 가격 범위 슬라이더 */}
+              <div className="pt-4 space-y-4">
+                <div className="space-y-3">
+                  <Typography variant="small" className="text-muted-foreground font-medium">
+                    직접 설정
+                  </Typography>
+
+                  {/* 입력 필드 */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="min-price" className="text-xs text-muted-foreground">
+                        최소 금액
+                      </Label>
+                      <div className="relative">
+                        <input
+                          id="min-price"
+                          type="number"
+                          value={localMinPrice}
+                          onChange={(e) => setLocalMinPrice(e.target.value)}
+                          onBlur={handleMinPriceBlur}
+                          onKeyDown={(e) => handleKeyDown(e, 'min')}
+                          className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+                          placeholder="0"
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                          원
+                        </span>
+                      </div>
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="max-price" className="text-xs text-muted-foreground">
+                        최대 금액
+                      </Label>
+                      <div className="relative">
+                        <input
+                          id="max-price"
+                          type="number"
+                          value={localMaxPrice}
+                          onChange={(e) => setLocalMaxPrice(e.target.value)}
+                          onBlur={handleMaxPriceBlur}
+                          onKeyDown={(e) => handleKeyDown(e, 'max')}
+                          className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
+                          placeholder={maxPrice.toString()}
+                        />
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
+                          원
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 슬라이더 */}
+                  <div className="pt-4 pb-2">
+                    <Slider
+                      value={[selectedPriceRange.min, selectedPriceRange.max]}
+                      max={maxPrice}
+                      min={0}
+                      step={10000}
+                      onValueChange={handlePriceChange}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between mt-3 text-xs text-muted-foreground">
+                      <span>{selectedPriceRange.min.toLocaleString()}원</span>
+                      <span>{selectedPriceRange.max.toLocaleString()}원</span>
+                    </div>
+                  </div>
                 </div>
               </div>
             </CollapsibleContent>
@@ -275,7 +422,7 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                   <SheetTitle>상품 필터</SheetTitle>
                 </SheetHeader>
                 <div className="mt-6">
-                  <FilterContent />
+                  {filterContentJsx}
                 </div>
               </SheetContent>
             </Sheet>
@@ -284,7 +431,7 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
 
         {/* 데스크톱 필터 */}
         <div className="hidden lg:block">
-          <FilterContent />
+          {filterContentJsx}
         </div>
       </div>
     );

@@ -3,7 +3,7 @@
 import { forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import { cn } from "@/lib/utils";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, ChevronRight, Home } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Typography } from "@/components/atoms/Typography";
@@ -120,26 +120,25 @@ const PageLayout = forwardRef<HTMLDivElement, PageLayoutProps>(
           >
             {/* Breadcrumbs */}
             {breadcrumbs && breadcrumbs.length > 0 && (
-              <nav className="mb-4">
-                <ol className="flex items-center space-x-2 text-sm text-muted-foreground">
+              <nav className="mb-6" aria-label="Breadcrumb">
+                <ol className="flex items-center gap-2 text-sm">
                   {breadcrumbs.map((breadcrumb, index) => (
-                    <li key={index} className="flex items-center">
-                      {index > 0 && <span className="mx-2">/</span>}
+                    <li key={index} className="flex items-center gap-2">
+                      {index > 0 && (
+                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
+                      )}
+                      {index === 0 && breadcrumb.href && (
+                        <Home className="h-4 w-4 text-muted-foreground mr-1" />
+                      )}
                       {breadcrumb.href ? (
                         <a
                           href={breadcrumb.href}
-                          className="hover:text-foreground transition-colors"
+                          className="text-muted-foreground hover:text-primary transition-colors font-medium hover:underline underline-offset-4"
                         >
                           {breadcrumb.label}
                         </a>
                       ) : (
-                        <span
-                          className={
-                            index === breadcrumbs.length - 1
-                              ? "text-foreground font-medium"
-                              : ""
-                          }
-                        >
+                        <span className="text-foreground font-semibold">
                           {breadcrumb.label}
                         </span>
                       )}

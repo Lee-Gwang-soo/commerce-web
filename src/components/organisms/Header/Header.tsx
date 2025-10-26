@@ -59,10 +59,10 @@ const navigationItems: NavigationItem[] = [
 ];
 
 const categories: Category[] = [
-  { slug: "electronics", label: "전자기기" },
-  { slug: "sports", label: "스포츠" },
-  { slug: "lifestyle", label: "생활용품" },
-  { slug: "fashion", label: "패션" },
+  { slug: "ELECTRONIC", label: "전자기기" },
+  { slug: "SPORT", label: "스포츠" },
+  { slug: "FOOD", label: "식품" },
+  { slug: "FASHION", label: "패션" },
 ];
 
 export interface HeaderProps
@@ -122,7 +122,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
           ref={ref}
           className={cn(headerVariants({ variant, size }), className)}
         >
-          <div className="max-w-6xl mx-auto px-4 py-2">
+          <div className="container mx-auto px-4 py-2">
             {/* Top Row - Auth Links */}
             <div className="flex justify-end border-gray-100">
               <div className="flex items-center space-x-1 text-sm">
@@ -185,7 +185,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
-                        className="flex items-center gap-1 px-3 py-2 h-auto font-medium text-gray-700 hover:text-purple-600 hover:bg-gray-50 focus-visible:ring-0 focus-visible:ring-offset-0 data-[state=open]:bg-transparent data-[state=open]:text-gray-700"
+                        className="flex items-center gap-1 px-3 py-2 h-auto font-medium text-gray-700 hover:text-purple-600 "
                       >
                         카테고리
                         <ChevronDown className="h-4 w-4" />

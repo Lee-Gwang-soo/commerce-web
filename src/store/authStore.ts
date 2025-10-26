@@ -5,8 +5,10 @@ import type { UserData } from "@/types/database";
 interface AuthState {
   user: UserData | null;
   isAuthenticated: boolean;
+  isHydrated: boolean;
   setUser: (user: UserData | null) => void;
   logout: () => void;
+  setHydrated: () => void;
 }
 
 export const useAuthStore = create<AuthState>()(
@@ -14,6 +16,7 @@ export const useAuthStore = create<AuthState>()(
     (set) => ({
       user: null,
       isAuthenticated: false,
+      isHydrated: false,
       setUser: (user) =>
         set({
           user,
@@ -24,10 +27,14 @@ export const useAuthStore = create<AuthState>()(
           user: null,
           isAuthenticated: false,
         }),
+      setHydrated: () => set({ isHydrated: true }),
     }),
     {
       name: "auth-storage",
       storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (state) => {
+        state?.setHydrated();
+      },
     }
   )
 );

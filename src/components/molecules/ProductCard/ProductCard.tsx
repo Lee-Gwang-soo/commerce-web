@@ -57,6 +57,9 @@ export interface ProductCardProps
     price: number;
     images?: string[];
     stock?: number; // 새로운 API용
+    is_featured?: boolean;
+    short_description?: string;
+    tags?: string[];
   };
   showWishlistButton?: boolean;
   showCartButton?: boolean;
@@ -93,7 +96,17 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
     },
     ref
   ) => {
-    const { id, name, price, sale_price, images = [], stock } = product;
+    const {
+      id,
+      name,
+      price,
+      sale_price,
+      images = [],
+      stock,
+      is_featured,
+      short_description,
+      tags = [],
+    } = product;
 
     const mainImage = images[0] || "/images/placeholder-product.jpg";
     const hasDiscount = sale_price && sale_price < price;

@@ -1,9 +1,7 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { productsApi } from "@/lib/api/products";
 import {
-  mockProducts,
   getProductById,
-  getFeaturedProducts,
   getLatestProducts,
   getRelatedProducts,
   searchProducts,
@@ -175,7 +173,7 @@ export const useRelatedProducts = (productId: string, categoryId: string, limit 
 export const useFeaturedProducts = (limit = 8) => {
   return useQuery({
     queryKey: ["products", "featured", limit],
-    queryFn: () => Promise.resolve(getFeaturedProducts(limit)),
+    queryFn: () => productsApi.getFeaturedProducts(limit),
     staleTime: 1000 * 60 * 15, // 15분
   });
 };

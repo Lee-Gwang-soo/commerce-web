@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import bcrypt from "bcryptjs";
 import { parse } from "cookie";
+import type { CommerceUser, CommerceUserUpdate } from "@/types/database";
 
 export async function PUT(request: NextRequest) {
   try {
@@ -23,7 +24,7 @@ export async function PUT(request: NextRequest) {
       .from("commerce_user")
       .select("*")
       .eq("id", sessionId)
-      .single();
+      .single<CommerceUser>();
 
     if (fetchError || !currentUser) {
       return NextResponse.json(
@@ -54,7 +55,7 @@ export async function PUT(request: NextRequest) {
       newPassword: !!newPassword,
     });
 
-    const updateData: any = {};
+    const updateData: CommerceUserUpdate = {};
 
     // 비밀번호 변경 로직
     if (newPassword) {
@@ -120,11 +121,13 @@ export async function PUT(request: NextRequest) {
     // 업데이트 실행
     const { data: updatedUsers, error: updateError } = await supabaseAdmin
       .from("commerce_user")
-      .update(updateData)
+      // @ts-expect-error - Supabase type issue
+      .update(updateData as any)
       .eq("id", sessionId)
       .select(
         "id, user_id, name, email, phone, address, marketing_agreed, benefits_agreed, created_at, updated_at"
-      );
+      )
+      .returns<CommerceUser[]>();
 
     console.log("업데이트 결과:", { updatedUsers, updateError });
 

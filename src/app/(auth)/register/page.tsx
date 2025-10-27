@@ -143,7 +143,7 @@ export default function RegisterPage() {
   const onSubmit = async (data: SignupFormData) => {
     registerUser(
       {
-        userId: data.userId,
+        user_id: data.userId,
         password: data.password,
         name: data.name,
         email: data.email,

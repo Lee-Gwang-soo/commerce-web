@@ -7,14 +7,17 @@ export { default as ProductFilters } from "./ProductFilters";
 export { default as ProductSort } from "./ProductSort";
 export { default as ProductImageGallery } from "./ProductImageGallery";
 export { default as ProductOptions } from "./ProductOptions";
+export { ErrorModal } from "./ErrorModal";
+export { ConfirmModal } from "./ConfirmModal";
+export { AuthRequiredModal } from "./AuthRequiredModal";
 
 // Export types
 export type { SearchBarProps } from "./SearchBar";
 export type { ProductCardProps } from "./ProductCard";
 export type { NavigationItemProps } from "./NavigationItem";
 export type { CartItemProps } from "./CartItem";
-export type { ProductFiltersProps } from "./ProductFilters";
-export type { ProductSortProps } from "./ProductSort";
+export type { ProductFiltersProps, FilterOption, PriceRange } from "./ProductFilters";
+export type { ProductSortProps, SortOption } from "./ProductSort";
 export type { ProductImageGalleryProps } from "./ProductImageGallery";
 export type {
   ProductOptionsProps,
@@ -22,3 +25,6 @@ export type {
   ProductOptionValue,
   SelectedOptions,
 } from "./ProductOptions";
+export type { ErrorModalProps } from "./ErrorModal";
+export type { ConfirmModalProps } from "./ConfirmModal";
+export type { AuthRequiredModalProps } from "./AuthRequiredModal";

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
+import type { CartItem, Product } from "@/types/database";
 
 // GET - 장바구니 조회
 export async function GET(request: NextRequest) {
@@ -97,10 +98,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 상품 재고 확인
-    const { data: products, error: productError } = await supabaseAdmin
+    const { data: products, error: productError } = (await supabaseAdmin
       .from("products")
       .select("stock")
-      .eq("id", product_id);
+      .eq("id", product_id)) as any;
 
     if (productError || !products || products.length === 0) {
       return NextResponse.json(
@@ -146,10 +147,11 @@ export async function POST(request: NextRequest) {
 
       const { data: updatedItem, error: updateError } = await supabaseAdmin
         .from("cart_items")
-        .update({ quantity: newQuantity, updated_at: new Date().toISOString() })
+        // @ts-expect-error - Supabase type issue
+        .update({ quantity: newQuantity, updated_at: new Date().toISOString() } as any)
         .eq("id", existingItem.id)
         .select()
-        .single();
+        .single<CartItem>();
 
       if (updateError) {
         console.error("장바구니 수량 업데이트 실패:", updateError);
@@ -176,9 +178,9 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         product_id,
         quantity,
-      })
+      } as any)
       .select()
-      .single();
+      .single<CartItem>();
 
     if (insertError) {
       console.error("장바구니 추가 실패:", insertError);

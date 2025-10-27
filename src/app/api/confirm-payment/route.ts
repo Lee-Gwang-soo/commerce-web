@@ -2,6 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
+import type { Order } from "@/types/database";
 
 const secretKey = process.env.TOSS_SECRET_KEY!;
 
@@ -36,7 +37,7 @@ export async function POST(request: NextRequest) {
       .select("*")
       .eq("order_id", orderId)
       .eq("user_id", userId)
-      .single();
+      .single<Order>();
 
     if (orderError || !order) {
       return NextResponse.json(
@@ -99,7 +100,7 @@ export async function POST(request: NextRequest) {
           .from("orders")
           .select("*")
           .eq("order_id", orderId)
-          .single();
+          .single<Order>();
 
         // 이미 결제 완료 상태라면 성공 응답
         if (latestOrder && latestOrder.payment_status === "paid") {
@@ -117,10 +118,11 @@ export async function POST(request: NextRequest) {
       // 주문 상태를 결제 실패로 업데이트
       await supabaseAdmin
         .from("orders")
+        // @ts-expect-error - Supabase type issue
         .update({
           payment_status: "failed",
           updated_at: new Date().toISOString(),
-        })
+        } as any)
         .eq("id", order.id);
 
       return NextResponse.json(result, { status: response.status });
@@ -129,12 +131,13 @@ export async function POST(request: NextRequest) {
     // 결제 승인 성공 - 주문 상태 업데이트
     const { error: updateError } = await supabaseAdmin
       .from("orders")
+      // @ts-expect-error - Supabase type issue
       .update({
         payment_status: "paid",
         payment_key: paymentKey,
         status: "payment_confirmed",
         updated_at: new Date().toISOString(),
-      })
+      } as any)
       .eq("id", order.id);
 
     if (updateError) {

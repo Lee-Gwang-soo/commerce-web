@@ -210,32 +210,34 @@ export const productsApi = {
 
   // 상품 재고 확인
   checkStock: async (productId: string, quantity = 1) => {
-    const { data, error } = await supabase
+    const { data, error } = (await supabase
       .from("products")
-      .select("stock_quantity")
+      .select("stock")
       .eq("id", productId)
-      .single();
+      .single()) as any;
 
     if (error) throw error;
-    return data.stock_quantity >= quantity;
+    if (!data || data.stock === null) throw new Error("재고 정보를 찾을 수 없습니다.");
+    return data.stock >= quantity;
   },
 
   // 카테고리별 상품 수 조회
   getProductCountByCategory: async () => {
-    const { data, error } = await supabase
+    const { data, error } = (await supabase
       .from("products")
-      .select("category_id, categories(name)")
-      .eq("is_active", true);
+      .select("category")
+      .eq("is_active", true)) as any;
 
     if (error) throw error;
+    if (!data) return {};
 
     // 카테고리별 개수 집계
-    const categoryCount = data?.reduce((acc: Record<string, number>, product) => {
-      const categoryId = product.category_id;
-      acc[categoryId] = (acc[categoryId] || 0) + 1;
+    const categoryCount = data.reduce((acc: Record<string, number>, product: any) => {
+      const category = product.category;
+      acc[category] = (acc[category] || 0) + 1;
       return acc;
     }, {});
 
-    return categoryCount || {};
+    return categoryCount;
   },
 };

@@ -103,7 +103,8 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
 
     const { data: updatedOrder, error } = await supabaseAdmin
       .from("orders")
-      .update(updateData)
+      // @ts-expect-error - Supabase type issue
+      .update(updateData as any)
       .eq("id", id)
       .select()
       .single();

@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import bcrypt from "bcryptjs";
 import { serialize } from "cookie";
+import type { CommerceUser } from "@/types/database";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,11 +19,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: user, error: fetchError } = await supabase
+    const { data: user, error: fetchError } = await supabaseAdmin
       .from("commerce_user")
       .select("*")
       .eq("user_id", userId)
-      .single();
+      .single<CommerceUser>();
 
     if (fetchError || !user) {
       return NextResponse.json(

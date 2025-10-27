@@ -21,7 +21,7 @@ export default function LoginPage() {
     e.preventDefault();
 
     login(
-      { userId, password },
+      { user_id: userId, password },
       {
         onError: (error) => {
           alert(error.message || "로그인에 실패했습니다.");

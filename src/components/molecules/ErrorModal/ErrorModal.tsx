@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/atoms/Typography";
 import { AlertCircle, XCircle, AlertTriangle } from "lucide-react";
 
-interface ErrorModalProps {
+export interface ErrorModalProps {
   isOpen: boolean;
   title?: string;
   message: string;

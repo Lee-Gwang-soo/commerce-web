@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import type { Wishlist } from "@/types/database";
 
 // GET - 찜목록 조회
 export async function GET(request: NextRequest) {
@@ -99,9 +100,9 @@ export async function POST(request: NextRequest) {
       .insert({
         user_id: userId,
         product_id,
-      })
+      } as any)
       .select()
-      .single();
+      .single<Wishlist>();
 
     if (error) {
       console.error("Wishlist insert error:", error);

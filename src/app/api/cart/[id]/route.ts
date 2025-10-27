@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
+import type { CartItem, Product } from "@/types/database";
 
 // PATCH - 장바구니 아이템 수량 변경
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
@@ -27,10 +28,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     // 장바구니 아이템 조회 (소유자 확인 + 상품 정보)
-    const { data: cartItems, error: fetchError } = await supabaseAdmin
+    const { data: cartItems, error: fetchError } = (await supabaseAdmin
       .from("cart_items")
       .select("id, user_id, product_id, quantity")
-      .eq("id", id);
+      .eq("id", id)) as any;
 
     if (fetchError || !cartItems || cartItems.length === 0) {
       return NextResponse.json(
@@ -46,10 +47,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
 
     // 상품 재고 확인
-    const { data: products, error: productError } = await supabaseAdmin
+    const { data: products, error: productError } = (await supabaseAdmin
       .from("products")
       .select("stock")
-      .eq("id", cartItem.product_id);
+      .eq("id", cartItem.product_id)) as any;
 
     if (productError || !products || products.length === 0) {
       return NextResponse.json(
@@ -73,10 +74,11 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     // 수량 업데이트
     const { data: updatedItem, error: updateError } = await supabaseAdmin
       .from("cart_items")
-      .update({ quantity, updated_at: new Date().toISOString() })
+      // @ts-expect-error - Supabase type issue
+      .update({ quantity, updated_at: new Date().toISOString() } as any)
       .eq("id", id)
       .select()
-      .single();
+      .single<CartItem>();
 
     if (updateError) {
       console.error("장바구니 수량 업데이트 실패:", updateError);
@@ -122,10 +124,10 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
     const { id } = params;
 
     // 장바구니 아이템 조회 (소유자 확인)
-    const { data: cartItems, error: fetchError } = await supabaseAdmin
+    const { data: cartItems, error: fetchError } = (await supabaseAdmin
       .from("cart_items")
       .select("user_id")
-      .eq("id", id);
+      .eq("id", id)) as any;
 
     if (fetchError || !cartItems || cartItems.length === 0) {
       return NextResponse.json(

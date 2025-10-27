@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/atoms/Typography";
 import { AlertCircle } from "lucide-react";
 
-interface ConfirmModalProps {
+export interface ConfirmModalProps {
   isOpen: boolean;
   title?: string;
   message: string;

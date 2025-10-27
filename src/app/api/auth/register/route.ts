@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import bcrypt from "bcryptjs";
+import type { CommerceUser } from "@/types/database";
 
 export async function POST(request: NextRequest) {
   try {
@@ -18,11 +19,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: existingUser, error: checkError } = await supabase
+    const { data: existingUser, error: checkError } = await supabaseAdmin
       .from("commerce_user")
       .select("user_id")
       .eq("user_id", userId)
-      .single();
+      .maybeSingle();
 
     if (existingUser) {
       return NextResponse.json(
@@ -34,11 +35,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: existingEmail, error: emailCheckError } = await supabase
+    const { data: existingEmail, error: emailCheckError } = await supabaseAdmin
       .from("commerce_user")
       .select("email")
       .eq("email", email)
-      .single();
+      .maybeSingle();
 
     if (existingEmail) {
       return NextResponse.json(
@@ -52,22 +53,20 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("commerce_user")
-      .insert([
-        {
-          user_id: userId,
-          password: hashedPassword,
-          name,
-          email,
-          phone,
-          address,
-          marketing_agreed: marketing_agreed || false,
-          benefits_agreed: benefits_agreed || false,
-        },
-      ])
+      .insert({
+        user_id: userId,
+        password: hashedPassword,
+        name,
+        email,
+        phone,
+        address,
+        marketing_agreed: marketing_agreed || false,
+        benefits_agreed: benefits_agreed || false,
+      } as any)
       .select()
-      .single();
+      .single<CommerceUser>();
 
     if (error) {
       console.error("회원가입 실패:", error);

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import type { Product } from "@/types/database";
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -9,7 +10,7 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
       .from("products")
       .select("*")
       .eq("id", id)
-      .single();
+      .single<Product>();
 
     if (error || !product) {
       return NextResponse.json(

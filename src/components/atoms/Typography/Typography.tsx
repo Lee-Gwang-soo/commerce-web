@@ -47,7 +47,7 @@ const typographyVariants = cva("", {
 });
 
 export interface TypographyProps
-  extends React.HTMLAttributes<HTMLElement>,
+  extends Omit<React.HTMLAttributes<HTMLElement>, "color">,
     VariantProps<typeof typographyVariants> {
   as?:
     | "h1"
@@ -97,7 +97,18 @@ const Typography = forwardRef<HTMLElement, TypographyProps>(
     return (
       <Component
         className={cn(
-          typographyVariants({ variant, align, color }),
+          typographyVariants({
+            variant,
+            align,
+            color: color as
+              | "default"
+              | "primary"
+              | "secondary"
+              | "muted"
+              | "destructive"
+              | "success"
+              | "warning",
+          }),
           truncate && "truncate",
           className
         )}

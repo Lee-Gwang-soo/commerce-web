@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import { parse } from "cookie";
+import type { CommerceUser } from "@/types/database";
 
 export async function GET(request: NextRequest) {
   try {
@@ -17,13 +18,13 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const { data: user, error: fetchError } = await supabase
+    const { data: user, error: fetchError } = await supabaseAdmin
       .from("commerce_user")
       .select(
         "id, user_id, name, email, phone, address, marketing_agreed, benefits_agreed, created_at, updated_at"
       )
       .eq("id", sessionId)
-      .single();
+      .single<CommerceUser>();
 
     if (fetchError || !user) {
       return NextResponse.json(

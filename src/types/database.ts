@@ -332,9 +332,10 @@ export interface UpdateUserRequest {
   current_password?: string;
 }
 
+// API 응답용 UserData (camelCase)
 export interface UserData {
   id: string;
-  user_id: string;
+  userId: string; // API 응답에서 camelCase로 변환됨
   name: string;
   email: string;
   phone: string;
@@ -349,4 +350,5 @@ export interface AuthResponse {
   success: boolean;
   message?: string;
   user?: UserData;
+  data?: UserData;
 }

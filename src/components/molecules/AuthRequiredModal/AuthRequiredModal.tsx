@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/atoms/Typography";
 import { Lock } from "lucide-react";
 
-interface AuthRequiredModalProps {
+export interface AuthRequiredModalProps {
   isOpen: boolean;
   onClose?: () => void;
 }

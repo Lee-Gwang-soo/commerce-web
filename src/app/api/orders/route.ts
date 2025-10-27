@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import type { Product, Order, OrderInsert, OrderItemInsert } from "@/types/database";
 
 // GET - 주문 목록 조회
 export async function GET(request: NextRequest) {
@@ -116,7 +117,10 @@ export async function POST(request: NextRequest) {
     const productIds = cart_items.map((item: any) => item.product_id);
     const { data: products, error: productsError } = await supabaseAdmin
       .from("products")
-      .select("id, name, price, sale_price, stock")
+      .select<
+        "id, name, price, sale_price, stock",
+        Pick<Product, "id" | "name" | "price" | "sale_price" | "stock">
+      >("id, name, price, sale_price, stock")
       .in("id", productIds);
 
     if (productsError || !products) {
@@ -176,9 +180,9 @@ export async function POST(request: NextRequest) {
         shipping_postcode,
         payment_method,
         order_id,
-      })
+      } as any)
       .select()
-      .single();
+      .single<Order>();
 
     if (orderError || !order) {
       console.error("Order creation error:", orderError);
@@ -201,7 +205,7 @@ export async function POST(request: NextRequest) {
 
     const { error: itemsError } = await supabaseAdmin
       .from("order_items")
-      .insert(orderItemsWithOrderId);
+      .insert(orderItemsWithOrderId as any);
 
     if (itemsError) {
       console.error("Order items creation error:", itemsError);
@@ -224,7 +228,8 @@ export async function POST(request: NextRequest) {
       if (product) {
         await supabaseAdmin
           .from("products")
-          .update({ stock: product.stock - item.quantity })
+          // @ts-expect-error - Supabase type issue
+          .update({ stock: product.stock - item.quantity } as any)
           .eq("id", item.product_id);
       }
     }

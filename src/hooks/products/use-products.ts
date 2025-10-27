@@ -162,15 +162,10 @@ export const useProductBySlug = (slug: string) => {
 };
 
 // 관련 상품 조회 훅
-export const useRelatedProducts = (
-  productId: string,
-  categoryId: string,
-  limit = 4
-) => {
+export const useRelatedProducts = (productId: string, categoryId: string, limit = 4) => {
   return useQuery({
     queryKey: ["products", "related", productId, categoryId, limit],
-    queryFn: () =>
-      Promise.resolve(getRelatedProducts(productId, categoryId, limit)),
+    queryFn: () => Promise.resolve(getRelatedProducts(productId, categoryId, limit)),
     enabled: !!productId && !!categoryId,
     staleTime: 1000 * 60 * 15, // 15분
   });

@@ -31,23 +31,20 @@ const imageVariants = cva("overflow-hidden", {
   },
 });
 
-const fallbackVariants = cva(
-  "flex items-center justify-center bg-muted text-muted-foreground",
-  {
-    variants: {
-      size: {
-        sm: "h-20 w-20",
-        md: "h-40 w-40",
-        lg: "h-60 w-60",
-        xl: "h-80 w-80",
-        full: "h-full w-full",
-      },
+const fallbackVariants = cva("flex items-center justify-center bg-muted text-muted-foreground", {
+  variants: {
+    size: {
+      sm: "h-20 w-20",
+      md: "h-40 w-40",
+      lg: "h-60 w-60",
+      xl: "h-80 w-80",
+      full: "h-full w-full",
     },
-    defaultVariants: {
-      size: "md",
-    },
-  }
-);
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
 
 export interface ImageWithFallbackProps
   extends Omit<ImageProps, "onError">,
@@ -98,11 +95,8 @@ const ImageWithFallback = forwardRef<HTMLImageElement, ImageWithFallbackProps>(
             className
           )}
         >
-          {fallbackIcon ||
-            (showFallbackIcon && <ImageIcon className="h-8 w-8" />)}
-          {fallbackText && (
-            <span className="mt-2 text-sm font-medium">{fallbackText}</span>
-          )}
+          {fallbackIcon || (showFallbackIcon && <ImageIcon className="h-8 w-8" />)}
+          {fallbackText && <span className="mt-2 text-sm font-medium">{fallbackText}</span>}
         </div>
       );
     }

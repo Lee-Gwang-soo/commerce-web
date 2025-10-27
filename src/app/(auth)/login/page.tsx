@@ -72,11 +72,7 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
@@ -114,9 +110,7 @@ export default function LoginPage() {
             <div className="relative my-6">
               <Separator />
               <div className="absolute inset-0 flex justify-center">
-                <span className="bg-white px-4 text-sm text-gray-500">
-                  간편 로그인
-                </span>
+                <span className="bg-white px-4 text-sm text-gray-500">간편 로그인</span>
               </div>
             </div>
 

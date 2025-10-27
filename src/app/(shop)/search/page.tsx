@@ -33,9 +33,7 @@ export default function SearchPage() {
   const [sortBy, setSortBy] = useState("relevance");
 
   // 카테고리 개수 계산용 - 카테고리 필터 없이 검색어와 가격만으로 조회
-  const {
-    data: allSearchResults = [],
-  } = useInfiniteProducts({
+  const { data: allSearchResults = [] } = useInfiniteProducts({
     search: searchQuery,
     priceRange: selectedPriceRange,
     sortBy: "latest",
@@ -68,18 +66,21 @@ export default function SearchPage() {
     ];
 
     // 카테고리별 상품 개수 계산 (카테고리 필터가 적용되지 않은 전체 검색 결과 사용)
-    const categoryCounts = allSearchResults.reduce((acc, product) => {
-      const category = product.category;
-      if (category) {
-        acc[category] = (acc[category] || 0) + 1;
-      }
-      return acc;
-    }, {} as Record<string, number>);
+    const categoryCounts = allSearchResults.reduce(
+      (acc, product) => {
+        const category = product.category;
+        if (category) {
+          acc[category] = (acc[category] || 0) + 1;
+        }
+        return acc;
+      },
+      {} as Record<string, number>
+    );
 
     // 개수와 함께 카테고리 데이터 반환
-    return baseCategoriesData.map(cat => ({
+    return baseCategoriesData.map((cat) => ({
       ...cat,
-      count: categoryCounts[cat.id] || 0
+      count: categoryCounts[cat.id] || 0,
     }));
   }, [allSearchResults]);
 
@@ -122,11 +123,7 @@ export default function SearchPage() {
     <Layout>
       <PageLayout
         title="상품 검색"
-        description={
-          hasQuery
-            ? `"${searchQuery}"에 대한 검색 결과`
-            : "원하는 상품을 검색해보세요"
-        }
+        description={hasQuery ? `"${searchQuery}"에 대한 검색 결과` : "원하는 상품을 검색해보세요"}
         breadcrumbs={[{ label: "홈", href: "/" }, { label: "검색" }]}
       >
         {hasQuery ? (
@@ -153,17 +150,13 @@ export default function SearchPage() {
                   <Typography variant="h4" className="mb-1">
                     "{searchQuery}" 검색 결과
                   </Typography>
-                  <Typography variant="muted">
-                    총 {totalResults}개 상품
-                  </Typography>
+                  <Typography variant="muted">총 {totalResults}개 상품</Typography>
 
                   {/* 활성 필터 표시 */}
                   {activeFiltersCount > 0 && (
                     <div className="flex flex-wrap gap-2 mt-2">
                       {selectedCategories.map((categoryId) => {
-                        const category = categoriesWithCount.find(
-                          (cat) => cat.id === categoryId
-                        );
+                        const category = categoriesWithCount.find((cat) => cat.id === categoryId);
                         return category ? (
                           <Badge
                             key={categoryId}
@@ -176,8 +169,7 @@ export default function SearchPage() {
                         ) : null;
                       })}
 
-                      {(selectedPriceRange.min > 0 ||
-                        selectedPriceRange.max < 1000000) && (
+                      {(selectedPriceRange.min > 0 || selectedPriceRange.max < 1000000) && (
                         <Badge
                           variant="secondary"
                           className="cursor-pointer"
@@ -231,14 +223,7 @@ export default function SearchPage() {
               인기 검색어
             </Typography>
             <div className="flex flex-wrap justify-center gap-2 mb-8">
-              {[
-                "헤드폰",
-                "스마트워치",
-                "키보드",
-                "후드티",
-                "러닝화",
-                "아로마",
-              ].map((keyword) => (
+              {["헤드폰", "스마트워치", "키보드", "후드티", "러닝화", "아로마"].map((keyword) => (
                 <Button
                   key={keyword}
                   variant="outline"
@@ -263,27 +248,3 @@ export default function SearchPage() {
     </Layout>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
 
@@ -26,14 +23,10 @@ export async function GET(
 
     // Calculate discount information
     const discount_rate = product.sale_price
-      ? Math.round(
-          ((product.price - product.sale_price) / product.price) * 100
-        )
+      ? Math.round(((product.price - product.sale_price) / product.price) * 100)
       : null;
 
-    const discount_amount = product.sale_price
-      ? product.price - product.sale_price
-      : null;
+    const discount_amount = product.sale_price ? product.price - product.sale_price : null;
 
     return NextResponse.json({
       success: true,

@@ -50,16 +50,15 @@ export function ConfirmModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onCancel}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onCancel} />
 
       {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all animate-in fade-in zoom-in duration-200">
         <div className="flex flex-col items-center text-center">
           {/* Icon */}
-          <div className={`w-16 h-16 ${bgColor} rounded-full flex items-center justify-center mb-6`}>
+          <div
+            className={`w-16 h-16 ${bgColor} rounded-full flex items-center justify-center mb-6`}
+          >
             <AlertCircle className={`w-8 h-8 ${iconColor}`} />
           </div>
 

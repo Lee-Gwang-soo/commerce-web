@@ -20,7 +20,6 @@ export async function DELETE(
 
     const { id } = await params;
 
-
     // 찜목록 아이템 삭제
     const { error } = await supabaseAdmin
       .from("wishlist")
@@ -36,10 +35,7 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json(
-      { message: "찜목록에서 제거되었습니다." },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "찜목록에서 제거되었습니다." }, { status: 200 });
   } catch (error) {
     console.error("Wishlist DELETE error:", error);
     return NextResponse.json(

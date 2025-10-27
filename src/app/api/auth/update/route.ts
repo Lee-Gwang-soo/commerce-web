@@ -43,10 +43,16 @@ export async function PUT(request: NextRequest) {
       currentPassword,
       newPassword,
       marketing_agreed,
-      benefits_agreed
+      benefits_agreed,
     } = body;
 
-    console.log("요청 body:", { email, phone, address, currentPassword: !!currentPassword, newPassword: !!newPassword });
+    console.log("요청 body:", {
+      email,
+      phone,
+      address,
+      currentPassword: !!currentPassword,
+      newPassword: !!newPassword,
+    });
 
     const updateData: any = {};
 
@@ -116,7 +122,9 @@ export async function PUT(request: NextRequest) {
       .from("commerce_user")
       .update(updateData)
       .eq("id", sessionId)
-      .select("id, user_id, name, email, phone, address, marketing_agreed, benefits_agreed, created_at, updated_at");
+      .select(
+        "id, user_id, name, email, phone, address, marketing_agreed, benefits_agreed, created_at, updated_at"
+      );
 
     console.log("업데이트 결과:", { updatedUsers, updateError });
 

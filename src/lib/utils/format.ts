@@ -53,12 +53,9 @@ export const formatRelativeTime = (date: string | Date): string => {
 
   if (diffInSeconds < 60) return "방금 전";
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}분 전`;
-  if (diffInSeconds < 86400)
-    return `${Math.floor(diffInSeconds / 3600)}시간 전`;
-  if (diffInSeconds < 2592000)
-    return `${Math.floor(diffInSeconds / 86400)}일 전`;
-  if (diffInSeconds < 31536000)
-    return `${Math.floor(diffInSeconds / 2592000)}개월 전`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}시간 전`;
+  if (diffInSeconds < 2592000) return `${Math.floor(diffInSeconds / 86400)}일 전`;
+  if (diffInSeconds < 31536000) return `${Math.floor(diffInSeconds / 2592000)}개월 전`;
 
   return `${Math.floor(diffInSeconds / 31536000)}년 전`;
 };
@@ -108,10 +105,7 @@ export const formatPercentage = (value: number, decimals = 1): string => {
 /**
  * 할인율 계산 및 포맷팅
  */
-export const formatDiscountRate = (
-  originalPrice: number,
-  salePrice: number
-): string => {
+export const formatDiscountRate = (originalPrice: number, salePrice: number): string => {
   const discountRate = ((originalPrice - salePrice) / originalPrice) * 100;
   return formatPercentage(discountRate, 0);
 };
@@ -131,8 +125,6 @@ export const maskEmail = (email: string): string => {
   if (username.length <= 2) return email;
 
   const maskedUsername =
-    username[0] +
-    "*".repeat(username.length - 2) +
-    username[username.length - 1];
+    username[0] + "*".repeat(username.length - 2) + username[username.length - 1];
   return `${maskedUsername}@${domain}`;
 };

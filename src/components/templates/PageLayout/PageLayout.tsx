@@ -99,8 +99,7 @@ const PageLayout = forwardRef<HTMLDivElement, PageLayoutProps>(
       }
     };
 
-    const hasHeader =
-      title || description || breadcrumbs || showBackButton || actions;
+    const hasHeader = title || description || breadcrumbs || showBackButton || actions;
 
     return (
       <div
@@ -124,9 +123,7 @@ const PageLayout = forwardRef<HTMLDivElement, PageLayoutProps>(
                 <ol className="flex items-center gap-2 text-sm">
                   {breadcrumbs.map((breadcrumb, index) => (
                     <li key={index} className="flex items-center gap-2">
-                      {index > 0 && (
-                        <ChevronRight className="h-4 w-4 text-muted-foreground/50" />
-                      )}
+                      {index > 0 && <ChevronRight className="h-4 w-4 text-muted-foreground/50" />}
                       {index === 0 && breadcrumb.href && (
                         <Home className="h-4 w-4 text-muted-foreground mr-1" />
                       )}
@@ -138,9 +135,7 @@ const PageLayout = forwardRef<HTMLDivElement, PageLayoutProps>(
                           {breadcrumb.label}
                         </a>
                       ) : (
-                        <span className="text-foreground font-semibold">
-                          {breadcrumb.label}
-                        </span>
+                        <span className="text-foreground font-semibold">{breadcrumb.label}</span>
                       )}
                     </li>
                   ))}
@@ -178,17 +173,11 @@ const PageLayout = forwardRef<HTMLDivElement, PageLayoutProps>(
               </div>
 
               {/* Actions */}
-              {actions && (
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  {actions}
-                </div>
-              )}
+              {actions && <div className="flex items-center gap-2 flex-shrink-0">{actions}</div>}
             </div>
 
             {/* Separator */}
-            {showSeparator && headerBackground === "none" && (
-              <Separator className="mt-6" />
-            )}
+            {showSeparator && headerBackground === "none" && <Separator className="mt-6" />}
           </div>
         )}
 

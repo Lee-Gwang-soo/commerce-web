@@ -121,10 +121,7 @@ const ProductOptions = forwardRef<HTMLDivElement, ProductOptionsProps>(
       return option.available !== false && !disabled;
     };
 
-    const renderColorOption = (
-      group: ProductOptionGroup,
-      option: ProductOptionValue
-    ) => {
+    const renderColorOption = (group: ProductOptionGroup, option: ProductOptionValue) => {
       const isSelected = isOptionSelected(group.id, option.id);
       const isAvailable = isOptionAvailable(option);
 
@@ -135,21 +132,14 @@ const ProductOptions = forwardRef<HTMLDivElement, ProductOptionsProps>(
           className={cn(
             optionButtonVariants({
               type: "color",
-              variant: isSelected
-                ? "selected"
-                : isAvailable
-                ? "default"
-                : "disabled",
+              variant: isSelected ? "selected" : isAvailable ? "default" : "disabled",
             })
           )}
           onClick={() => handleOptionSelect(group.id, option.id)}
           disabled={!isAvailable}
           title={option.label}
         >
-          <div
-            className="w-full h-full rounded border"
-            style={{ backgroundColor: option.color }}
-          />
+          <div className="w-full h-full rounded border" style={{ backgroundColor: option.color }} />
           {isSelected && (
             <Check className="absolute inset-0 m-auto h-4 w-4 text-white drop-shadow-sm" />
           )}
@@ -157,10 +147,7 @@ const ProductOptions = forwardRef<HTMLDivElement, ProductOptionsProps>(
       );
     };
 
-    const renderImageOption = (
-      group: ProductOptionGroup,
-      option: ProductOptionValue
-    ) => {
+    const renderImageOption = (group: ProductOptionGroup, option: ProductOptionValue) => {
       const isSelected = isOptionSelected(group.id, option.id);
       const isAvailable = isOptionAvailable(option);
 
@@ -171,11 +158,7 @@ const ProductOptions = forwardRef<HTMLDivElement, ProductOptionsProps>(
           className={cn(
             optionButtonVariants({
               type: "image",
-              variant: isSelected
-                ? "selected"
-                : isAvailable
-                ? "default"
-                : "disabled",
+              variant: isSelected ? "selected" : isAvailable ? "default" : "disabled",
             })
           )}
           onClick={() => handleOptionSelect(group.id, option.id)}
@@ -195,10 +178,7 @@ const ProductOptions = forwardRef<HTMLDivElement, ProductOptionsProps>(
       );
     };
 
-    const renderTextOption = (
-      group: ProductOptionGroup,
-      option: ProductOptionValue
-    ) => {
+    const renderTextOption = (group: ProductOptionGroup, option: ProductOptionValue) => {
       const isSelected = isOptionSelected(group.id, option.id);
       const isAvailable = isOptionAvailable(option);
 
@@ -208,11 +188,7 @@ const ProductOptions = forwardRef<HTMLDivElement, ProductOptionsProps>(
           variant="outline"
           className={cn(
             optionButtonVariants({
-              variant: isSelected
-                ? "selected"
-                : isAvailable
-                ? "default"
-                : "disabled",
+              variant: isSelected ? "selected" : isAvailable ? "default" : "disabled",
             }),
             "flex-col items-start h-auto py-3"
           )}
@@ -240,11 +216,7 @@ const ProductOptions = forwardRef<HTMLDivElement, ProductOptionsProps>(
     };
 
     return (
-      <div
-        ref={ref}
-        className={cn(optionVariants({ spacing }), className)}
-        {...props}
-      >
+      <div ref={ref} className={cn(optionVariants({ spacing }), className)} {...props}>
         {options.map((group) => (
           <div key={group.id} className={cn(optionGroupVariants())}>
             {/* 옵션 그룹 헤더 */}
@@ -262,11 +234,7 @@ const ProductOptions = forwardRef<HTMLDivElement, ProductOptionsProps>(
             {/* 선택된 옵션 표시 */}
             {selectedOptions[group.id] && (
               <div className="text-sm text-muted-foreground">
-                선택됨:{" "}
-                {
-                  group.values.find((v) => v.id === selectedOptions[group.id])
-                    ?.label
-                }
+                선택됨: {group.values.find((v) => v.id === selectedOptions[group.id])?.label}
               </div>
             )}
 
@@ -294,27 +262,3 @@ ProductOptions.displayName = "ProductOptions";
 
 export { ProductOptions, optionVariants };
 export default ProductOptions;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

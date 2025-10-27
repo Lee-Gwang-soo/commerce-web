@@ -19,17 +19,18 @@ import type {
 } from "@/components/molecules/ProductFilters/ProductFilters";
 
 // 카테고리 매핑
-const categoryMap: Record<
-  string,
-  { id: string; name: string; description: string }
-> = CATEGORIES.reduce((acc, cat) => {
-  acc[cat.slug] = {
-    id: cat.slug,
-    name: cat.label,
-    description: cat.description,
-  };
-  return acc;
-}, {} as Record<string, { id: string; name: string; description: string }>);
+const categoryMap: Record<string, { id: string; name: string; description: string }> =
+  CATEGORIES.reduce(
+    (acc, cat) => {
+      acc[cat.slug] = {
+        id: cat.slug,
+        name: cat.label,
+        description: cat.description,
+      };
+      return acc;
+    },
+    {} as Record<string, { id: string; name: string; description: string }>
+  );
 
 // 서브카테고리는 일단 빈 배열로 (필요시 나중에 추가)
 const subcategoryMap: Record<string, FilterOption[]> = {};
@@ -43,9 +44,7 @@ export default function CategoryPage() {
   const subcategories = subcategoryMap[slug] || [];
 
   // 필터 상태
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
-    []
-  );
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState<PriceRange>({
     min: 0,
     max: 1000000,
@@ -151,33 +150,26 @@ export default function CategoryPage() {
             {/* 필터 요약 및 정렬 */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div className="flex flex-col gap-2">
-                <Typography variant="muted">
-                  총 {totalProducts}개 상품
-                </Typography>
+                <Typography variant="muted">총 {totalProducts}개 상품</Typography>
 
                 {/* 활성 필터 표시 */}
                 {activeFiltersCount > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {selectedSubcategories.map((subcategoryId) => {
-                      const subcategory = subcategories.find(
-                        (cat) => cat.id === subcategoryId
-                      );
+                      const subcategory = subcategories.find((cat) => cat.id === subcategoryId);
                       return subcategory ? (
                         <Badge
                           key={subcategoryId}
                           variant="secondary"
                           className="cursor-pointer"
-                          onClick={() =>
-                            removeFilter("subcategory", subcategoryId)
-                          }
+                          onClick={() => removeFilter("subcategory", subcategoryId)}
                         >
                           {subcategory.label} ×
                         </Badge>
                       ) : null;
                     })}
 
-                    {(selectedPriceRange.min > 0 ||
-                      selectedPriceRange.max < 1000000) && (
+                    {(selectedPriceRange.min > 0 || selectedPriceRange.max < 1000000) && (
                       <Badge
                         variant="secondary"
                         className="cursor-pointer"
@@ -191,11 +183,7 @@ export default function CategoryPage() {
                 )}
               </div>
 
-              <ProductSort
-                value={sortBy}
-                onValueChange={setSortBy}
-                showLabel={false}
-              />
+              <ProductSort value={sortBy} onValueChange={setSortBy} showLabel={false} />
             </div>
 
             {/* 상품 그리드 */}

@@ -55,7 +55,7 @@ export default function ProductDetailPage() {
     }
   );
 
-  const relatedProducts = relatedProductsData?.data?.filter(p => p.id !== productId) || [];
+  const relatedProducts = relatedProductsData?.data?.filter((p) => p.id !== productId) || [];
 
   // 상태 관리
   const [quantity, setQuantity] = useState(1);
@@ -93,9 +93,7 @@ export default function ProductDetailPage() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-              <Typography variant="muted">
-                상품 정보를 불러오는 중...
-              </Typography>
+              <Typography variant="muted">상품 정보를 불러오는 중...</Typography>
             </div>
           </div>
         </div>
@@ -124,13 +122,13 @@ export default function ProductDetailPage() {
     );
   }
 
-  // stock과 stock_quantity 둘 다 지원
-  const availableStock = product.stock ?? product.stock_quantity ?? 0;
+  // stock 필드 사용
+  const availableStock = product.stock ?? 0;
   const isOutOfStock = availableStock <= 0;
   const hasDiscount = product.sale_price && product.sale_price < product.price;
-  const discountRate = product.discount_rate || (hasDiscount
-    ? Math.round(((product.price - product.sale_price!) / product.price) * 100)
-    : 0);
+  const discountRate =
+    product.discount_rate ||
+    (hasDiscount ? Math.round(((product.price - product.sale_price!) / product.price) * 100) : 0);
 
   return (
     <Layout>
@@ -162,10 +160,7 @@ export default function ProductDetailPage() {
                 <Typography variant="small" color="muted">
                   {product.category || "일반 상품"}
                 </Typography>
-                {product.is_featured && <Badge variant="secondary">추천</Badge>}
-                {hasDiscount && (
-                  <Badge variant="destructive">{discountRate}% 할인</Badge>
-                )}
+                {hasDiscount && <Badge variant="destructive">{discountRate}% 할인</Badge>}
                 {isOutOfStock && <Badge variant="outline">품절</Badge>}
               </div>
 
@@ -173,9 +168,12 @@ export default function ProductDetailPage() {
                 {product.name}
               </Typography>
 
-              <Typography variant="lead" color="muted" className="mb-4">
-                {product.short_description}
-              </Typography>
+              {product.description && (
+                <Typography variant="lead" color="muted" className="mb-4">
+                  {product.description.substring(0, 100)}
+                  {product.description.length > 100 && "..."}
+                </Typography>
+              )}
 
               {/* 평점 및 리뷰 */}
               {totalReviews > 0 && (
@@ -251,12 +249,7 @@ export default function ProductDetailPage() {
             </div>
 
             {/* 즉시 구매 */}
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full"
-              disabled={isOutOfStock}
-            >
+            <Button variant="outline" size="lg" className="w-full" disabled={isOutOfStock}>
               즉시 구매
             </Button>
 
@@ -264,9 +257,7 @@ export default function ProductDetailPage() {
             <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
               <div className="flex items-center gap-3">
                 <Truck className="h-5 w-5 text-muted-foreground" />
-                <Typography variant="small">
-                  무료배송 (3만원 이상 구매시)
-                </Typography>
+                <Typography variant="small">무료배송 (3만원 이상 구매시)</Typography>
               </div>
               <div className="flex items-center gap-3">
                 <Shield className="h-5 w-5 text-muted-foreground" />
@@ -283,9 +274,7 @@ export default function ProductDetailPage() {
               <div>상품 ID: {product.id.slice(0, 8).toUpperCase()}</div>
               <div>카테고리: {product.category}</div>
               <div>재고: {availableStock}개</div>
-              {product.review_count > 0 && (
-                <div>리뷰: {product.review_count}개</div>
-              )}
+              {product.review_count > 0 && <div>리뷰: {product.review_count}개</div>}
             </div>
           </div>
         </div>
@@ -295,29 +284,13 @@ export default function ProductDetailPage() {
           <Tabs value={activeTab} onValueChange={setActiveTab}>
             <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="description">상품 상세</TabsTrigger>
-              <TabsTrigger value="reviews">
-                리뷰 ({totalReviews})
-              </TabsTrigger>
+              <TabsTrigger value="reviews">리뷰 ({totalReviews})</TabsTrigger>
               <TabsTrigger value="qna">문의</TabsTrigger>
             </TabsList>
 
             <TabsContent value="description" className="mt-6">
               <div className="prose prose-sm max-w-none">
                 <Typography variant="p">{product.description}</Typography>
-                {product.tags && (
-                  <div className="mt-6">
-                    <Typography variant="h6" className="mb-3">
-                      태그
-                    </Typography>
-                    <div className="flex gap-2">
-                      {product.tags.map((tag, index) => (
-                        <Badge key={index} variant="outline">
-                          {tag}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                )}
               </div>
             </TabsContent>
 
@@ -355,10 +328,7 @@ export default function ProductDetailPage() {
                   {/* 리뷰 목록 */}
                   <div className="space-y-6">
                     {reviews.map((review) => (
-                      <div
-                        key={review.id}
-                        className="border-b pb-6 last:border-b-0"
-                      >
+                      <div key={review.id} className="border-b pb-6 last:border-b-0">
                         <div className="flex items-center gap-4 mb-3">
                           <Typography variant="h6">{review.user_name}</Typography>
                           <Typography variant="small" color="muted">

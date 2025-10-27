@@ -68,10 +68,7 @@ export interface TypographyProps
 }
 
 const Typography = forwardRef<HTMLElement, TypographyProps>(
-  (
-    { className, variant, align, color, as, truncate, children, ...props },
-    ref
-  ) => {
+  ({ className, variant, align, color, as, truncate, children, ...props }, ref) => {
     // variant에 따라 기본 태그 결정
     const getDefaultTag = () => {
       if (as) return as;

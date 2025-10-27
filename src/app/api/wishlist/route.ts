@@ -15,11 +15,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-
     // 찜목록 조회 (product 정보 포함)
     const { data: wishlistItems, error } = await supabaseAdmin
       .from("wishlist")
-      .select(`
+      .select(
+        `
         id,
         product_id,
         created_at,
@@ -32,7 +32,8 @@ export async function GET(request: NextRequest) {
           category,
           stock
         )
-      `)
+      `
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false });
 
@@ -76,7 +77,6 @@ export async function POST(request: NextRequest) {
         { status: 400 }
       );
     }
-
 
     // 이미 찜목록에 있는지 확인
     const { data: existing } = await supabaseAdmin

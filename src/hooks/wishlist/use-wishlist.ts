@@ -84,9 +84,7 @@ export const useIsInWishlist = (productId: string) => {
   return useQuery({
     queryKey: ["wishlist", "check", productId],
     queryFn: () => {
-      const isInWishlist = wishlistItems?.some(
-        (item) => item.product.id === productId
-      );
+      const isInWishlist = wishlistItems?.some((item) => item.product.id === productId);
       return Promise.resolve(isInWishlist || false);
     },
     enabled: isAuthenticated && !!productId && !!wishlistItems,

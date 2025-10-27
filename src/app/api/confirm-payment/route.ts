@@ -30,7 +30,6 @@ export async function POST(request: NextRequest) {
       );
     }
 
-
     // 주문 확인
     const { data: order, error: orderError } = await supabaseAdmin
       .from("orders")
@@ -67,23 +66,18 @@ export async function POST(request: NextRequest) {
     }
 
     // 토스페이먼츠 결제 승인 API 호출
-    const response = await fetch(
-      "https://api.tosspayments.com/v1/payments/confirm",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${Buffer.from(secretKey + ":").toString(
-            "base64"
-          )}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          paymentKey,
-          orderId,
-          amount,
-        }),
-      }
-    );
+    const response = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(secretKey + ":").toString("base64")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        paymentKey,
+        orderId,
+        amount,
+      }),
+    });
 
     const result = await response.json();
 
@@ -96,8 +90,10 @@ export async function POST(request: NextRequest) {
       });
 
       // 중복 요청 에러인 경우 (이미 처리된 경우)
-      if (result.code === "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING" ||
-          result.code === "ALREADY_PROCESSED_PAYMENT") {
+      if (
+        result.code === "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING" ||
+        result.code === "ALREADY_PROCESSED_PAYMENT"
+      ) {
         // DB에서 최신 주문 상태 확인
         const { data: latestOrder } = await supabaseAdmin
           .from("orders")
@@ -146,10 +142,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 장바구니 비우기
-    await supabaseAdmin
-      .from("cart_items")
-      .delete()
-      .eq("user_id", userId);
+    await supabaseAdmin.from("cart_items").delete().eq("user_id", userId);
 
     // 결제 승인 성공
     console.log("결제 승인 성공:", {

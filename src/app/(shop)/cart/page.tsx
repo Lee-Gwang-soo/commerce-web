@@ -14,11 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertTriangle, ShoppingBag, Trash2, Plus, Minus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import {
-  useCartItems,
-  useUpdateCartItem,
-  useRemoveFromCart,
-} from "@/hooks/cart/use-cart";
+import { useCartItems, useUpdateCartItem, useRemoveFromCart } from "@/hooks/cart/use-cart";
 
 export default function CartPage() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -86,8 +82,7 @@ export default function CartPage() {
     }, 0);
 
   const selectedCount = selectedItems.length;
-  const isAllSelected =
-    cartItems.length > 0 && selectedItems.length === cartItems.length;
+  const isAllSelected = cartItems.length > 0 && selectedItems.length === cartItems.length;
 
   if (isLoading) {
     return (
@@ -186,9 +181,7 @@ export default function CartPage() {
                     <div key={item.id} className="flex gap-4">
                       <Checkbox
                         checked={selectedItems.includes(item.id)}
-                        onCheckedChange={(val) =>
-                          handleSelectItem(item.id, val === true)
-                        }
+                        onCheckedChange={(val) => handleSelectItem(item.id, val === true)}
                       />
 
                       <div className="flex-1 flex gap-4">
@@ -215,10 +208,7 @@ export default function CartPage() {
 
                               {/* 카테고리 표시 */}
                               {item.product?.category && (
-                                <Badge
-                                  variant="outline"
-                                  className="text-xs mt-1"
-                                >
+                                <Badge variant="outline" className="text-xs mt-1">
                                   {item.product.category}
                                 </Badge>
                               )}
@@ -240,12 +230,7 @@ export default function CartPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() =>
-                                  handleQuantityChange(
-                                    item.id,
-                                    item.quantity - 1
-                                  )
-                                }
+                                onClick={() => handleQuantityChange(item.id, item.quantity - 1)}
                                 disabled={item.quantity <= 1}
                                 className="h-8 w-8 p-0"
                               >
@@ -259,12 +244,7 @@ export default function CartPage() {
                               <Button
                                 variant="outline"
                                 size="sm"
-                                onClick={() =>
-                                  handleQuantityChange(
-                                    item.id,
-                                    item.quantity + 1
-                                  )
-                                }
+                                onClick={() => handleQuantityChange(item.id, item.quantity + 1)}
                                 className="h-8 w-8 p-0"
                               >
                                 <Plus className="h-3 w-3" />
@@ -275,14 +255,12 @@ export default function CartPage() {
                             <div className="text-right">
                               <Price
                                 price={
-                                  (item.product?.sale_price ||
-                                    item.product?.price ||
-                                    0) * item.quantity
+                                  (item.product?.sale_price || item.product?.price || 0) *
+                                  item.quantity
                                 }
                                 originalPrice={
                                   item.product?.sale_price &&
-                                  item.product?.price !==
-                                    item.product?.sale_price
+                                  item.product?.price !== item.product?.sale_price
                                     ? item.product.price * item.quantity
                                     : undefined
                                 }
@@ -290,10 +268,7 @@ export default function CartPage() {
                                 showDiscount
                               />
                               {item.quantity > 1 && (
-                                <Typography
-                                  variant="small"
-                                  className="text-muted-foreground"
-                                >
+                                <Typography variant="small" className="text-muted-foreground">
                                   개당{" "}
                                   {(
                                     item.product?.sale_price ||
@@ -349,10 +324,7 @@ export default function CartPage() {
                   <div className="flex justify-between text-lg font-semibold mb-4">
                     <span>총 결제금액</span>
                     <span className="text-primary">
-                      {(
-                        selectedTotal + (selectedTotal >= 30000 ? 0 : 3000)
-                      ).toLocaleString()}
-                      원
+                      {(selectedTotal + (selectedTotal >= 30000 ? 0 : 3000)).toLocaleString()}원
                     </span>
                   </div>
 
@@ -360,8 +332,7 @@ export default function CartPage() {
                     <Alert className="mb-4">
                       <AlertTriangle className="h-4 w-4" />
                       <AlertDescription>
-                        {(30000 - selectedTotal).toLocaleString()}원 더 담으면
-                        무료배송!
+                        {(30000 - selectedTotal).toLocaleString()}원 더 담으면 무료배송!
                       </AlertDescription>
                     </Alert>
                   )}

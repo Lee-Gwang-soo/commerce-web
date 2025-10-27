@@ -55,10 +55,7 @@ const ExtendedButton = forwardRef<HTMLButtonElement, ExtendedButtonProps>(
 
     return (
       <Button
-        className={cn(
-          extendedButtonVariants({ fullWidth, rounded }),
-          className
-        )}
+        className={cn(extendedButtonVariants({ fullWidth, rounded }), className)}
         disabled={isDisabled}
         ref={ref}
         {...props}

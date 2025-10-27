@@ -16,9 +16,7 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * limit;
 
-    let query = supabaseAdmin
-      .from("products")
-      .select("*", { count: "exact" });
+    let query = supabaseAdmin.from("products").select("*", { count: "exact" });
 
     // Category filter (OR 조건으로 처리)
     if (categories) {

@@ -129,9 +129,7 @@ export const authApi = {
   },
 
   // 비밀번호 확인
-  verifyPassword: async (
-    password: string
-  ): Promise<{ success: boolean; message: string }> => {
+  verifyPassword: async (password: string): Promise<{ success: boolean; message: string }> => {
     const response = await fetch("/api/auth/verify-password", {
       method: "POST",
       headers: {

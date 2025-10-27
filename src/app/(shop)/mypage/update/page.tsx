@@ -240,26 +240,14 @@ export default function UpdatePage() {
             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               {/* 아이디 (읽기 전용) */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  아이디
-                </label>
-                <Input
-                  value={currentUser.userId}
-                  readOnly
-                  className="bg-gray-50"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">아이디</label>
+                <Input value={currentUser.userId} readOnly className="bg-gray-50" />
               </div>
 
               {/* 이름 (읽기 전용) */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  이름
-                </label>
-                <Input
-                  value={currentUser.name}
-                  readOnly
-                  className="bg-gray-50"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">이름</label>
+                <Input value={currentUser.name} readOnly className="bg-gray-50" />
               </div>
 
               {/* 현재 비밀번호 */}
@@ -287,17 +275,13 @@ export default function UpdatePage() {
                   </button>
                 </div>
                 {errors.currentPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.currentPassword.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.currentPassword.message}</p>
                 )}
               </div>
 
               {/* 새 비밀번호 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  새 비밀번호
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">새 비밀번호</label>
                 <div className="relative">
                   <Input
                     {...register("newPassword")}
@@ -318,9 +302,7 @@ export default function UpdatePage() {
                   </button>
                 </div>
                 {errors.newPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.newPassword.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.newPassword.message}</p>
                 )}
               </div>
 
@@ -349,50 +331,31 @@ export default function UpdatePage() {
                   </button>
                 </div>
                 {errors.confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.confirmPassword.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.confirmPassword.message}</p>
                 )}
               </div>
 
               {/* 이메일 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  이메일
-                </label>
-                <Input
-                  {...register("email")}
-                  type="email"
-                  placeholder="example@email.com"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">이메일</label>
+                <Input {...register("email")} type="email" placeholder="example@email.com" />
                 {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.email.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                 )}
               </div>
 
               {/* 전화번호 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  전화번호
-                </label>
-                <Input
-                  {...register("phone")}
-                  placeholder="숫자만 입력해주세요"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-2">전화번호</label>
+                <Input {...register("phone")} placeholder="숫자만 입력해주세요" />
                 {errors.phone && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.phone.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
                 )}
               </div>
 
               {/* 주소 */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  주소
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">주소</label>
                 <Button
                   type="button"
                   variant="outline"
@@ -401,20 +364,10 @@ export default function UpdatePage() {
                 >
                   주소 검색
                 </Button>
-                <input
-                  type="hidden"
-                  {...register("address")}
-                  value={selectedAddress}
-                />
-                {selectedAddress && (
-                  <p className="text-sm text-gray-600 mt-2">
-                    {selectedAddress}
-                  </p>
-                )}
+                <input type="hidden" {...register("address")} value={selectedAddress} />
+                {selectedAddress && <p className="text-sm text-gray-600 mt-2">{selectedAddress}</p>}
                 {errors.address && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.address.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
                 )}
               </div>
 
@@ -444,10 +397,7 @@ export default function UpdatePage() {
 
       {/* 주소 검색 모달 */}
       {showAddressModal && (
-        <AddressModal
-          onClose={() => setShowAddressModal(false)}
-          onSelect={handleAddressSelect}
-        />
+        <AddressModal onClose={() => setShowAddressModal(false)} onSelect={handleAddressSelect} />
       )}
 
       {/* Error Modal */}
@@ -507,10 +457,7 @@ function AddressModal({
       <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">주소 검색</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             ✕
           </button>
         </div>

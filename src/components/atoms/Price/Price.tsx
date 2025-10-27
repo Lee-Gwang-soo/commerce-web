@@ -86,27 +86,15 @@ const Price = forwardRef<HTMLDivElement, PriceProps>(
         ref={ref}
         {...props}
       >
-        <div
-          className={cn(
-            "flex items-center gap-2",
-            vertical && "flex-col items-start gap-1"
-          )}
-        >
+        <div className={cn("flex items-center gap-2", vertical && "flex-col items-start gap-1")}>
           {/* 현재 가격 */}
-          <span
-            className={cn(
-              "font-bold text-foreground leading-none",
-              priceVariants({ size })
-            )}
-          >
+          <span className={cn("font-bold text-foreground leading-none", priceVariants({ size }))}>
             {formatPrice(price)}
           </span>
 
           {/* 원래 가격 (할인이 있을 때) */}
           {hasDiscount && (
-            <span
-              className={cn(originalPriceVariants({ size }), "leading-none")}
-            >
+            <span className={cn(originalPriceVariants({ size }), "leading-none")}>
               {formatPrice(originalPrice)}
             </span>
           )}

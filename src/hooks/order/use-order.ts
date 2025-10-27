@@ -46,8 +46,7 @@ export const useCreateOrder = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (orderData: CreateOrderRequest) =>
-      orderApi.createOrder(orderData),
+    mutationFn: (orderData: CreateOrderRequest) => orderApi.createOrder(orderData),
     onSuccess: () => {
       // 주문 목록 쿼리 무효화
       queryClient.invalidateQueries({ queryKey: ["orders"] });

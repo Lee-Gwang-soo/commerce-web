@@ -4,13 +4,7 @@ import { useRouter } from "next/navigation";
 import { Layout } from "@/components/templates/Layout";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/atoms/Typography";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { User, Package, Settings, LogOut } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useAuth";

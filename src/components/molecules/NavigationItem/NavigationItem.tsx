@@ -73,12 +73,7 @@ const NavigationItem = forwardRef<HTMLElement, NavigationItemProps>(
       <div className="flex items-center justify-between w-full">
         <div className="flex items-center gap-3">
           {icon && <span className="flex-shrink-0">{icon}</span>}
-          <span
-            className={cn(
-              "truncate",
-              orientation === "vertical" && "text-left"
-            )}
-          >
+          <span className={cn("truncate", orientation === "vertical" && "text-left")}>
             {children}
           </span>
         </div>
@@ -99,10 +94,7 @@ const NavigationItem = forwardRef<HTMLElement, NavigationItemProps>(
                 )
               ) : (
                 <ChevronDown
-                  className={cn(
-                    "h-4 w-4 transition-transform",
-                    isExpanded && "rotate-180"
-                  )}
+                  className={cn("h-4 w-4 transition-transform", isExpanded && "rotate-180")}
                 />
               )}
             </span>
@@ -142,12 +134,7 @@ const NavigationItem = forwardRef<HTMLElement, NavigationItemProps>(
         : { href };
 
       return (
-        <Link
-          {...linkProps}
-          className={baseClassName}
-          onClick={handleClick}
-          {...props}
-        >
+        <Link {...linkProps} className={baseClassName} onClick={handleClick} {...props}>
           {content}
         </Link>
       );

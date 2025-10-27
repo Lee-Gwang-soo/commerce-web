@@ -19,11 +19,7 @@ export default function QueryProvider({ children }: QueryProviderProps) {
             refetchOnWindowFocus: false,
             retry: (failureCount, error: any) => {
               // 401, 403, 404 에러는 재시도하지 않음
-              if (
-                error?.status === 401 ||
-                error?.status === 403 ||
-                error?.status === 404
-              ) {
+              if (error?.status === 401 || error?.status === 403 || error?.status === 404) {
                 return false;
               }
               return failureCount < 3;

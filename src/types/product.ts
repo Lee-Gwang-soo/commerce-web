@@ -1,4 +1,4 @@
-export type Category = 'ELECTRONIC' | 'FASHION' | 'FOOD' | 'SPORT';
+export type Category = "ELECTRONIC" | "FASHION" | "FOOD" | "SPORT";
 
 export interface Product {
   id: string;
@@ -7,10 +7,10 @@ export interface Product {
   price: number;
   sale_price: number | null;
   category: Category;
-  stock: number;
+  stock: number | null;
   images: string[];
-  review_count: number;
-  sales_count: number;
+  review_count: number | null;
+  sales_count: number | null;
   created_at: string;
   updated_at: string;
 }

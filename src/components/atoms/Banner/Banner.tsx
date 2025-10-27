@@ -46,10 +46,7 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
       className,
       variant,
       size,
-      messages = [
-        "🎉 신규 회원가입 시 10% 할인 쿠폰 지급!",
-        "🚚 무료배송 이벤트 진행 중",
-      ],
+      messages = ["🎉 신규 회원가입 시 10% 할인 쿠폰 지급!", "🚚 무료배송 이벤트 진행 중"],
       images = [],
       autoRotate = true,
       showClose = true,
@@ -64,8 +61,7 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
     const [isVisible, setIsVisible] = useState(true);
     const [imageError, setImageError] = useState<Record<number, boolean>>({});
 
-    const totalItems =
-      isHero && images.length > 0 ? images.length : messages.length;
+    const totalItems = isHero && images.length > 0 ? images.length : messages.length;
 
     // Auto-rotate functionality
     useEffect(() => {
@@ -103,10 +99,7 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
       return (
         <div
           ref={ref}
-          className={cn(
-            bannerVariants({ variant: "hero", size: "hero" }),
-            className
-          )}
+          className={cn(bannerVariants({ variant: "hero", size: "hero" }), className)}
           {...props}
         >
           {/* Background Image */}
@@ -204,11 +197,7 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
 
     // Regular message banner
     return (
-      <div
-        ref={ref}
-        className={cn(bannerVariants({ variant, size }), className)}
-        {...props}
-      >
+      <div ref={ref} className={cn(bannerVariants({ variant, size }), className)} {...props}>
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between gap-4 min-h-[40px]">
             {/* Left Navigation */}
@@ -226,9 +215,7 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
 
             {/* Message */}
             <div className="flex-1 text-center px-2">
-              <p className="font-medium text-sm sm:text-base">
-                {messages[currentIndex]}
-              </p>
+              <p className="font-medium text-sm sm:text-base">{messages[currentIndex]}</p>
             </div>
 
             {/* Right Actions */}
@@ -265,9 +252,7 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
                   key={index}
                   className={cn(
                     "w-1.5 h-1.5 rounded-full transition-colors",
-                    index === currentIndex
-                      ? "bg-white"
-                      : "bg-white/50 hover:bg-white/75"
+                    index === currentIndex ? "bg-white" : "bg-white/50 hover:bg-white/75"
                   )}
                   onClick={() => setCurrentIndex(index)}
                   aria-label={`메시지 ${index + 1}로 이동`}

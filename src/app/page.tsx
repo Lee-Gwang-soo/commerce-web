@@ -24,14 +24,7 @@ function HeroBannerSection() {
   ];
 
   return (
-    <Banner
-      isHero
-      images={heroImages}
-      autoRotate
-      showNavigation
-      interval={5000}
-      className="mb-0"
-    />
+    <Banner isHero images={heroImages} autoRotate showNavigation interval={5000} className="mb-0" />
   );
 }
 
@@ -51,10 +44,7 @@ function CategoriesSection() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {CATEGORIES.map((category) => (
-            <Link
-              key={category.slug}
-              href={`/categories/${category.slug}`}
-            >
+            <Link key={category.slug} href={`/categories/${category.slug}`}>
               <Card className="text-center p-8 hover:shadow-xl transition-all cursor-pointer group bg-white border-2 border-gray-200 hover:border-purple-400 h-full">
                 <CardContent className="p-0">
                   <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">

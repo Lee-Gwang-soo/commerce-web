@@ -21,9 +21,14 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
 
     // 주문 목록 조회 (order_items 포함)
-    const { data: orders, error, count } = await supabaseAdmin
+    const {
+      data: orders,
+      error,
+      count,
+    } = await supabaseAdmin
       .from("orders")
-      .select(`
+      .select(
+        `
         *,
         order_items (
           id,
@@ -36,7 +41,9 @@ export async function GET(request: NextRequest) {
             category
           )
         )
-      `, { count: 'exact' })
+      `,
+        { count: "exact" }
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);

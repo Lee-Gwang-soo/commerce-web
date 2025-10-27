@@ -10,10 +10,7 @@ import { ProductSort } from "@/components/molecules/ProductSort";
 import { Typography } from "@/components/atoms/Typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import {
-  useProducts,
-  useInfiniteProducts,
-} from "@/hooks/products/use-products";
+import { useProducts, useInfiniteProducts } from "@/hooks/products/use-products";
 import type {
   FilterOption,
   PriceRange,
@@ -153,17 +150,13 @@ export default function ProductsPage() {
             {/* 필터 요약 및 정렬 */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div className="flex flex-col gap-2">
-                <Typography variant="muted">
-                  총 {totalProducts}개 상품
-                </Typography>
+                <Typography variant="muted">총 {totalProducts}개 상품</Typography>
 
                 {/* 활성 필터 표시 */}
                 {activeFiltersCount > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {selectedCategories.map((categoryId) => {
-                      const category = mockCategories.find(
-                        (cat) => cat.id === categoryId
-                      );
+                      const category = mockCategories.find((cat) => cat.id === categoryId);
                       return category ? (
                         <Badge
                           key={categoryId}
@@ -190,8 +183,7 @@ export default function ProductsPage() {
                       ) : null;
                     })}
 
-                    {(selectedPriceRange.min > 0 ||
-                      selectedPriceRange.max < 1000000) && (
+                    {(selectedPriceRange.min > 0 || selectedPriceRange.max < 1000000) && (
                       <Badge
                         variant="secondary"
                         className="cursor-pointer"
@@ -205,11 +197,7 @@ export default function ProductsPage() {
                 )}
               </div>
 
-              <ProductSort
-                value={sortBy}
-                onValueChange={setSortBy}
-                showLabel={false}
-              />
+              <ProductSort value={sortBy} onValueChange={setSortBy} showLabel={false} />
             </div>
 
             {/* 상품 그리드 */}
@@ -235,27 +223,3 @@ export default function ProductsPage() {
     </Layout>
   );
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

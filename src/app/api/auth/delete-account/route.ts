@@ -17,10 +17,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const { error } = await supabase
-      .from("commerce_user")
-      .delete()
-      .eq("id", sessionId);
+    const { error } = await supabase.from("commerce_user").delete().eq("id", sessionId);
 
     if (error) {
       console.error("회원 탈퇴 실패:", error);

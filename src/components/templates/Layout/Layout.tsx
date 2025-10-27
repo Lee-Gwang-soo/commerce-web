@@ -80,11 +80,7 @@ const Layout = forwardRef<HTMLDivElement, LayoutProps>(
     ref
   ) => {
     return (
-      <div
-        ref={ref}
-        className={cn(layoutVariants({ variant, spacing }), className)}
-        {...props}
-      >
+      <div ref={ref} className={cn(layoutVariants({ variant, spacing }), className)} {...props}>
         {/* Header */}
         {showHeader && <Header {...headerProps} showBanner={showBanner} />}
 
@@ -92,12 +88,7 @@ const Layout = forwardRef<HTMLDivElement, LayoutProps>(
         <main
           className={cn(
             mainVariants({
-              container:
-                mainContainer === true
-                  ? true
-                  : mainContainer === "fluid"
-                  ? false
-                  : false,
+              container: mainContainer === true ? true : mainContainer === "fluid" ? false : false,
               padding: mainPadding,
             }),
             mainContainer === "fluid" && "px-4",

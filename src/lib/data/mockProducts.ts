@@ -5,8 +5,7 @@ export const mockProducts: Product[] = [
   {
     id: "1",
     name: "프리미엄 무선 헤드폰",
-    short_description:
-      "고음질 노이즈 캔슬링 기능이 탑재된 프리미엄 무선 헤드폰",
+    short_description: "고음질 노이즈 캔슬링 기능이 탑재된 프리미엄 무선 헤드폰",
     description:
       "액티브 노이즈 캔슬링(ANC) 기술로 주변 소음을 효과적으로 차단하며, 최대 30시간의 연속 재생이 가능합니다. 고해상도 오디오를 지원하여 스튜디오급 음질을 경험할 수 있습니다.",
     price: 299000,
@@ -176,10 +175,7 @@ export const getFeaturedProducts = (limit: number = 4): Product[] => {
 // 최신 상품 가져오기
 export const getLatestProducts = (limit: number = 4): Product[] => {
   return mockProducts
-    .sort(
-      (a, b) =>
-        new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    )
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, limit);
 };
 
@@ -190,10 +186,7 @@ export const getRelatedProducts = (
   limit: number = 4
 ): Product[] => {
   return mockProducts
-    .filter(
-      (product) =>
-        product.id !== productId && product.category_id === categoryId
-    )
+    .filter((product) => product.id !== productId && product.category_id === categoryId)
     .slice(0, limit);
 };
 
@@ -207,27 +200,3 @@ export const searchProducts = (query: string): Product[] => {
       product.tags?.some((tag) => tag.toLowerCase().includes(lowercaseQuery))
   );
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

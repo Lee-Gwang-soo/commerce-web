@@ -3,10 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { cookies } from "next/headers";
 
 // PATCH - 장바구니 아이템 수량 변경
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const cookieStore = cookies();
     const userId = cookieStore.get("user_session")?.value;
@@ -45,10 +42,7 @@ export async function PATCH(
     const cartItem = cartItems[0];
 
     if (cartItem.user_id !== userId) {
-      return NextResponse.json(
-        { code: "FORBIDDEN", message: "권한이 없습니다." },
-        { status: 403 }
-      );
+      return NextResponse.json({ code: "FORBIDDEN", message: "권한이 없습니다." }, { status: 403 });
     }
 
     // 상품 재고 확인
@@ -113,10 +107,7 @@ export async function PATCH(
 }
 
 // DELETE - 장바구니 아이템 삭제
-export async function DELETE(
-  request: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
     const cookieStore = cookies();
     const userId = cookieStore.get("user_session")?.value;
@@ -146,17 +137,11 @@ export async function DELETE(
     const cartItem = cartItems[0];
 
     if (cartItem.user_id !== userId) {
-      return NextResponse.json(
-        { code: "FORBIDDEN", message: "권한이 없습니다." },
-        { status: 403 }
-      );
+      return NextResponse.json({ code: "FORBIDDEN", message: "권한이 없습니다." }, { status: 403 });
     }
 
     // 삭제
-    const { error: deleteError } = await supabaseAdmin
-      .from("cart_items")
-      .delete()
-      .eq("id", id);
+    const { error: deleteError } = await supabaseAdmin.from("cart_items").delete().eq("id", id);
 
     if (deleteError) {
       console.error("장바구니 아이템 삭제 실패:", deleteError);

@@ -92,9 +92,7 @@ export default function OrderDetailPage() {
             <Typography variant="muted" className="mb-6">
               주문 정보가 존재하지 않거나 권한이 없습니다.
             </Typography>
-            <Button onClick={() => router.push("/mypage/orders")}>
-              주문 내역으로 이동
-            </Button>
+            <Button onClick={() => router.push("/mypage/orders")}>주문 내역으로 이동</Button>
           </div>
         </div>
       </Layout>
@@ -123,9 +121,7 @@ export default function OrderDetailPage() {
             <Badge>{statusLabels[order.status] || order.status}</Badge>
             {/* 결제 상태 - 실패/취소/환불 시에만 표시 */}
             {["failed", "cancelled", "refunded"].includes(order.payment_status) && (
-              <Badge variant="destructive">
-                {paymentStatusLabels[order.payment_status]}
-              </Badge>
+              <Badge variant="destructive">{paymentStatusLabels[order.payment_status]}</Badge>
             )}
           </div>
         </div>
@@ -256,9 +252,7 @@ export default function OrderDetailPage() {
                   <Typography variant="small" color="muted">
                     상품 금액
                   </Typography>
-                  <Typography variant="small">
-                    {order.total_amount.toLocaleString()}원
-                  </Typography>
+                  <Typography variant="small">{order.total_amount.toLocaleString()}원</Typography>
                 </div>
               </div>
 

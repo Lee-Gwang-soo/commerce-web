@@ -15,20 +15,14 @@ import { useRegister } from "@/hooks/auth/useAuth";
 // Zod 스키마 정의
 const signupSchema = z
   .object({
-    userId: z
-      .string()
-      .min(1, "아이디를 입력해주세요")
-      .min(4, "아이디는 4자 이상이어야 합니다"),
+    userId: z.string().min(1, "아이디를 입력해주세요").min(4, "아이디는 4자 이상이어야 합니다"),
     password: z
       .string()
       .min(1, "비밀번호를 입력해주세요")
       .min(8, "비밀번호는 8자 이상이어야 합니다"),
     confirmPassword: z.string().min(1, "비밀번호 확인을 입력해주세요"),
     name: z.string().min(1, "이름을 입력해주세요"),
-    email: z
-      .string()
-      .min(1, "이메일을 입력해주세요")
-      .email("올바른 이메일 형식이 아닙니다"),
+    email: z.string().min(1, "이메일을 입력해주세요").email("올바른 이메일 형식이 아닙니다"),
     phone: z
       .string()
       .min(1, "휴대폰 번호를 입력해주세요")
@@ -94,20 +88,11 @@ export default function RegisterPage() {
   const password = watch("password");
   const confirmPassword = watch("confirmPassword");
 
-  const passwordMatch = useMemo(
-    () => password === confirmPassword,
-    [password, confirmPassword]
-  );
+  const passwordMatch = useMemo(() => password === confirmPassword, [password, confirmPassword]);
 
   // 전체 동의 상태 확인
-  const isAllAgreed = useMemo(
-    () => Object.values(agreements).every(Boolean),
-    [agreements]
-  );
-  const requiredAgreements = useMemo(
-    () => terms.filter((term) => term.required),
-    []
-  );
+  const isAllAgreed = useMemo(() => Object.values(agreements).every(Boolean), [agreements]);
+  const requiredAgreements = useMemo(() => terms.filter((term) => term.required), []);
   const isRequiredAgreed = useMemo(
     () => requiredAgreements.every((term) => agreements[term.id]),
     [requiredAgreements, agreements]
@@ -115,23 +100,23 @@ export default function RegisterPage() {
 
   // 전체 동의 토글
   const handleAllAgreement = useCallback((checked: boolean) => {
-    const newAgreements = terms.reduce((acc, term) => {
-      acc[term.id] = checked;
-      return acc;
-    }, {} as Record<string, boolean>);
+    const newAgreements = terms.reduce(
+      (acc, term) => {
+        acc[term.id] = checked;
+        return acc;
+      },
+      {} as Record<string, boolean>
+    );
     setAgreements(newAgreements);
   }, []);
 
   // 개별 동의 토글
-  const handleIndividualAgreement = useCallback(
-    (termId: string, checked: boolean) => {
-      setAgreements((prev) => ({
-        ...prev,
-        [termId]: checked,
-      }));
-    },
-    []
-  );
+  const handleIndividualAgreement = useCallback((termId: string, checked: boolean) => {
+    setAgreements((prev) => ({
+      ...prev,
+      [termId]: checked,
+    }));
+  }, []);
 
   // 주소 검색 모달 열기
   const openAddressModal = () => {
@@ -207,9 +192,7 @@ export default function RegisterPage() {
                   className={errors.userId ? "border-red-500" : ""}
                 />
                 {errors.userId && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.userId.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.userId.message}</p>
                 )}
               </div>
 
@@ -225,9 +208,7 @@ export default function RegisterPage() {
                   className={errors.password ? "border-red-500" : ""}
                 />
                 {errors.password && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.password.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.password.message}</p>
                 )}
               </div>
 
@@ -243,9 +224,7 @@ export default function RegisterPage() {
                   className={errors.confirmPassword ? "border-red-500" : ""}
                 />
                 {!passwordMatch && confirmPassword && (
-                  <p className="text-red-500 text-sm mt-1">
-                    비밀번호가 일치하지 않습니다.
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">비밀번호가 일치하지 않습니다.</p>
                 )}
               </div>
 
@@ -259,11 +238,7 @@ export default function RegisterPage() {
                   placeholder="이름을 입력해 주세요"
                   className={errors.name ? "border-red-500" : ""}
                 />
-                {errors.name && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.name.message}
-                  </p>
-                )}
+                {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name.message}</p>}
               </div>
 
               {/* 이메일 */}
@@ -278,9 +253,7 @@ export default function RegisterPage() {
                   className={errors.email ? "border-red-500" : ""}
                 />
                 {errors.email && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.email.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                 )}
               </div>
 
@@ -297,9 +270,7 @@ export default function RegisterPage() {
                   />
                 </div>
                 {errors.phone && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.phone.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
                 )}
               </div>
 
@@ -317,23 +288,13 @@ export default function RegisterPage() {
                   주소 검색
                 </Button>
                 {/* RHF 주소 값 동기화를 위한 hidden input */}
-                <input
-                  type="hidden"
-                  {...register("address")}
-                  value={selectedAddress}
-                />
-                {selectedAddress && (
-                  <p className="text-sm text-gray-600 mt-2">
-                    {selectedAddress}
-                  </p>
-                )}
+                <input type="hidden" {...register("address")} value={selectedAddress} />
+                {selectedAddress && <p className="text-sm text-gray-600 mt-2">{selectedAddress}</p>}
                 <p className="text-xs text-gray-500 mt-1">
                   배송지에 따라 상품 정보가 달라질 수 있습니다.
                 </p>
                 {errors.address && (
-                  <p className="text-red-500 text-sm mt-1">
-                    {errors.address.message}
-                  </p>
+                  <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
                 )}
               </div>
 
@@ -357,22 +318,12 @@ export default function RegisterPage() {
                       <div key={term.id} className="flex items-center gap-2">
                         <CircleCheck
                           className={`h-4 w-4 cursor-pointer ${
-                            agreements[term.id]
-                              ? "text-purple-600"
-                              : "text-gray-400"
+                            agreements[term.id] ? "text-purple-600" : "text-gray-400"
                           }`}
-                          onClick={() =>
-                            handleIndividualAgreement(
-                              term.id,
-                              !agreements[term.id]
-                            )
-                          }
+                          onClick={() => handleIndividualAgreement(term.id, !agreements[term.id])}
                         />
                         <span className="text-sm">{term.label}</span>
-                        <Link
-                          href="#"
-                          className="text-sm text-purple-600 ml-auto"
-                        >
+                        <Link href="#" className="text-sm text-purple-600 ml-auto">
                           약관보기 &gt;
                         </Link>
                       </div>
@@ -396,10 +347,7 @@ export default function RegisterPage() {
 
       {/* 주소 검색 모달 */}
       {showAddressModal && (
-        <AddressModal
-          onClose={() => setShowAddressModal(false)}
-          onSelect={handleAddressSelect}
-        />
+        <AddressModal onClose={() => setShowAddressModal(false)} onSelect={handleAddressSelect} />
       )}
     </Layout>
   );
@@ -431,10 +379,7 @@ function AddressModal({
       <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
         <div className="flex justify-between items-center mb-4">
           <h3 className="text-lg font-semibold">주소 검색</h3>
-          <button
-            onClick={onClose}
-            className="text-gray-500 hover:text-gray-700"
-          >
+          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
             ✕
           </button>
         </div>

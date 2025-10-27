@@ -35,8 +35,7 @@ export default function RegisterCompletePage() {
                 {name}님 환영합니다.
               </Typography>
               <Typography variant="p" className="text-gray-600 mb-6">
-                회원가입이 완료되었습니다. 로그인 버튼을 눌러서 로그인해주시기
-                바랍니다.
+                회원가입이 완료되었습니다. 로그인 버튼을 눌러서 로그인해주시기 바랍니다.
               </Typography>
             </div>
 

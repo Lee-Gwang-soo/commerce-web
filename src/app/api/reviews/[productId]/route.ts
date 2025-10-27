@@ -1,10 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
-export async function GET(
-  request: NextRequest,
-  { params }: { params: { productId: string } }
-) {
+export async function GET(request: NextRequest, { params }: { params: { productId: string } }) {
   try {
     const { productId } = params;
     const { searchParams } = new URL(request.url);
@@ -14,7 +11,11 @@ export async function GET(
     const offset = (page - 1) * limit;
 
     // Fetch reviews with pagination
-    const { data: reviews, error, count } = await supabaseAdmin
+    const {
+      data: reviews,
+      error,
+      count,
+    } = await supabaseAdmin
       .from("reviews")
       .select("*", { count: "exact" })
       .eq("product_id", productId)

@@ -118,11 +118,7 @@ export const productsApi = {
   },
 
   // 관련 상품 조회
-  getRelatedProducts: async (
-    productId: string,
-    categoryId: string,
-    limit = 4
-  ) => {
+  getRelatedProducts: async (productId: string, categoryId: string, limit = 4) => {
     const { data, error } = await supabase
       .from("products")
       .select(
@@ -203,9 +199,7 @@ export const productsApi = {
         )
       `
       )
-      .or(
-        `name.ilike.%${query}%,description.ilike.%${query}%,tags.cs.{${query}}`
-      )
+      .or(`name.ilike.%${query}%,description.ilike.%${query}%,tags.cs.{${query}}`)
       .eq("is_active", true)
       .order("created_at", { ascending: false })
       .limit(limit);
@@ -236,14 +230,11 @@ export const productsApi = {
     if (error) throw error;
 
     // 카테고리별 개수 집계
-    const categoryCount = data?.reduce(
-      (acc: Record<string, number>, product) => {
-        const categoryId = product.category_id;
-        acc[categoryId] = (acc[categoryId] || 0) + 1;
-        return acc;
-      },
-      {}
-    );
+    const categoryCount = data?.reduce((acc: Record<string, number>, product) => {
+      const categoryId = product.category_id;
+      acc[categoryId] = (acc[categoryId] || 0) + 1;
+      return acc;
+    }, {});
 
     return categoryCount || {};
   },

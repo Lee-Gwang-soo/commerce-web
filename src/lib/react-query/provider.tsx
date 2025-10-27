@@ -5,11 +5,7 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { useState } from "react";
 import { toast } from "sonner";
 
-export function ReactQueryProvider({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export function ReactQueryProvider({ children }: { children: React.ReactNode }) {
   const [queryClient] = useState(
     () =>
       new QueryClient({

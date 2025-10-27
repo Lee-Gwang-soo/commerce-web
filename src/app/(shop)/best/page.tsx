@@ -51,15 +51,9 @@ export default function BestProductsPage() {
       >
         {/* 정렬 옵션 */}
         <div className="flex justify-between items-center mb-6">
-          <Typography variant="muted">
-            총 {products.length}개 상품
-          </Typography>
+          <Typography variant="muted">총 {products.length}개 상품</Typography>
 
-          <ProductSort
-            value={sortBy}
-            onValueChange={setSortBy}
-            showLabel={false}
-          />
+          <ProductSort value={sortBy} onValueChange={setSortBy} showLabel={false} />
         </div>
 
         {/* 상품 그리드 */}

@@ -1,11 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { authApi } from "@/lib/api/auth";
 import { useAuthStore } from "@/store/authStore";
-import type {
-  RegisterRequest,
-  LoginRequest,
-  UpdateUserRequest,
-} from "@/types/database";
+import type { RegisterRequest, LoginRequest, UpdateUserRequest } from "@/types/database";
 import { useRouter } from "next/navigation";
 import { useCallback } from "react";
 import { toast } from "sonner";
@@ -29,9 +25,7 @@ export const useRegister = () => {
     mutationFn: (data: RegisterRequest) => authApi.register(data),
     onSuccess: (data) => {
       toast.success("회원가입이 완료되었습니다.");
-      router.push(
-        `/register/complete?name=${encodeURIComponent(data.data?.name || "")}`
-      );
+      router.push(`/register/complete?name=${encodeURIComponent(data.data?.name || "")}`);
     },
     onError: (error: Error) => {
       toast.error(error.message || "회원가입에 실패했습니다.");

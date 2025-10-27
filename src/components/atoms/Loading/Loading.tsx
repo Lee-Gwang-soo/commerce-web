@@ -50,17 +50,9 @@ export interface LoadingProps
 const Loading = forwardRef<HTMLDivElement, LoadingProps>(
   ({ className, size, color, direction, text, fullScreen, ...props }, ref) => {
     const content = (
-      <div
-        className={cn(containerVariants({ direction }), className)}
-        ref={ref}
-        {...props}
-      >
+      <div className={cn(containerVariants({ direction }), className)} ref={ref} {...props}>
         <Loader2 className={cn(loadingVariants({ size, color }))} />
-        {text && (
-          <span className="text-sm font-medium text-muted-foreground">
-            {text}
-          </span>
-        )}
+        {text && <span className="text-sm font-medium text-muted-foreground">{text}</span>}
       </div>
     );
 

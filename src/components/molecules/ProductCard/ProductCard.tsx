@@ -112,9 +112,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
     const availableStock = stock ?? stock_quantity ?? 0;
     const isOutOfStock = availableStock <= 0;
     const finalPrice = sale_price || price;
-    const discountRate = hasDiscount
-      ? Math.round(((price - sale_price!) / price) * 100)
-      : 0;
+    const discountRate = hasDiscount ? Math.round(((price - sale_price!) / price) * 100) : 0;
 
     const handleWishlistClick = (e: React.MouseEvent) => {
       e.stopPropagation();
@@ -203,12 +201,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
                   onClick={handleWishlistClick}
                   aria-label="Add to wishlist"
                 >
-                  <Heart
-                    className={cn(
-                      "h-4 w-4",
-                      isInWishlist && "fill-red-500 text-red-500"
-                    )}
-                  />
+                  <Heart className={cn("h-4 w-4", isInWishlist && "fill-red-500 text-red-500")} />
                 </Button>
               )}
               {showQuickView && (
@@ -243,9 +236,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
         </Link>
 
         {/* Content */}
-        <CardContent
-          className={cn("p-4 pb-6", layout === "horizontal" && "flex-1")}
-        >
+        <CardContent className={cn("p-4 pb-6", layout === "horizontal" && "flex-1")}>
           <div className="space-y-4">
             {/* Product Name */}
             <Typography
@@ -257,10 +248,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
 
             {/* Description */}
             {short_description && (
-              <Typography
-                variant="small"
-                className="line-clamp-2 text-gray-600"
-              >
+              <Typography variant="small" className="line-clamp-2 text-gray-600">
                 {short_description}
               </Typography>
             )}

@@ -93,9 +93,7 @@ export default function PasswordCheckPage() {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  비밀번호
-                </label>
+                <label className="block text-sm font-medium text-gray-700 mb-2">비밀번호</label>
                 <div className="relative">
                   <Input
                     type={showPassword ? "text" : "password"}
@@ -109,11 +107,7 @@ export default function PasswordCheckPage() {
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                   >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
               </div>

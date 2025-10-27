@@ -93,23 +93,11 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
     },
     ref
   ) => {
-    const {
-      id,
-      name,
-      price,
-      sale_price,
-      images = [],
-      short_description,
-      stock_quantity,
-      stock,
-      is_featured,
-      tags = [],
-    } = product;
+    const { id, name, price, sale_price, images = [], stock } = product;
 
     const mainImage = images[0] || "/images/placeholder-product.jpg";
     const hasDiscount = sale_price && sale_price < price;
-    // stock과 stock_quantity 둘 다 지원
-    const availableStock = stock ?? stock_quantity ?? 0;
+    const availableStock = stock ?? 0;
     const isOutOfStock = availableStock <= 0;
     const finalPrice = sale_price || price;
     const discountRate = hasDiscount ? Math.round(((price - sale_price!) / price) * 100) : 0;

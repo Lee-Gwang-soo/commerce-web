@@ -41,7 +41,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
           </Typography>
 
           {/* Message */}
-          <Typography variant="body" className="text-gray-600 mb-8 leading-relaxed">
+          <Typography variant="p" className="text-gray-600 mb-8 leading-relaxed">
             로그인하셔야 본 서비스를 이용하실 수 있습니다.
           </Typography>
 

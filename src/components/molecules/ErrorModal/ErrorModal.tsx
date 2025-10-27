@@ -62,7 +62,7 @@ export function ErrorModal({ isOpen, title, message, onClose, type = "error" }: 
           </Typography>
 
           {/* Message */}
-          <Typography variant="body" className="text-gray-600 mb-8 leading-relaxed">
+          <Typography variant="p" className="text-gray-600 mb-8 leading-relaxed">
             {message}
           </Typography>
 

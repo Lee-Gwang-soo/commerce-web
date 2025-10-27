@@ -306,3 +306,47 @@ export type WishlistUpdate = TablesUpdate<"wishlist">;
 export type CommerceUser = Tables<"commerce_user">;
 export type CommerceUserInsert = TablesInsert<"commerce_user">;
 export type CommerceUserUpdate = TablesUpdate<"commerce_user">;
+
+// Auth-related types
+export interface RegisterRequest {
+  user_id: string;
+  password: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  marketing_agreed?: boolean;
+  benefits_agreed?: boolean;
+}
+
+export interface LoginRequest {
+  user_id: string;
+  password: string;
+}
+
+export interface UpdateUserRequest {
+  email?: string;
+  phone?: string;
+  address?: string;
+  password?: string;
+  current_password?: string;
+}
+
+export interface UserData {
+  id: string;
+  user_id: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  marketing_agreed: boolean | null;
+  benefits_agreed: boolean | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message?: string;
+  user?: UserData;
+}

@@ -224,11 +224,7 @@ const ProductOptions = forwardRef<HTMLDivElement, ProductOptionsProps>(
               <Typography variant="h6" className="font-semibold">
                 {group.name}
               </Typography>
-              {group.required && (
-                <Badge variant="destructive" size="sm">
-                  필수
-                </Badge>
-              )}
+              {group.required && <Badge variant="destructive">필수</Badge>}
             </div>
 
             {/* 선택된 옵션 표시 */}

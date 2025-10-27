@@ -82,13 +82,13 @@ const CartItem = forwardRef<HTMLDivElement, CartItemProps>(
       return null;
     }
 
-    const { name, images = [], price, sale_price, stock_quantity = 0 } = product;
+    const { name, images = [], price, sale_price, stock = 0 } = product;
 
     const mainImage = images[0] || "/images/placeholder-product.jpg";
     const finalPrice = sale_price || price || 0;
     const totalPrice = finalPrice * quantity;
-    const isOutOfStock = stock_quantity <= 0;
-    const maxQuantity = Math.min(stock_quantity, 99);
+    const isOutOfStock = stock <= 0;
+    const maxQuantity = Math.min(stock, 99);
 
     const handleQuantityChange = (newQuantity: number) => {
       if (!disabled && onQuantityChange) {

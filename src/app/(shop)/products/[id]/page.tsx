@@ -8,7 +8,6 @@ import { ProductImageGallery } from "@/components/molecules/ProductImageGallery"
 import { ProductGrid } from "@/components/organisms/ProductGrid";
 import { Typography } from "@/components/atoms/Typography";
 import { Price } from "@/components/atoms/Price";
-import { Rating } from "@/components/atoms/Rating";
 import { Quantity } from "@/components/atoms/Quantity";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -17,7 +16,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Heart, ShoppingCart, Truck, Shield, RotateCcw } from "lucide-react";
 import { useProduct, useProductReviews, useProducts } from "@/hooks/product/useProducts";
 import { useAddToCart, useIsInCart } from "@/hooks/cart/use-cart";
+import {
+  useIsInWishlist,
+  useAddToWishlist,
+  useRemoveFromWishlist,
+  useWishlistItems,
+} from "@/hooks/wishlist/use-wishlist";
 import { useAuthStore } from "@/store/authStore";
+import { getCategoryLabel, getCategoryInfo } from "@/lib/constants/categories";
 import { toast } from "sonner";
 
 export default function ProductDetailPage() {
@@ -65,6 +71,12 @@ export default function ProductDetailPage() {
   const { data: isInCart = false } = useIsInCart(productId);
   const addToCart = useAddToCart();
 
+  // 찜목록 관련
+  const { data: isInWishlist = false } = useIsInWishlist(productId);
+  const { data: wishlistItems } = useWishlistItems();
+  const addToWishlist = useAddToWishlist();
+  const removeFromWishlist = useRemoveFromWishlist();
+
   // 가격 계산
   const totalPrice = useMemo(() => {
     if (!product) return 0;
@@ -83,6 +95,48 @@ export default function ProductDetailPage() {
       product_id: productId,
       quantity,
     });
+  };
+
+  // 즉시 구매
+  const handleBuyNow = () => {
+    if (!isAuthenticated) {
+      toast.error("로그인이 필요합니다.");
+      router.push("/login");
+      return;
+    }
+
+    // 장바구니에 추가 후 체크아웃 페이지로 이동
+    addToCart.mutate(
+      {
+        product_id: productId,
+        quantity,
+      },
+      {
+        onSuccess: () => {
+          router.push("/checkout");
+        },
+      }
+    );
+  };
+
+  // 찜목록 토글
+  const handleToggleWishlist = () => {
+    if (!isAuthenticated) {
+      toast.error("로그인이 필요합니다.");
+      router.push("/login");
+      return;
+    }
+
+    if (isInWishlist) {
+      // 찜목록에서 제거
+      const wishlistItem = wishlistItems?.find((item) => item.product.id === productId);
+      if (wishlistItem) {
+        removeFromWishlist.mutate(wishlistItem.id);
+      }
+    } else {
+      // 찜목록에 추가
+      addToWishlist.mutate(productId);
+    }
   };
 
   // 로딩 상태
@@ -130,13 +184,16 @@ export default function ProductDetailPage() {
     product.discount_rate ||
     (hasDiscount ? Math.round(((product.price - product.sale_price!) / product.price) * 100) : 0);
 
+  const categoryLabel = product.category ? getCategoryLabel(product.category) : "상품";
+  const categoryHref = product.category ? `/categories/${product.category}` : "/products";
+
   return (
     <Layout>
       <PageLayout
         breadcrumbs={[
           { label: "홈", href: "/" },
           { label: "상품", href: "/products" },
-          { label: "전자기기", href: "/categories/electronics" },
+          { label: categoryLabel, href: categoryHref },
           { label: product.name },
         ]}
       >
@@ -158,13 +215,12 @@ export default function ProductDetailPage() {
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <Typography variant="small" color="muted">
-                  {product.category || "일반 상품"}
+                  {categoryLabel}
                 </Typography>
-                {hasDiscount && <Badge variant="destructive">{discountRate}% 할인</Badge>}
                 {isOutOfStock && <Badge variant="outline">품절</Badge>}
               </div>
 
-              <Typography variant="h1" className="mb-2">
+              <Typography variant="h2" className="mb-2">
                 {product.name}
               </Typography>
 
@@ -175,20 +231,22 @@ export default function ProductDetailPage() {
                 </Typography>
               )}
 
-              {/* 평점 및 리뷰 */}
-              {totalReviews > 0 && (
-                <div className="flex items-center gap-4 mb-4">
-                  <Rating rating={4.5} size="sm" showText showCount count={totalReviews} />
+              {/* 리뷰 */}
+              {totalReviews > 0 ? (
+                <div className="flex items-center gap-2 mb-4">
+                  <Typography variant="small" color="muted">
+                    리뷰 {totalReviews}개
+                  </Typography>
+                  <span className="text-gray-300">|</span>
                   <Button
                     variant="link"
-                    className="p-0 h-auto"
+                    className="p-0 h-auto text-sm"
                     onClick={() => setActiveTab("reviews")}
                   >
-                    리뷰 {totalReviews}개 보기
+                    리뷰 보기
                   </Button>
                 </div>
-              )}
-              {totalReviews === 0 && (
+              ) : (
                 <Typography variant="small" color="muted" className="mb-4">
                   아직 리뷰가 없습니다. 첫 번째 리뷰를 작성해보세요!
                 </Typography>
@@ -243,13 +301,24 @@ export default function ProductDetailPage() {
                 {isInCart ? "장바구니에 추가됨" : "장바구니 담기"}
               </Button>
 
-              <Button variant="outline" size="lg">
-                <Heart className="h-5 w-5" />
+              <Button
+                variant="outline"
+                size="lg"
+                onClick={handleToggleWishlist}
+                disabled={addToWishlist.isPending || removeFromWishlist.isPending}
+              >
+                <Heart className={`h-5 w-5 ${isInWishlist ? "fill-red-500 text-red-500" : ""}`} />
               </Button>
             </div>
 
             {/* 즉시 구매 */}
-            <Button variant="outline" size="lg" className="w-full" disabled={isOutOfStock}>
+            <Button
+              variant="outline"
+              size="lg"
+              className="w-full"
+              onClick={handleBuyNow}
+              disabled={isOutOfStock || addToCart.isPending}
+            >
               즉시 구매
             </Button>
 
@@ -260,10 +329,6 @@ export default function ProductDetailPage() {
                 <Typography variant="small">무료배송 (3만원 이상 구매시)</Typography>
               </div>
               <div className="flex items-center gap-3">
-                <Shield className="h-5 w-5 text-muted-foreground" />
-                <Typography variant="small">정품보증 및 A/S 지원</Typography>
-              </div>
-              <div className="flex items-center gap-3">
                 <RotateCcw className="h-5 w-5 text-muted-foreground" />
                 <Typography variant="small">7일 무료 반품/교환</Typography>
               </div>
@@ -272,7 +337,7 @@ export default function ProductDetailPage() {
             {/* 상품 정보 */}
             <div className="text-sm text-muted-foreground space-y-1">
               <div>상품 ID: {product.id.slice(0, 8).toUpperCase()}</div>
-              <div>카테고리: {product.category}</div>
+              <div>카테고리: {categoryLabel}</div>
               <div>재고: {availableStock}개</div>
               {product.review_count > 0 && <div>리뷰: {product.review_count}개</div>}
             </div>
@@ -312,19 +377,6 @@ export default function ProductDetailPage() {
                 </div>
               ) : (
                 <div className="space-y-6">
-                  {/* 리뷰 요약 */}
-                  <div className="flex items-center gap-6 p-6 bg-muted/30 rounded-lg">
-                    <div className="text-center">
-                      <Typography variant="h2" className="mb-1">
-                        4.5
-                      </Typography>
-                      <Rating rating={4.5} size="sm" />
-                      <Typography variant="small" color="muted" className="mt-1">
-                        {totalReviews}개 리뷰
-                      </Typography>
-                    </div>
-                  </div>
-
                   {/* 리뷰 목록 */}
                   <div className="space-y-6">
                     {reviews.map((review) => (

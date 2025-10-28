@@ -20,6 +20,7 @@ import { Typography } from "@/components/atoms/Typography";
 import Banner from "@/components/atoms/Banner";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useCartItemCount } from "@/hooks/cart/use-cart";
+import { useWishlistItemCount } from "@/hooks/wishlist/use-wishlist";
 
 const headerVariants = cva("sticky top-0 z-50 w-full border-b bg-white shadow-sm", {
   variants: {
@@ -51,8 +52,9 @@ interface Category {
 }
 
 const navigationItems: NavigationItem[] = [
-  { href: "/categories/new", label: "신상품" },
-  { href: "/categories/best", label: "베스트" },
+  { href: "/products", label: "전체 상품" },
+  { href: "/new", label: "신상품" },
+  { href: "/best", label: "베스트" },
 ];
 
 const categories: Category[] = [
@@ -76,6 +78,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
     const router = useRouter();
     const { user } = useAuth();
     const { data: cartItemCount = 0 } = useCartItemCount();
+    const { data: wishlistItemCount = 0 } = useWishlistItemCount();
     const [categoryOpen, setCategoryOpen] = useState(false);
 
     const handleSearchSubmit = (query: string) => {
@@ -220,6 +223,14 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                 >
                   <Link href="/wishlist">
                     <Heart className="h-6 w-6 text-gray-700 hover:text-purple-600" />
+                    {wishlistItemCount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+                      >
+                        {wishlistItemCount > 99 ? "99+" : wishlistItemCount}
+                      </Badge>
+                    )}
                   </Link>
                 </Button>
 

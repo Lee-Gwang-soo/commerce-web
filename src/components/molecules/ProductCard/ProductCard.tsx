@@ -4,12 +4,11 @@ import { forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import { Heart, ShoppingCart, Eye } from "lucide-react";
+import { Heart, ShoppingCart, Eye, MessageCircle } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/atoms/Badge";
 import { Price } from "@/components/atoms/Price";
-import { Rating } from "@/components/atoms/Rating";
 import { ImageWithFallback } from "@/components/atoms/ImageWithFallback";
 import { Typography } from "@/components/atoms/Typography";
 import type { Product } from "@/types/database";
@@ -106,6 +105,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
       is_featured,
       short_description,
       tags = [],
+      review_count,
     } = product;
 
     const mainImage = images[0] || "/images/placeholder-product.jpg";
@@ -192,9 +192,14 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
               </div>
             )}
 
-            {/* Action Buttons */}
-            <div className="absolute right-3 top-3 flex flex-col gap-2 opacity-0 transition-opacity group-hover:opacity-100">
-              {showWishlistButton && (
+            {/* Wishlist Button (Top Right) */}
+            {showWishlistButton && (
+              <div
+                className={cn(
+                  "absolute right-3 top-3 flex flex-col gap-2 transition-opacity",
+                  isInWishlist ? "opacity-100" : "opacity-0 group-hover:opacity-100"
+                )}
+              >
                 <Button
                   variant="secondary"
                   size="sm"
@@ -204,91 +209,74 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
                 >
                   <Heart className={cn("h-4 w-4", isInWishlist && "fill-red-500 text-red-500")} />
                 </Button>
-              )}
-              {showQuickView && (
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-8 w-8 p-0 bg-white/90 hover:bg-white shadow-sm"
-                  onClick={handleQuickView}
-                  aria-label="Quick view"
-                >
-                  <Eye className="h-4 w-4" />
-                </Button>
-              )}
-            </div>
-
-            {/* Quick Add to Cart (Overlay) */}
-            {showCartButton && layout === "vertical" && (
-              <div className="absolute bottom-3 left-3 right-3 opacity-0 transition-opacity group-hover:opacity-100">
-                <Button
-                  variant="default"
-                  size="sm"
-                  className="w-full bg-blue-600 hover:bg-blue-700 shadow-sm"
-                  onClick={handleCartClick}
-                  disabled={isOutOfStock}
-                >
-                  <ShoppingCart className="mr-2 h-4 w-4" />
-                  {isOutOfStock ? "품절" : "장바구니 담기"}
-                </Button>
               </div>
             )}
           </div>
         </Link>
 
+        {/* Add to Cart Button (Between Image and Content) */}
+        {showCartButton && layout === "vertical" && (
+          <div className="px-3 pt-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full bg-white hover:bg-gray-50 text-black border-black font-medium"
+              onClick={handleCartClick}
+              disabled={isOutOfStock}
+            >
+              <ShoppingCart className="mr-2 h-4 w-4" />
+              {isOutOfStock ? "품절" : "담기"}
+            </Button>
+          </div>
+        )}
+
         {/* Content */}
-        <CardContent className={cn("p-4 pb-6", layout === "horizontal" && "flex-1")}>
-          <div className="space-y-4">
+        <CardContent className={cn("p-3 pb-3", layout === "horizontal" && "flex-1")}>
+          <div className="space-y-2">
             {/* Product Name */}
             <Typography
               variant="h6"
-              className="line-clamp-2 font-medium leading-tight text-gray-900 hover:text-blue-600 transition-colors min-h-[2.5rem]"
+              className="line-clamp-2 font-medium leading-tight text-gray-900 hover:text-blue-600 transition-colors"
             >
               {name}
             </Typography>
 
-            {/* Description */}
-            {short_description && (
-              <Typography variant="small" className="line-clamp-2 text-gray-600">
-                {short_description}
+            {/* Price Row: Original Price + Discount Badge OR Just Price */}
+            <div className="flex items-center gap-2">
+              {hasDiscount ? (
+                <>
+                  <Typography variant="small" className="text-gray-400 line-through">
+                    ₩{price.toLocaleString()}
+                  </Typography>
+                  <Badge
+                    variant="destructive"
+                    size="sm"
+                    className="bg-red-100 text-red-700 border-red-200"
+                  >
+                    {discountRate}% 할인
+                  </Badge>
+                </>
+              ) : (
+                <Typography variant="h6" className="font-bold text-gray-900">
+                  ₩{price.toLocaleString()}
+                </Typography>
+              )}
+            </div>
+
+            {/* Discounted Price (only if has discount) */}
+            {hasDiscount && (
+              <Typography variant="h6" className="font-bold text-gray-900">
+                ₩{finalPrice.toLocaleString()}
               </Typography>
             )}
 
-            {/* Rating */}
-            {showRating && (
-              <Rating
-                rating={4.5} // TODO: Get from product data
-                size="sm"
-                showText
-                showCount
-                count={128} // TODO: Get from product data
-              />
-            )}
-
-            {/* Price */}
-            <div className="min-h-[60px] flex flex-col justify-start">
-              <Price
-                price={finalPrice}
-                originalPrice={hasDiscount ? price : undefined}
-                size="lg"
-                showDiscount
-                vertical
-              />
-            </div>
-
-            {/* Tags */}
-            {tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-auto">
-                {tags.slice(0, 3).map((tag, index) => (
-                  <Badge
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    className="text-gray-600 border-gray-300"
-                  >
-                    {tag}
-                  </Badge>
-                ))}
+            {/* Review Count */}
+            {review_count !== null && review_count !== undefined && (
+              <div className="flex items-center gap-1 text-gray-600">
+                <MessageCircle className="h-4 w-4" />
+                <Typography variant="small" className="text-gray-600">
+                  ({review_count})
+                </Typography>
               </div>
             )}
           </div>

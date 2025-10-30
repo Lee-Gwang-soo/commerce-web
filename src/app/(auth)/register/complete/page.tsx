@@ -6,6 +6,8 @@ import { Layout } from "@/components/templates/Layout";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/atoms/Typography";
 
+export const dynamic = "force-dynamic";
+
 export default function RegisterCompletePage() {
   const searchParams = useSearchParams();
   const name = searchParams.get("name") || "회원";

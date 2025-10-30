@@ -7,6 +7,8 @@ import { Typography } from "@/components/atoms/Typography";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function CheckoutSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();

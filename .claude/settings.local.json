@@ -53,7 +53,8 @@
       "Bash(npx tsc:*)",
       "Bash(for:*)",
       "Bash(do echo \"=== $file ===\")",
-      "Bash(done)"
+      "Bash(done)",
+      "Bash(echo:*)"
     ],
     "deny": [],
     "ask": []

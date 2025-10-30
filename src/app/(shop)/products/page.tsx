@@ -17,6 +17,8 @@ import type {
   PriceRange,
 } from "@/components/molecules/ProductFilters/ProductFilters";
 
+export const dynamic = "force-dynamic";
+
 export default function ProductsPage() {
   const searchParams = useSearchParams();
 

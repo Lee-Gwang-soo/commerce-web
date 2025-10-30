@@ -1,23 +1,22 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSession } from "@/lib/auth/session";
 import bcrypt from "bcryptjs";
-import { parse } from "cookie";
 import type { CommerceUser, CommerceUserUpdate } from "@/types/database";
+import { transformUserForResponse } from "@/lib/utils/transformUser";
 
 export async function PUT(request: NextRequest) {
   try {
-    const cookies = parse(request.headers.get("cookie") || "");
-    const sessionId = cookies.user_session;
+    const session = await getSession();
 
-    if (!sessionId) {
+    if (!session) {
       return NextResponse.json(
-        {
-          code: "UNAUTHORIZED",
-          message: "로그인이 필요합니다.",
-        },
+        { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+
+    const sessionId = session.id; // UUID (commerce_user.id)
 
     // 현재 사용자 정보 조회
     const { data: currentUser, error: fetchError } = await supabaseAdmin
@@ -166,18 +165,7 @@ export async function PUT(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "회원정보가 수정되었습니다.",
-      data: {
-        id: updatedUser.id,
-        userId: updatedUser.user_id,
-        name: updatedUser.name,
-        email: updatedUser.email,
-        phone: updatedUser.phone,
-        address: updatedUser.address,
-        marketing_agreed: updatedUser.marketing_agreed,
-        benefits_agreed: updatedUser.benefits_agreed,
-        created_at: updatedUser.created_at,
-        updated_at: updatedUser.updated_at,
-      },
+      data: transformUserForResponse(updatedUser),
     });
   } catch (error) {
     console.error("회원정보 수정 API 오류:", error);

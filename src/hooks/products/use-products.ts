@@ -133,8 +133,10 @@ export const useInfiniteProducts = (params?: {
     initialPageParam: 1,
     staleTime: 1000 * 60 * 5, // 5분
     select: (data) => {
-      // 페이지들의 데이터를 평탄화
-      return data.pages.flatMap((page) => page.data);
+      // 페이지들의 데이터를 평탄화하되 totalCount는 유지
+      const totalCount = data.pages[0]?.totalCount || 0;
+      const products = data.pages.flatMap((page) => page.data);
+      return { products, totalCount };
     },
   });
 };

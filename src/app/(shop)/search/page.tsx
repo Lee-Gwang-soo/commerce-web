@@ -33,16 +33,17 @@ export default function SearchPage() {
   const [sortBy, setSortBy] = useState("relevance");
 
   // 카테고리 개수 계산용 - 카테고리 필터 없이 검색어와 가격만으로 조회
-  const { data: allSearchResults = [] } = useInfiniteProducts({
+  const { data: allSearchData } = useInfiniteProducts({
     search: searchQuery,
     priceRange: selectedPriceRange,
     sortBy: "latest",
     limit: 100, // 개수 계산을 위해 더 많은 결과 가져오기
   });
+  const allSearchResults = allSearchData?.products || [];
 
   // 검색 결과 조회 (실제 표시용 - 카테고리 필터 적용)
   const {
-    data: searchResults = [],
+    data: searchData,
     isLoading: searchLoading,
     error: searchError,
     fetchNextPage,
@@ -55,6 +56,7 @@ export default function SearchPage() {
     sortBy: sortBy === "relevance" ? "latest" : sortBy,
     limit: 12,
   });
+  const searchResults = searchData?.products || [];
 
   // 검색 결과를 기반으로 카테고리별 개수 계산 (카테고리 필터 제외한 전체 결과 사용)
   const categoriesWithCount = useMemo(() => {

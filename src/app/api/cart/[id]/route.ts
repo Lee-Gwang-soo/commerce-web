@@ -1,20 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
 import type { CartItem, Product } from "@/types/database";
 
 // PATCH - 장바구니 아이템 수량 변경
 export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const cookieStore = cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+    const userId = session.id; // UUID (commerce_user.id)
 
     const { id } = params;
     const body = await request.json();
@@ -111,8 +111,15 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 // DELETE - 장바구니 아이템 삭제
 export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const cookieStore = cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
+        { status: 401 }
+      );
+    }
+    const userId = session.id; // UUID (commerce_user.id)
 
     if (!userId) {
       return NextResponse.json(

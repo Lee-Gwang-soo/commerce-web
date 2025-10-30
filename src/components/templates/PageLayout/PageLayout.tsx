@@ -160,12 +160,12 @@ const PageLayout = forwardRef<HTMLDivElement, PageLayoutProps>(
 
                 <div className="min-w-0 flex-1">
                   {title && (
-                    <Typography variant="h1" className="mb-2">
+                    <Typography variant="h2" className="mb-2">
                       {title}
                     </Typography>
                   )}
                   {description && (
-                    <Typography variant="lead" color="muted">
+                    <Typography variant="h4" color="muted">
                       {description}
                     </Typography>
                   )}

@@ -1,14 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { parse } from "cookie";
+import { getSession } from "@/lib/auth/session";
 import type { CommerceUser } from "@/types/database";
+import { transformUserForResponse } from "@/lib/utils/transformUser";
 
 export async function GET(request: NextRequest) {
   try {
-    const cookies = parse(request.headers.get("cookie") || "");
-    const sessionId = cookies.user_session;
+    const session = await getSession();
 
-    if (!sessionId) {
+    if (!session) {
       return NextResponse.json(
         {
           code: "UNAUTHORIZED",
@@ -18,12 +18,14 @@ export async function GET(request: NextRequest) {
       );
     }
 
+    const userId = session.id; // UUID (commerce_user.id)
+
     const { data: user, error: fetchError } = await supabaseAdmin
       .from("commerce_user")
       .select(
         "id, user_id, name, email, phone, address, marketing_agreed, benefits_agreed, created_at, updated_at"
       )
-      .eq("id", sessionId)
+      .eq("id", userId)
       .single<CommerceUser>();
 
     if (fetchError || !user) {
@@ -38,18 +40,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      data: {
-        id: user.id,
-        userId: user.user_id,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        address: user.address,
-        marketing_agreed: user.marketing_agreed,
-        benefits_agreed: user.benefits_agreed,
-        created_at: user.created_at,
-        updated_at: user.updated_at,
-      },
+      data: transformUserForResponse(user),
     });
   } catch (error) {
     console.error("사용자 정보 조회 API 오류:", error);

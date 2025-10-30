@@ -1,7 +1,7 @@
 // app/api/confirm-payment/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
 import type { Order } from "@/types/database";
 
 const secretKey = process.env.TOSS_SECRET_KEY!;
@@ -21,15 +21,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+    const userId = session.id; // UUID (commerce_user.id)
 
     // 주문 확인
     const { data: order, error: orderError } = await supabaseAdmin

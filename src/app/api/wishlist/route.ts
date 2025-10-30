@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSession } from "@/lib/auth/session";
 import type { Wishlist } from "@/types/database";
 
 // GET - 찜목록 조회
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+
+    const userId = session.id; // UUID (commerce_user.id)
 
     // 찜목록 조회 (product 정보 포함)
     const { data: wishlistItems, error } = await supabaseAdmin
@@ -59,15 +60,16 @@ export async function GET(request: NextRequest) {
 // POST - 찜목록에 상품 추가
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+
+    const userId = session.id; // UUID (commerce_user.id)
 
     const body = await request.json();
     const { product_id } = body;

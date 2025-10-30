@@ -1,7 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { ProductGrid } from "@/components/organisms/ProductGrid";
@@ -52,19 +53,29 @@ export default function CategoryPage() {
   const [sortBy, setSortBy] = useState("latest");
 
   // 필터 적용된 상품 조회
-  const {
-    data: products = [],
-    isLoading,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteProducts({
-    categories: [category?.id, ...selectedSubcategories].filter(Boolean),
-    priceRange: selectedPriceRange,
-    sortBy,
-    limit: 12,
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteProducts({
+      categories: [category?.id, ...selectedSubcategories].filter(Boolean),
+      priceRange: selectedPriceRange,
+      sortBy,
+      limit: 12,
+    });
+
+  const products = data?.products || [];
+  const totalCount = data?.totalCount || 0;
+
+  // Infinite scroll을 위한 intersection observer
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "100px",
   });
+
+  // 스크롤이 끝에 도달하면 다음 페이지 로드
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // 활성 필터 수 계산
   const activeFiltersCount = useMemo(() => {
@@ -117,8 +128,6 @@ export default function CategoryPage() {
     );
   }
 
-  const totalProducts = products.length;
-
   return (
     <Layout>
       <PageLayout
@@ -150,7 +159,7 @@ export default function CategoryPage() {
             {/* 필터 요약 및 정렬 */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div className="flex flex-col gap-2">
-                <Typography variant="muted">총 {totalProducts}개 상품</Typography>
+                <Typography variant="muted">총 {totalCount}개 상품</Typography>
 
                 {/* 활성 필터 표시 */}
                 {activeFiltersCount > 0 && (
@@ -198,11 +207,20 @@ export default function CategoryPage() {
               onEmptyAction={handleClearFilters}
               columns="auto"
               gap="lg"
-              showLoadMore={hasNextPage}
-              onLoadMore={fetchNextPage}
-              loadMoreLoading={isFetchingNextPage}
-              loadMoreText="더 많은 상품 보기"
+              showLoadMore={false}
             />
+
+            {/* Infinite scroll trigger */}
+            {hasNextPage && (
+              <div ref={ref} className="flex justify-center py-8">
+                {isFetchingNextPage && (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600" />
+                    <Typography variant="muted">상품을 불러오는 중...</Typography>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </PageLayout>

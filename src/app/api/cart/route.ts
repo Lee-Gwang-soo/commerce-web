@@ -1,20 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
 import type { CartItem, Product } from "@/types/database";
 
 // GET - 장바구니 조회
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+
+    const userId = session.id; // UUID (commerce_user.id)
 
     // 장바구니 아이템 조회 (상품 정보 포함)
     const { data: cartItems, error } = await supabaseAdmin
@@ -70,15 +71,16 @@ export async function GET(request: NextRequest) {
 // POST - 장바구니에 상품 추가
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+
+    const userId = session.id; // UUID (commerce_user.id)
 
     const body = await request.json();
     const { product_id, quantity = 1 } = body;

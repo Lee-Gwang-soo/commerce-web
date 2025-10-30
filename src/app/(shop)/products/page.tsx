@@ -1,38 +1,21 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
+import { useInView } from "react-intersection-observer";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { ProductGrid } from "@/components/organisms/ProductGrid";
 import { ProductFilters } from "@/components/molecules/ProductFilters";
 import { ProductSort } from "@/components/molecules/ProductSort";
 import { Typography } from "@/components/atoms/Typography";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { useProducts, useInfiniteProducts } from "@/hooks/products/use-products";
+import { useInfiniteProducts } from "@/hooks/products/use-products";
+import { useCategories } from "@/hooks/categories/use-categories";
 import type {
   FilterOption,
   PriceRange,
 } from "@/components/molecules/ProductFilters/ProductFilters";
-
-// 임시 필터 데이터 (실제로는 API에서 가져올 예정)
-const mockCategories: FilterOption[] = [
-  { id: "electronics", label: "전자기기", count: 152 },
-  { id: "fashion", label: "패션", count: 234 },
-  { id: "home", label: "홈&리빙", count: 89 },
-  { id: "beauty", label: "뷰티", count: 67 },
-  { id: "sports", label: "스포츠", count: 123 },
-  { id: "books", label: "도서", count: 45 },
-];
-
-const mockBrands: FilterOption[] = [
-  { id: "samsung", label: "삼성", count: 45 },
-  { id: "lg", label: "LG", count: 32 },
-  { id: "apple", label: "Apple", count: 28 },
-  { id: "nike", label: "Nike", count: 56 },
-  { id: "adidas", label: "Adidas", count: 41 },
-];
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
@@ -46,43 +29,46 @@ export default function ProductsPage() {
   const [selectedCategories, setSelectedCategories] = useState<string[]>(
     initialCategory ? [initialCategory] : []
   );
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState<PriceRange>({
     min: 0,
     max: 1000000,
   });
   const [sortBy, setSortBy] = useState(initialSort);
 
+  // 카테고리 목록 조회
+  const { data: categoriesData = [] } = useCategories();
+
   // 필터 적용된 상품 조회
-  const {
-    data: products = [],
-    isLoading,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteProducts({
-    categories: selectedCategories,
-    brands: selectedBrands,
-    priceRange: selectedPriceRange,
-    sortBy,
-    search: initialSearch,
-    limit: 12,
-  });
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteProducts({
+      categories: selectedCategories,
+      priceRange: selectedPriceRange,
+      sortBy,
+      search: initialSearch,
+      limit: 12,
+    });
+
+  const products = data?.products || [];
+  const totalCount = data?.totalCount || 0;
+
+  // 카테고리 데이터를 FilterOption 형식으로 변환
+  const categories: FilterOption[] = categoriesData.map((category) => ({
+    id: category.id,
+    label: category.name,
+    count: category.count,
+  }));
 
   // 활성 필터 수 계산
   const activeFiltersCount = useMemo(() => {
     return (
       selectedCategories.length +
-      selectedBrands.length +
       (selectedPriceRange.min > 0 || selectedPriceRange.max < 1000000 ? 1 : 0)
     );
-  }, [selectedCategories, selectedBrands, selectedPriceRange]);
+  }, [selectedCategories, selectedPriceRange]);
 
   // 필터 초기화
   const handleClearFilters = () => {
     setSelectedCategories([]);
-    setSelectedBrands([]);
     setSelectedPriceRange({ min: 0, max: 1000000 });
   };
 
@@ -91,9 +77,6 @@ export default function ProductsPage() {
     switch (type) {
       case "category":
         setSelectedCategories((prev) => prev.filter((cat) => cat !== value));
-        break;
-      case "brand":
-        setSelectedBrands((prev) => prev.filter((brand) => brand !== value));
         break;
       case "price":
         setSelectedPriceRange({ min: 0, max: 1000000 });
@@ -106,38 +89,40 @@ export default function ProductsPage() {
     if (initialSearch) {
       return `"${initialSearch}" 검색 결과`;
     }
-    if (initialCategory) {
-      const category = mockCategories.find((cat) => cat.id === initialCategory);
-      return category ? `${category.label} 상품` : "전체 상품";
-    }
     return "전체 상품";
-  }, [initialSearch, initialCategory]);
+  }, [initialSearch]);
 
-  // 상품 총 개수 (실제로는 API에서 받을 예정)
-  const totalProducts = products.length;
+  // Infinite scroll을 위한 intersection observer
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "100px",
+  });
+
+  // 스크롤이 끝에 도달하면 다음 페이지 로드
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
     <Layout>
       <PageLayout
         title={pageTitle}
-        description={`${totalProducts}개의 상품을 찾았습니다`}
+        description={`${totalCount}개의 상품을 찾았습니다`}
         breadcrumbs={[
           { label: "홈", href: "/" },
           { label: "상품", href: "/products" },
-          ...(initialCategory ? [{ label: pageTitle }] : []),
         ]}
       >
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
           {/* 필터 사이드바 */}
           <div className="lg:col-span-1">
             <ProductFilters
-              categories={mockCategories}
-              brands={mockBrands}
+              categories={categories}
               selectedCategories={selectedCategories}
-              selectedBrands={selectedBrands}
               selectedPriceRange={selectedPriceRange}
               onCategoryChange={setSelectedCategories}
-              onBrandChange={setSelectedBrands}
               onPriceRangeChange={setSelectedPriceRange}
               onClearFilters={handleClearFilters}
               activeFiltersCount={activeFiltersCount}
@@ -150,13 +135,13 @@ export default function ProductsPage() {
             {/* 필터 요약 및 정렬 */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div className="flex flex-col gap-2">
-                <Typography variant="muted">총 {totalProducts}개 상품</Typography>
+                <Typography variant="muted">총 {totalCount}개 상품</Typography>
 
                 {/* 활성 필터 표시 */}
                 {activeFiltersCount > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {selectedCategories.map((categoryId) => {
-                      const category = mockCategories.find((cat) => cat.id === categoryId);
+                      const category = categories.find((cat) => cat.id === categoryId);
                       return category ? (
                         <Badge
                           key={categoryId}
@@ -165,20 +150,6 @@ export default function ProductsPage() {
                           onClick={() => removeFilter("category", categoryId)}
                         >
                           {category.label} ×
-                        </Badge>
-                      ) : null;
-                    })}
-
-                    {selectedBrands.map((brandId) => {
-                      const brand = mockBrands.find((b) => b.id === brandId);
-                      return brand ? (
-                        <Badge
-                          key={brandId}
-                          variant="secondary"
-                          className="cursor-pointer"
-                          onClick={() => removeFilter("brand", brandId)}
-                        >
-                          {brand.label} ×
                         </Badge>
                       ) : null;
                     })}
@@ -212,11 +183,20 @@ export default function ProductsPage() {
               onEmptyAction={handleClearFilters}
               columns="auto"
               gap="lg"
-              showLoadMore={hasNextPage}
-              onLoadMore={fetchNextPage}
-              loadMoreLoading={isFetchingNextPage}
-              loadMoreText="더 많은 상품 보기"
+              showLoadMore={false}
             />
+
+            {/* Infinite scroll trigger */}
+            {hasNextPage && (
+              <div ref={ref} className="flex justify-center py-8">
+                {isFetchingNextPage && (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600" />
+                    <Typography variant="muted">상품을 불러오는 중...</Typography>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </PageLayout>

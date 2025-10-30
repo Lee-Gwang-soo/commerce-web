@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { useOrders } from "@/hooks/order/use-order";
 import { useAuthStore } from "@/store/authStore";
-import { Package, ChevronRight } from "lucide-react";
+import { Package, ChevronRight, Edit } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -213,13 +213,30 @@ export default function OrdersPage() {
                         {order.total_amount.toLocaleString()}원
                       </Typography>
                     </div>
-                    <Button
-                      variant="outline"
-                      onClick={() => router.push(`/mypage/orders/${order.id}`)}
-                    >
-                      주문 상세
-                      <ChevronRight className="ml-1 w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      {/* 리뷰 작성 버튼 (배송 완료 시에만 표시) */}
+                      {order.status === "delivered" && order.order_items.length > 0 && (
+                        <Button
+                          variant="outline"
+                          onClick={() =>
+                            router.push(
+                              `/mypage/reviews/create?productId=${order.order_items[0].product.id}&orderId=${order.id}`
+                            )
+                          }
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                        >
+                          <Edit className="mr-1 w-4 h-4" />
+                          리뷰 작성
+                        </Button>
+                      )}
+                      <Button
+                        variant="outline"
+                        onClick={() => router.push(`/mypage/orders/${order.id}`)}
+                      >
+                        주문 상세
+                        <ChevronRight className="ml-1 w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               </div>

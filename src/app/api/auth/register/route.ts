@@ -2,14 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import bcrypt from "bcryptjs";
 import type { CommerceUser } from "@/types/database";
+import { transformUserForResponse } from "@/lib/utils/transformUser";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, password, name, email, phone, address, marketing_agreed, benefits_agreed } =
+    const { user_id, password, name, email, phone, address, marketing_agreed, benefits_agreed } =
       body;
 
-    if (!userId || !password || !name || !email || !phone || !address) {
+    if (!user_id || !password || !name || !email || !phone || !address) {
       return NextResponse.json(
         {
           code: "INVALID_REQUEST",
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     const { data: existingUser, error: checkError } = await supabaseAdmin
       .from("commerce_user")
       .select("user_id")
-      .eq("user_id", userId)
+      .eq("user_id", user_id)
       .maybeSingle();
 
     if (existingUser) {
@@ -56,7 +57,7 @@ export async function POST(request: NextRequest) {
     const { data, error } = await supabaseAdmin
       .from("commerce_user")
       .insert({
-        user_id: userId,
+        user_id: user_id,
         password: hashedPassword,
         name,
         email,
@@ -89,12 +90,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "회원가입이 완료되었습니다.",
-      data: {
-        id: data.id,
-        userId: data.user_id,
-        name: data.name,
-        email: data.email,
-      },
+      data: transformUserForResponse(data),
     });
   } catch (error) {
     console.error("회원가입 API 오류:", error);

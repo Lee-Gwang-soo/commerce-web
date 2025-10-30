@@ -109,10 +109,10 @@ export default function CartPage() {
         >
           <div className="text-center py-16">
             <ShoppingBag className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
-            <Typography variant="h4" className="mb-2">
+            <Typography variant="h4" className="mb-2 text-center">
               장바구니가 비어있습니다
             </Typography>
-            <Typography variant="muted" className="mb-6">
+            <Typography variant="muted" className="mb-6 text-center">
               원하는 상품을 장바구니에 담아보세요
             </Typography>
             <Button asChild>

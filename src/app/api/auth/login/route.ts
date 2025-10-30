@@ -3,13 +3,14 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import bcrypt from "bcryptjs";
 import { serialize } from "cookie";
 import type { CommerceUser } from "@/types/database";
+import { createSessionData, transformUserForResponse } from "@/lib/utils/transformUser";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, password } = body;
+    const { user_id, password } = body;
 
-    if (!userId || !password) {
+    if (!user_id || !password) {
       return NextResponse.json(
         {
           code: "INVALID_REQUEST",
@@ -22,7 +23,7 @@ export async function POST(request: NextRequest) {
     const { data: user, error: fetchError } = await supabaseAdmin
       .from("commerce_user")
       .select("*")
-      .eq("user_id", userId)
+      .eq("user_id", user_id)
       .single<CommerceUser>();
 
     if (fetchError || !user) {
@@ -53,7 +54,10 @@ export async function POST(request: NextRequest) {
       email: user.email,
     });
 
-    const sessionCookie = serialize("user_session", user.id, {
+    // 세션 데이터를 JSON 객체로 저장 (camelCase)
+    const sessionData = JSON.stringify(createSessionData(user));
+
+    const sessionCookie = serialize("user_session", sessionData, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -64,12 +68,7 @@ export async function POST(request: NextRequest) {
     const response = NextResponse.json({
       success: true,
       message: "로그인에 성공했습니다.",
-      data: {
-        id: user.id,
-        userId: user.user_id,
-        name: user.name,
-        email: user.email,
-      },
+      data: transformUserForResponse(user),
     });
 
     response.headers.set("Set-Cookie", sessionCookie);

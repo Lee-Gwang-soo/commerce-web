@@ -1,21 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabase } from "@/lib/supabase/client";
-import { parse, serialize } from "cookie";
+import { getSession } from "@/lib/auth/session";
+import { serialize } from "cookie";
 
 export async function DELETE(request: NextRequest) {
   try {
-    const cookies = parse(request.headers.get("cookie") || "");
-    const sessionId = cookies.user_session;
+    const session = await getSession();
 
-    if (!sessionId) {
+    if (!session) {
       return NextResponse.json(
-        {
-          code: "UNAUTHORIZED",
-          message: "로그인이 필요합니다.",
-        },
+        { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+
+    const sessionId = session.id; // UUID (commerce_user.id)
 
     const { error } = await supabase.from("commerce_user").delete().eq("id", sessionId);
 
@@ -33,7 +32,7 @@ export async function DELETE(request: NextRequest) {
 
     console.log("회원 탈퇴 성공");
 
-    const sessionCookie = serialize("user_session", "", {
+    const clearSessionCookie = serialize("user_session", "", {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -46,7 +45,7 @@ export async function DELETE(request: NextRequest) {
       message: "회원 탈퇴가 완료되었습니다.",
     });
 
-    response.headers.set("Set-Cookie", sessionCookie);
+    response.headers.set("Set-Cookie", clearSessionCookie);
 
     return response;
   } catch (error) {

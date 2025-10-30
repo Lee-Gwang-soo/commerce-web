@@ -41,14 +41,11 @@ export interface ProductFiltersProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof filterSectionVariants> {
   categories?: FilterOption[];
-  brands?: FilterOption[];
   priceRange?: PriceRange;
   maxPrice?: number;
   selectedCategories?: string[];
-  selectedBrands?: string[];
   selectedPriceRange?: PriceRange;
   onCategoryChange?: (categories: string[]) => void;
-  onBrandChange?: (brands: string[]) => void;
   onPriceRangeChange?: (range: PriceRange) => void;
   onClearFilters?: () => void;
   showMobileButton?: boolean;
@@ -60,14 +57,11 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
     {
       className,
       categories = [],
-      brands = [],
       priceRange = { min: 0, max: 1000000 },
       maxPrice = 1000000,
       selectedCategories = [],
-      selectedBrands = [],
       selectedPriceRange = { min: 0, max: 1000000 },
       onCategoryChange,
-      onBrandChange,
       onPriceRangeChange,
       onClearFilters,
       showMobileButton = true,
@@ -79,7 +73,6 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const [categoryOpen, setCategoryOpen] = useState(true);
-    const [brandOpen, setBrandOpen] = useState(true);
     const [priceOpen, setPriceOpen] = useState(true);
 
     const handleCategoryChange = (categoryId: string, checked: boolean) => {
@@ -87,13 +80,6 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
         ? [...selectedCategories, categoryId]
         : selectedCategories.filter((id) => id !== categoryId);
       onCategoryChange?.(newCategories);
-    };
-
-    const handleBrandChange = (brandId: string, checked: boolean) => {
-      const newBrands = checked
-        ? [...selectedBrands, brandId]
-        : selectedBrands.filter((id) => id !== brandId);
-      onBrandChange?.(newBrands);
     };
 
     const handlePriceChange = (values: number[]) => {
@@ -340,39 +326,6 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
             </CollapsibleContent>
           </div>
         </Collapsible>
-
-        {/* 브랜드 필터 */}
-        {brands.length > 0 && (
-          <Collapsible open={brandOpen} onOpenChange={setBrandOpen}>
-            <div className={cn(filterSectionVariants({ spacing }))}>
-              <CollapsibleTrigger asChild>
-                <Button variant="ghost" className="w-full justify-between p-0 h-auto font-semibold">
-                  <Typography variant="h6">브랜드</Typography>
-                  <ChevronDown
-                    className={cn("h-4 w-4 transition-transform", brandOpen && "rotate-180")}
-                  />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-4 space-y-3">
-                {brands.map((brand) => (
-                  <div key={brand.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`brand-${brand.id}`}
-                      checked={selectedBrands.includes(brand.id)}
-                      onCheckedChange={(checked) => handleBrandChange(brand.id, checked as boolean)}
-                    />
-                    <Label htmlFor={`brand-${brand.id}`} className="flex-1 text-sm cursor-pointer">
-                      {brand.label}
-                      {brand.count && (
-                        <span className="ml-2 text-muted-foreground">({brand.count})</span>
-                      )}
-                    </Label>
-                  </div>
-                ))}
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
-        )}
 
         {/* 필터 초기화 */}
         {activeFiltersCount > 0 && (

@@ -5,7 +5,7 @@ import { Layout } from "@/components/templates/Layout";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/atoms/Typography";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { User, Package, Settings, LogOut } from "lucide-react";
+import { User, Package, Settings, LogOut, MessageSquare } from "lucide-react";
 import { useAuthStore } from "@/store/authStore";
 import { useLogout } from "@/hooks/auth/useAuth";
 import { useEffect, useState } from "react";
@@ -62,6 +62,13 @@ export default function MyPage() {
       title: "주문내역",
       description: "주문한 상품의 배송 현황을 확인하세요",
       onClick: () => router.push("/mypage/orders"),
+      disabled: false,
+    },
+    {
+      icon: MessageSquare,
+      title: "리뷰 관리",
+      description: "작성한 리뷰를 확인하고 수정하세요",
+      onClick: () => router.push("/mypage/reviews"),
       disabled: false,
     },
     {

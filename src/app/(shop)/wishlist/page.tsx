@@ -43,13 +43,13 @@ export default function WishlistPage() {
   if (!isAuthenticated) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center max-w-md mx-auto">
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className=" max-w-md mx-auto">
             <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <Typography variant="h3" className="mb-4">
+            <Typography variant="h3" className="mb-4 text-center">
               로그인이 필요합니다
             </Typography>
-            <Typography variant="muted" className="mb-6">
+            <Typography variant="muted" className="mb-6 text-center">
               찜목록을 확인하려면 로그인해주세요.
             </Typography>
             <Button onClick={() => router.push("/login")}>로그인하기</Button>

@@ -31,11 +31,11 @@ export async function GET(request: NextRequest) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
-    // 신상품 필터 (3개월 이내)
+    // 신상품 필터 (2개월 이내)
     if (isNew) {
-      const threeMonthsAgo = new Date();
-      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-      query = query.gte("created_at", threeMonthsAgo.toISOString());
+      const twoMonthsAgo = new Date();
+      twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+      query = query.gte("created_at", twoMonthsAgo.toISOString());
     }
 
     // 가격 범위 필터

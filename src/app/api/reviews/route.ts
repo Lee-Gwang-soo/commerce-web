@@ -28,11 +28,11 @@ export async function POST(request: NextRequest) {
 
     // 사용자 이름 조회 (UUID로 조회)
     console.log("사용자 정보 조회 중...");
-    const { data: user, error: userError } = await supabaseAdmin
+    const { data: user, error: userError } = (await supabaseAdmin
       .from("commerce_user")
       .select("name")
       .eq("id", userUUID)
-      .single();
+      .single()) as { data: { name: string } | null; error: any };
 
     if (userError) {
       console.error("사용자 조회 에러:", userError);
@@ -47,8 +47,7 @@ export async function POST(request: NextRequest) {
 
     // 리뷰 작성 (user_id에 UUID 사용)
     console.log("리뷰 insert 시도...");
-    const { data: review, error: reviewError } = await supabaseAdmin
-      .from("reviews")
+    const { data: review, error: reviewError } = (await (supabaseAdmin.from("reviews") as any)
       .insert({
         product_id,
         user_id: userUUID, // UUID 사용
@@ -57,7 +56,7 @@ export async function POST(request: NextRequest) {
         images,
       })
       .select()
-      .single();
+      .single()) as { data: any; error: any };
 
     if (reviewError) {
       console.error("Review creation error:", reviewError);

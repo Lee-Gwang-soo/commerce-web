@@ -22,11 +22,11 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     // 리뷰 소유자 확인
-    const { data: existingReview, error: fetchError } = await supabaseAdmin
+    const { data: existingReview, error: fetchError } = (await supabaseAdmin
       .from("reviews")
       .select("user_id")
       .eq("id", id)
-      .single();
+      .single()) as { data: { user_id: string } | null; error: any };
 
     if (fetchError || !existingReview) {
       return NextResponse.json({ error: "리뷰를 찾을 수 없습니다." }, { status: 404 });
@@ -37,8 +37,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
     }
 
     // 리뷰 수정
-    const { data: review, error: updateError } = await supabaseAdmin
-      .from("reviews")
+    const { data: review, error: updateError } = (await (supabaseAdmin.from("reviews") as any)
       .update({
         content,
         images: images || [],
@@ -46,7 +45,7 @@ export async function PATCH(request: NextRequest, { params }: { params: Promise<
       })
       .eq("id", id)
       .select()
-      .single();
+      .single()) as { data: any; error: any };
 
     if (updateError) {
       console.error("Review update error:", updateError);
@@ -106,11 +105,11 @@ export async function DELETE(
     const userUUID = session.id; // UUID 사용
 
     // 리뷰 소유자 확인 및 이미지 URL 가져오기
-    const { data: existingReview, error: fetchError } = await supabaseAdmin
+    const { data: existingReview, error: fetchError } = (await supabaseAdmin
       .from("reviews")
       .select("user_id, images")
       .eq("id", id)
-      .single();
+      .single()) as { data: { user_id: string; images: string[] } | null; error: any };
 
     if (fetchError || !existingReview) {
       return NextResponse.json({ error: "리뷰를 찾을 수 없습니다." }, { status: 404 });

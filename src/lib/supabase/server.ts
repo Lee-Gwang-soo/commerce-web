@@ -5,8 +5,8 @@ import type { Database } from "@/types/database";
 
 // API 라우트용 서비스 역할 클라이언트 (RLS 우회)
 export const supabaseAdmin = createClient<Database>(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "https://placeholder.supabase.co",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || "placeholder-service-role-key",
   {
     auth: {
       autoRefreshToken: false,

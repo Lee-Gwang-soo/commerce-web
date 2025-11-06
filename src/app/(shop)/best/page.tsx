@@ -8,15 +8,10 @@ import { ProductGrid } from "@/components/organisms/ProductGrid";
 import { ProductSort } from "@/components/molecules/ProductSort";
 import { Typography } from "@/components/atoms/Typography";
 import { useInfiniteProducts } from "@/hooks/products/use-products";
-import { useAddToCart } from "@/hooks/cart/use-cart";
-import { useAuthStore } from "@/store/authStore";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useProductActions } from "@/hooks/products/use-product-actions";
 
 export default function BestProductsPage() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
-  const addToCart = useAddToCart();
+  const { handleAddToCart, handleToggleWishlist } = useProductActions();
   const [sortBy, setSortBy] = useState("sales_count");
 
   // 베스트 상품 조회 (판매량 순)
@@ -41,17 +36,6 @@ export default function BestProductsPage() {
       fetchNextPage();
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
-
-  // 장바구니 담기 핸들러
-  const handleAddToCart = (productId: string) => {
-    if (!isAuthenticated) {
-      toast.error("로그인이 필요합니다.");
-      router.push("/login");
-      return;
-    }
-
-    addToCart.mutate({ product_id: productId, quantity: 1 });
-  };
 
   return (
     <Layout>
@@ -78,6 +62,7 @@ export default function BestProductsPage() {
           gap="lg"
           showLoadMore={false}
           onAddToCart={handleAddToCart}
+          onAddToWishlist={handleToggleWishlist}
         />
 
         {/* Infinite scroll trigger */}

@@ -8,15 +8,10 @@ import { ProductGrid } from "@/components/organisms/ProductGrid";
 import { ProductSort } from "@/components/molecules/ProductSort";
 import { Typography } from "@/components/atoms/Typography";
 import { useInfiniteProducts } from "@/hooks/products/use-products";
-import { useAddToCart } from "@/hooks/cart/use-cart";
-import { useAuthStore } from "@/store/authStore";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
+import { useProductActions } from "@/hooks/products/use-product-actions";
 
 export default function NewProductsPage() {
-  const router = useRouter();
-  const { isAuthenticated } = useAuthStore();
-  const addToCart = useAddToCart();
+  const { handleAddToCart, handleToggleWishlist } = useProductActions();
   const [sortBy, setSortBy] = useState("created_at");
 
   // 신상품 조회 (3개월 이내, 최신순)
@@ -43,17 +38,6 @@ export default function NewProductsPage() {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // 장바구니 담기 핸들러
-  const handleAddToCart = (productId: string) => {
-    if (!isAuthenticated) {
-      toast.error("로그인이 필요합니다.");
-      router.push("/login");
-      return;
-    }
-
-    addToCart.mutate({ product_id: productId, quantity: 1 });
-  };
-
   return (
     <Layout>
       <PageLayout
@@ -79,6 +63,7 @@ export default function NewProductsPage() {
           gap="lg"
           showLoadMore={false}
           onAddToCart={handleAddToCart}
+          onAddToWishlist={handleToggleWishlist}
         />
 
         {/* Infinite scroll trigger */}

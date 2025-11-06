@@ -12,6 +12,7 @@ import { Typography } from "@/components/atoms/Typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useInfiniteProducts } from "@/hooks/products/use-products";
+import { useProductActions } from "@/hooks/products/use-product-actions";
 import { CATEGORIES, getCategoryInfo } from "@/lib/constants/categories";
 import type { Category } from "@/types/product";
 import type {
@@ -39,6 +40,7 @@ const subcategoryMap: Record<string, FilterOption[]> = {};
 export default function CategoryPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const { handleAddToCart, handleToggleWishlist } = useProductActions();
 
   // 카테고리 정보
   const category = categoryMap[slug];
@@ -205,6 +207,8 @@ export default function CategoryPage() {
               showEmptyAction={activeFiltersCount > 0}
               emptyActionText="필터 초기화"
               onEmptyAction={handleClearFilters}
+              onAddToCart={handleAddToCart}
+              onAddToWishlist={handleToggleWishlist}
               columns="auto"
               gap="lg"
               showLoadMore={false}

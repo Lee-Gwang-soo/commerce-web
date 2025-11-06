@@ -12,6 +12,7 @@ import { Typography } from "@/components/atoms/Typography";
 import { Badge } from "@/components/ui/badge";
 import { useInfiniteProducts } from "@/hooks/products/use-products";
 import { useCategories } from "@/hooks/categories/use-categories";
+import { useProductActions } from "@/hooks/products/use-product-actions";
 import type {
   FilterOption,
   PriceRange,
@@ -21,6 +22,7 @@ export const dynamic = "force-dynamic";
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
+  const { handleAddToCart, handleToggleWishlist } = useProductActions();
 
   // URL 파라미터에서 초기값 설정
   const initialCategory = searchParams.get("category");
@@ -183,6 +185,8 @@ export default function ProductsPage() {
               showEmptyAction={activeFiltersCount > 0}
               emptyActionText="필터 초기화"
               onEmptyAction={handleClearFilters}
+              onAddToCart={handleAddToCart}
+              onAddToWishlist={handleToggleWishlist}
               columns="auto"
               gap="lg"
               showLoadMore={false}

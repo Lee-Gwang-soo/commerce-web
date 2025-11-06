@@ -215,3 +215,48 @@ export async function POST(request: NextRequest) {
     );
   }
 }
+
+// DELETE - 장바구니 전체 비우기
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
+        { status: 401 }
+      );
+    }
+
+    const userId = session.id; // UUID (commerce_user.id)
+
+    // 사용자의 모든 장바구니 아이템 삭제
+    const { error } = await supabaseAdmin.from("cart_items").delete().eq("user_id", userId);
+
+    if (error) {
+      console.error("장바구니 전체 삭제 실패:", error);
+      return NextResponse.json(
+        {
+          code: "DELETE_FAILED",
+          message: "장바구니 비우기 중 오류가 발생했습니다.",
+          details: error.message,
+        },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "장바구니를 비웠습니다.",
+    });
+  } catch (error) {
+    console.error("장바구니 전체 삭제 API 오류:", error);
+    return NextResponse.json(
+      {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "장바구니 비우기 처리 중 오류가 발생했습니다.",
+      },
+      { status: 500 }
+    );
+  }
+}

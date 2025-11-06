@@ -102,4 +102,22 @@ export const cartApi = {
 
     return;
   },
+
+  // 장바구니 전체 비우기
+  clearCart: async () => {
+    const response = await fetch("/api/cart", {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      const err = new Error(error.message || "장바구니 비우기에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
+    }
+
+    const result = await response.json();
+    return result;
+  },
 };

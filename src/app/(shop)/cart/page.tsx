@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { Typography } from "@/components/atoms/Typography";
@@ -14,18 +16,25 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { AlertTriangle, ShoppingBag, Trash2, Plus, Minus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useCartItems, useUpdateCartItem, useRemoveFromCart } from "@/hooks/cart/use-cart";
+import {
+  useCartItems,
+  useUpdateCartItem,
+  useRemoveFromCart,
+  useClearCart,
+} from "@/hooks/cart/use-cart";
 import { useCartRecommendedProducts } from "@/hooks/products/use-products";
 import { ProductCard } from "@/components/molecules/ProductCard";
 
 export default function CartPage() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
+  const queryClient = useQueryClient();
 
   const { data: cartItems = [], isLoading } = useCartItems();
   // 총합은 선택된 항목 기준 우측 요약에서 계산하므로 훅 반환값은 미사용
   // const { data: cartTotal = 0 } = useCartTotal();
   const updateCartItem = useUpdateCartItem();
   const removeFromCart = useRemoveFromCart();
+  const clearCart = useClearCart();
 
   // 추천 상품 조회 (장바구니 로드 후에만 실행)
   const { data: recommendedProducts = [], isLoading: isLoadingRecommended } =
@@ -62,19 +71,36 @@ export default function CartPage() {
   };
 
   // 선택된 아이템들 제거
-  const handleRemoveSelected = () => {
-    selectedItems.forEach((itemId) => {
-      removeFromCart.mutate(itemId);
-    });
-    setSelectedItems([]);
+  const handleRemoveSelected = async () => {
+    if (selectedItems.length === 0) return;
+
+    try {
+      // 모든 삭제 요청을 병렬로 실행
+      await Promise.all(
+        selectedItems.map((itemId) =>
+          fetch(`/api/cart/${itemId}`, {
+            method: "DELETE",
+            credentials: "include",
+          })
+        )
+      );
+
+      // 성공 시 한번만 toast 표시
+      toast.success(`${selectedItems.length}개 상품을 삭제했습니다.`);
+
+      // 캐시 무효화
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+
+      setSelectedItems([]);
+    } catch (error) {
+      toast.error("선택한 상품 삭제에 실패했습니다.");
+    }
   };
 
   // 장바구니 비우기 (모든 아이템 삭제)
   const handleClearCart = () => {
     if (confirm("장바구니를 모두 비우시겠습니까?")) {
-      cartItems.forEach((item) => {
-        removeFromCart.mutate(item.id);
-      });
+      clearCart.mutate();
       setSelectedItems([]);
     }
   };

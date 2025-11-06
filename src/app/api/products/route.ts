@@ -53,12 +53,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Sorting
+    // Sorting (안정적인 정렬을 위해 보조 키로 id 추가)
     const validSorts = ["created_at", "price", "name", "review_count", "sales_count"];
     const sortField = validSorts.includes(sort) ? sort : "created_at";
     const sortOrder = order === "asc" ? { ascending: true } : { ascending: false };
 
-    query = query.order(sortField, sortOrder);
+    query = query.order(sortField, sortOrder).order("id", { ascending: true });
 
     // Pagination
     query = query.range(offset, offset + limit - 1);

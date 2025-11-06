@@ -316,7 +316,12 @@ export default function CartPage() {
                 ) : recommendedProducts.length > 0 ? (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                     {recommendedProducts.map((product: any) => (
-                      <ProductCard key={product.id} product={product} showActions />
+                      <ProductCard
+                        key={product.id}
+                        product={product}
+                        showWishlistButton
+                        showCartButton
+                      />
                     ))}
                   </div>
                 ) : (

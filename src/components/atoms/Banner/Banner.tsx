@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 
 const bannerVariants = cva("w-full relative overflow-hidden", {
   variants: {
@@ -57,6 +58,7 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
     },
     ref
   ) => {
+    const router = useRouter();
     const [currentIndex, setCurrentIndex] = useState(0);
     const [isVisible, setIsVisible] = useState(true);
     const [imageError, setImageError] = useState<Record<number, boolean>>({});
@@ -127,12 +129,13 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
                   신선한 식재료
                 </h1>
                 <p className="text-lg sm:text-xl md:text-2xl leading-relaxed opacity-95 drop-shadow-md">
-                  매일 새벽 배송으로 더 신선하게
+                  빠른 배송으로 신선하게
                 </p>
                 <div className="pt-4">
                   <Button
                     size="lg"
                     className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                    onClick={() => router.push("/products")}
                   >
                     지금 쇼핑하기
                   </Button>

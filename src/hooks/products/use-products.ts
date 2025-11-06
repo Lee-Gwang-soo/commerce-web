@@ -225,7 +225,7 @@ export const useCartRecommendedProducts = (
   limit = 3
 ) => {
   // 장바구니 상품의 카테고리 추출 (중복 제거)
-  const categories = [...new Set(cartItems.map((item) => item.product.category))];
+  const categories = Array.from(new Set(cartItems.map((item) => item.product.category)));
   // 장바구니 상품 ID들
   const excludeIds = cartItems.map((item) => item.product.id);
 

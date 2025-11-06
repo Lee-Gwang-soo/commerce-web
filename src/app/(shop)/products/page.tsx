@@ -22,7 +22,7 @@ export const dynamic = "force-dynamic";
 
 export default function ProductsPage() {
   const searchParams = useSearchParams();
-  const { handleAddToCart, handleToggleWishlist } = useProductActions();
+  const { handleAddToCart, handleToggleWishlist, getIsInWishlist } = useProductActions();
 
   // URL 파라미터에서 초기값 설정
   const initialCategory = searchParams.get("category");
@@ -187,6 +187,7 @@ export default function ProductsPage() {
               onEmptyAction={handleClearFilters}
               onAddToCart={handleAddToCart}
               onAddToWishlist={handleToggleWishlist}
+              getIsInWishlist={getIsInWishlist}
               columns="auto"
               gap="lg"
               showLoadMore={false}

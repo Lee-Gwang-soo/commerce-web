@@ -149,70 +149,72 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
         {...props}
       >
         {/* Image Container */}
-        <Link href={`/products/${id}`} className="block">
-          <div className={cn(imageContainerVariants({ layout }))}>
-            <ImageWithFallback
-              src={mainImage}
-              alt={name}
-              fill
-              className="object-cover transition-transform duration-300 group-hover:scale-105"
-              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            />
+        <div className="relative">
+          <Link href={`/products/${id}`} className="block">
+            <div className={cn(imageContainerVariants({ layout }))}>
+              <ImageWithFallback
+                src={mainImage}
+                alt={name}
+                fill
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
 
-            {/* Badges */}
-            {showBadges && (
-              <div className="absolute left-3 top-3 flex flex-col gap-2">
-                {is_featured && (
-                  <Badge
-                    variant="secondary"
-                    size="sm"
-                    className="bg-blue-100 text-blue-700 border-blue-200"
-                  >
-                    추천
-                  </Badge>
-                )}
-                {hasDiscount && (
-                  <Badge
-                    variant="destructive"
-                    size="sm"
-                    className="bg-red-100 text-red-700 border-red-200 whitespace-nowrap"
-                  >
-                    {discountRate}% 할인
-                  </Badge>
-                )}
-                {isOutOfStock && (
-                  <Badge
-                    variant="secondary"
-                    size="sm"
-                    className="bg-gray-100 text-gray-700 border-gray-200"
-                  >
-                    품절
-                  </Badge>
-                )}
-              </div>
-            )}
+              {/* Badges */}
+              {showBadges && (
+                <div className="absolute left-3 top-3 flex flex-col gap-2 z-10 pointer-events-none">
+                  {is_featured && (
+                    <Badge
+                      variant="secondary"
+                      size="sm"
+                      className="bg-blue-100 text-blue-700 border-blue-200"
+                    >
+                      추천
+                    </Badge>
+                  )}
+                  {hasDiscount && (
+                    <Badge
+                      variant="destructive"
+                      size="sm"
+                      className="bg-red-100 text-red-700 border-red-200 whitespace-nowrap"
+                    >
+                      {discountRate}% 할인
+                    </Badge>
+                  )}
+                  {isOutOfStock && (
+                    <Badge
+                      variant="secondary"
+                      size="sm"
+                      className="bg-gray-100 text-gray-700 border-gray-200"
+                    >
+                      품절
+                    </Badge>
+                  )}
+                </div>
+              )}
+            </div>
+          </Link>
 
-            {/* Wishlist Button (Top Right) */}
-            {showWishlistButton && (
-              <div
-                className={cn(
-                  "absolute right-3 top-3 flex flex-col gap-2 transition-opacity",
-                  isInWishlist ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                )}
+          {/* Wishlist Button (Top Right) - Outside Link */}
+          {showWishlistButton && (
+            <div className="absolute right-3 top-3 z-20 flex flex-col gap-2 transition-opacity opacity-100">
+              <Button
+                variant="secondary"
+                size="sm"
+                className="h-8 w-8 p-0 bg-white/90 hover:bg-white shadow-sm"
+                onClick={handleWishlistClick}
+                aria-label={isInWishlist ? "Remove from wishlist" : "Add to wishlist"}
               >
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="h-8 w-8 p-0 bg-white/90 hover:bg-white shadow-sm"
-                  onClick={handleWishlistClick}
-                  aria-label="Add to wishlist"
-                >
-                  <Heart className={cn("h-4 w-4", isInWishlist && "fill-red-500 text-red-500")} />
-                </Button>
-              </div>
-            )}
-          </div>
-        </Link>
+                <Heart
+                  className={cn(
+                    "h-4 w-4 transition-colors",
+                    isInWishlist && "fill-red-500 text-red-500"
+                  )}
+                />
+              </Button>
+            </div>
+          )}
+        </div>
 
         {/* Add to Cart Button (Between Image and Content) */}
         {showCartButton && layout === "vertical" && (

@@ -11,7 +11,7 @@ import { useInfiniteProducts } from "@/hooks/products/use-products";
 import { useProductActions } from "@/hooks/products/use-product-actions";
 
 export default function BestProductsPage() {
-  const { handleAddToCart, handleToggleWishlist } = useProductActions();
+  const { handleAddToCart, handleToggleWishlist, getIsInWishlist } = useProductActions();
   const [sortBy, setSortBy] = useState("sales_count");
 
   // 베스트 상품 조회 (판매량 순)
@@ -63,6 +63,7 @@ export default function BestProductsPage() {
           showLoadMore={false}
           onAddToCart={handleAddToCart}
           onAddToWishlist={handleToggleWishlist}
+          getIsInWishlist={getIsInWishlist}
         />
 
         {/* Infinite scroll trigger */}

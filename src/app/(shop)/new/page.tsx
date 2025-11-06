@@ -11,7 +11,7 @@ import { useInfiniteProducts } from "@/hooks/products/use-products";
 import { useProductActions } from "@/hooks/products/use-product-actions";
 
 export default function NewProductsPage() {
-  const { handleAddToCart, handleToggleWishlist } = useProductActions();
+  const { handleAddToCart, handleToggleWishlist, getIsInWishlist } = useProductActions();
   const [sortBy, setSortBy] = useState("created_at");
 
   // 신상품 조회 (3개월 이내, 최신순)
@@ -64,6 +64,7 @@ export default function NewProductsPage() {
           showLoadMore={false}
           onAddToCart={handleAddToCart}
           onAddToWishlist={handleToggleWishlist}
+          getIsInWishlist={getIsInWishlist}
         />
 
         {/* Infinite scroll trigger */}

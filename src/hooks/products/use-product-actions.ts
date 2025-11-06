@@ -1,11 +1,12 @@
 import { useRouter } from "next/navigation";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useAuthStore } from "@/store/authStore";
 import { useAddToCart } from "@/hooks/cart/use-cart";
 import {
   useAddToWishlist,
   useRemoveFromWishlist,
-  useIsInWishlist,
+  useWishlistItems,
 } from "@/hooks/wishlist/use-wishlist";
 
 /**
@@ -13,17 +14,20 @@ import {
  * 장바구니 담기, 찜하기/찜 취소 기능을 제공
  *
  * @example
- * const { handleAddToCart, handleToggleWishlist } = useProductActions();
+ * const { handleAddToCart, handleToggleWishlist, getIsInWishlist } = useProductActions();
  *
- * <ProductGrid
- *   products={products}
- *   onAddToCart={handleAddToCart}
- *   onAddToWishlist={handleToggleWishlist}
+ * <ProductCard
+ *   product={product}
+ *   onCartClick={handleAddToCart}
+ *   onWishlistClick={handleToggleWishlist}
+ *   isInWishlist={getIsInWishlist(product.id)}
  * />
  */
 export const useProductActions = () => {
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { isAuthenticated } = useAuthStore();
+  const { data: wishlistItems = [] } = useWishlistItems();
   const addToCart = useAddToCart();
   const addToWishlist = useAddToWishlist();
   const removeFromWishlist = useRemoveFromWishlist();
@@ -44,36 +48,53 @@ export const useProductActions = () => {
   };
 
   /**
+   * 상품이 찜목록에 있는지 확인
+   */
+  const getIsInWishlist = (productId: string): boolean => {
+    if (!isAuthenticated) return false;
+
+    // React Query 캐시에서 먼저 확인 (optimistic update 반영)
+    const cachedValue = queryClient.getQueryData<boolean>(["wishlist", "check", productId]);
+    if (typeof cachedValue === "boolean") {
+      return cachedValue;
+    }
+
+    // wishlistItems에서 확인
+    return wishlistItems.some((item) => item.product.id === productId);
+  };
+
+  /**
    * 찜하기/찜 취소 토글 핸들러
    * - 로그인 체크
    * - 이미 찜한 상품이면 제거, 아니면 추가
+   * - Optimistic update로 즉시 UI 반영
    */
-  const handleToggleWishlist = async (productId: string) => {
+  const handleToggleWishlist = (productId: string) => {
     if (!isAuthenticated) {
       toast.error("로그인이 필요합니다.");
       router.push("/login");
       return;
     }
 
-    // 찜목록 상태는 React Query의 캐시에서 확인
-    // 캐시에 있으면 이미 찜한 것
-    // useIsInWishlist 훅을 여기서 직접 사용할 수 없으므로
-    // 일단 추가 시도하고, 에러로 판단
-    try {
-      addToWishlist.mutate(productId);
-    } catch (error: any) {
-      // 이미 있는 경우는 에러 메시지로 판단
-      if (error?.message?.includes("이미")) {
-        // 찜목록에서 제거하는 로직이 필요할 수 있음
-        toast.info("이미 찜한 상품입니다.");
+    const isInWishlist = getIsInWishlist(productId);
+
+    if (isInWishlist) {
+      // 찜목록에서 제거
+      const wishlistItem = wishlistItems.find((item) => item.product.id === productId);
+      if (wishlistItem) {
+        removeFromWishlist.mutate(wishlistItem.id);
       }
+    } else {
+      // 찜목록에 추가
+      addToWishlist.mutate(productId);
     }
   };
 
   return {
     handleAddToCart,
     handleToggleWishlist,
+    getIsInWishlist,
     isAddingToCart: addToCart.isPending,
-    isAddingToWishlist: addToWishlist.isPending,
+    isTogglingWishlist: addToWishlist.isPending || removeFromWishlist.isPending,
   };
 };

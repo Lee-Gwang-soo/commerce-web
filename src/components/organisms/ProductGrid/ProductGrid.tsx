@@ -62,7 +62,8 @@ export interface ProductGridProps
   onAddToCart?: (productId: string) => void;
   onAddToWishlist?: (productId: string) => void;
   onQuickView?: (productId: string) => void;
-  wishlistItems?: string[];
+  wishlistItems?: string[]; // deprecated: use getIsInWishlist instead
+  getIsInWishlist?: (productId: string) => boolean;
   cardSize?: "sm" | "md" | "lg" | "full";
   cardLayout?: "vertical" | "horizontal";
   showLoadMore?: boolean;
@@ -88,6 +89,7 @@ const ProductGrid = forwardRef<HTMLDivElement, ProductGridProps>(
       onAddToWishlist,
       onQuickView,
       wishlistItems = [],
+      getIsInWishlist,
       cardSize = "full",
       cardLayout = "vertical",
       columns,
@@ -155,7 +157,9 @@ const ProductGrid = forwardRef<HTMLDivElement, ProductGridProps>(
               onCartClick={onAddToCart}
               onWishlistClick={onAddToWishlist}
               onQuickView={onQuickView}
-              isInWishlist={wishlistItems.includes(product.id)}
+              isInWishlist={
+                getIsInWishlist ? getIsInWishlist(product.id) : wishlistItems.includes(product.id)
+              }
               showQuickView={!!onQuickView}
             />
           ))}

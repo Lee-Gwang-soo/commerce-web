@@ -23,7 +23,9 @@ export const wishlistApi = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "찜목록 조회에 실패했습니다.");
+      const err = new Error(error.message || "찜목록 조회에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return response.json();
@@ -42,7 +44,9 @@ export const wishlistApi = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "찜목록 추가에 실패했습니다.");
+      const err = new Error(error.message || "찜목록 추가에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return response.json();
@@ -57,7 +61,9 @@ export const wishlistApi = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "찜목록 삭제에 실패했습니다.");
+      const err = new Error(error.message || "찜목록 삭제에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
   },
 };

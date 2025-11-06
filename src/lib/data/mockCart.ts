@@ -67,10 +67,7 @@ export const addToCart = (
   }
 };
 
-export const updateCartItemQuantity = (
-  itemId: string,
-  quantity: number
-): void => {
+export const updateCartItemQuantity = (itemId: string, quantity: number): void => {
   const cartItems = getCartItems();
   const itemIndex = cartItems.findIndex((item) => item.id === itemId);
 
@@ -102,10 +99,7 @@ export const getCartItemCount = (): number => {
   return cartItems.reduce((total, item) => total + item.quantity, 0);
 };
 
-export const isProductInCart = (
-  productId: string,
-  options?: Record<string, string>
-): boolean => {
+export const isProductInCart = (productId: string, options?: Record<string, string>): boolean => {
   const cartItems = getCartItems();
   return cartItems.some(
     (item) =>
@@ -124,27 +118,3 @@ export const calculateCartTotal = (
     return total + price * item.quantity;
   }, 0);
 };
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

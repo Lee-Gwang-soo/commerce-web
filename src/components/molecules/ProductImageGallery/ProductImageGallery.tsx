@@ -34,10 +34,7 @@ export interface ProductImageGalleryProps
   interval?: number;
 }
 
-const ProductImageGallery = forwardRef<
-  HTMLDivElement,
-  ProductImageGalleryProps
->(
+const ProductImageGallery = forwardRef<HTMLDivElement, ProductImageGalleryProps>(
   (
     {
       className,
@@ -69,12 +66,7 @@ const ProductImageGallery = forwardRef<
         >
           <div className="text-muted-foreground text-center">
             <div className="w-16 h-16 mx-auto mb-2 bg-muted-foreground/20 rounded-full flex items-center justify-center">
-              <svg
-                className="w-8 h-8"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path
                   strokeLinecap="round"
                   strokeLinejoin="round"

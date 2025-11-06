@@ -9,8 +9,7 @@ const badgeVariants = cva(
   {
     variants: {
       variant: {
-        default:
-          "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
+        default: "border-transparent bg-primary text-primary-foreground hover:bg-primary/80",
         secondary:
           "border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80",
         destructive:
@@ -44,16 +43,9 @@ export interface BadgeProps
 }
 
 const Badge = forwardRef<HTMLDivElement, BadgeProps>(
-  (
-    { className, variant, size, icon, removable, onRemove, children, ...props },
-    ref
-  ) => {
+  ({ className, variant, size, icon, removable, onRemove, children, ...props }, ref) => {
     return (
-      <div
-        className={cn(badgeVariants({ variant, size }), className)}
-        ref={ref}
-        {...props}
-      >
+      <div className={cn(badgeVariants({ variant, size }), className)} ref={ref} {...props}>
         {icon && <span className="mr-1">{icon}</span>}
         {children}
         {removable && (
@@ -63,12 +55,7 @@ const Badge = forwardRef<HTMLDivElement, BadgeProps>(
             onClick={onRemove}
             aria-label="Remove badge"
           >
-            <svg
-              className="h-2 w-2"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 8 8"
-            >
+            <svg className="h-2 w-2" fill="none" stroke="currentColor" viewBox="0 0 8 8">
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"

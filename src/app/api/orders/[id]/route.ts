@@ -1,29 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 // GET - 주문 상세 조회
-export async function GET(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+    const userId = session.id; // UUID (commerce_user.id)
 
     const { id } = await params;
 
     // 주문 상세 조회 (order_items 포함)
     const { data: order, error } = await supabaseAdmin
       .from("orders")
-      .select(`
+      .select(
+        `
         *,
         order_items (
           id,
@@ -38,7 +36,8 @@ export async function GET(
             sale_price
           )
         )
-      `)
+      `
+      )
       .eq("id", id)
       .eq("user_id", userId)
       .single();
@@ -62,13 +61,17 @@ export async function GET(
 }
 
 // PATCH - 주문 상태 업데이트
-export async function PATCH(
-  request: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
+        { status: 401 }
+      );
+    }
+    const userId = session.id; // UUID (commerce_user.id)
 
     if (!userId) {
       return NextResponse.json(
@@ -107,7 +110,8 @@ export async function PATCH(
 
     const { data: updatedOrder, error } = await supabaseAdmin
       .from("orders")
-      .update(updateData)
+      // @ts-expect-error - Supabase type issue
+      .update(updateData as any)
       .eq("id", id)
       .select()
       .single();

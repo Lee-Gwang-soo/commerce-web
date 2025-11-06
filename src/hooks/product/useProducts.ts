@@ -87,9 +87,7 @@ export const useProductReviews = (
     queryKey: ["reviews", productId, params],
     queryFn: async () => {
       if (!productId) throw new Error("Product ID is required");
-      const response = await fetch(
-        `/api/reviews/${productId}?${queryParams.toString()}`
-      );
+      const response = await fetch(`/api/reviews/${productId}?${queryParams.toString()}`);
       if (!response.ok) {
         throw new Error("Failed to fetch reviews");
       }

@@ -82,19 +82,13 @@ const CartItem = forwardRef<HTMLDivElement, CartItemProps>(
       return null;
     }
 
-    const {
-      name,
-      images = [],
-      price,
-      sale_price,
-      stock_quantity = 0,
-    } = product;
+    const { name, images = [], price, sale_price, stock = 0 } = product;
 
     const mainImage = images[0] || "/images/placeholder-product.jpg";
     const finalPrice = sale_price || price || 0;
     const totalPrice = finalPrice * quantity;
-    const isOutOfStock = stock_quantity <= 0;
-    const maxQuantity = Math.min(stock_quantity, 99);
+    const isOutOfStock = stock <= 0;
+    const maxQuantity = Math.min(stock, 99);
 
     const handleQuantityChange = (newQuantity: number) => {
       if (!disabled && onQuantityChange) {
@@ -138,12 +132,7 @@ const CartItem = forwardRef<HTMLDivElement, CartItemProps>(
           </div>
 
           {/* Product Info */}
-          <div
-            className={cn(
-              "flex-1 space-y-3",
-              layout === "horizontal" && "ml-4"
-            )}
-          >
+          <div className={cn("flex-1 space-y-3", layout === "horizontal" && "ml-4")}>
             {/* Header: Name & Remove Button */}
             <div className="flex items-start justify-between gap-2">
               <Typography variant="h6" className="line-clamp-2 font-medium">
@@ -180,10 +169,7 @@ const CartItem = forwardRef<HTMLDivElement, CartItemProps>(
 
             {/* Controls */}
             <div
-              className={cn(
-                "flex items-center gap-4",
-                layout === "vertical" && "justify-between"
-              )}
+              className={cn("flex items-center gap-4", layout === "vertical" && "justify-between")}
             >
               {/* Quantity */}
               <div className="flex items-center gap-2">

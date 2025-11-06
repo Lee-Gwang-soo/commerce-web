@@ -1,7 +1,8 @@
 // app/api/confirm-payment/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
+import type { Order } from "@/types/database";
 
 const secretKey = process.env.TOSS_SECRET_KEY!;
 
@@ -20,16 +21,15 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
-
+    const userId = session.id; // UUID (commerce_user.id)
 
     // 주문 확인
     const { data: order, error: orderError } = await supabaseAdmin
@@ -37,7 +37,7 @@ export async function POST(request: NextRequest) {
       .select("*")
       .eq("order_id", orderId)
       .eq("user_id", userId)
-      .single();
+      .single<Order>();
 
     if (orderError || !order) {
       return NextResponse.json(
@@ -67,23 +67,18 @@ export async function POST(request: NextRequest) {
     }
 
     // 토스페이먼츠 결제 승인 API 호출
-    const response = await fetch(
-      "https://api.tosspayments.com/v1/payments/confirm",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${Buffer.from(secretKey + ":").toString(
-            "base64"
-          )}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          paymentKey,
-          orderId,
-          amount,
-        }),
-      }
-    );
+    const response = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(secretKey + ":").toString("base64")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        paymentKey,
+        orderId,
+        amount,
+      }),
+    });
 
     const result = await response.json();
 
@@ -96,14 +91,16 @@ export async function POST(request: NextRequest) {
       });
 
       // 중복 요청 에러인 경우 (이미 처리된 경우)
-      if (result.code === "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING" ||
-          result.code === "ALREADY_PROCESSED_PAYMENT") {
+      if (
+        result.code === "FAILED_PAYMENT_INTERNAL_SYSTEM_PROCESSING" ||
+        result.code === "ALREADY_PROCESSED_PAYMENT"
+      ) {
         // DB에서 최신 주문 상태 확인
         const { data: latestOrder } = await supabaseAdmin
           .from("orders")
           .select("*")
           .eq("order_id", orderId)
-          .single();
+          .single<Order>();
 
         // 이미 결제 완료 상태라면 성공 응답
         if (latestOrder && latestOrder.payment_status === "paid") {
@@ -121,10 +118,11 @@ export async function POST(request: NextRequest) {
       // 주문 상태를 결제 실패로 업데이트
       await supabaseAdmin
         .from("orders")
+        // @ts-expect-error - Supabase type issue
         .update({
           payment_status: "failed",
           updated_at: new Date().toISOString(),
-        })
+        } as any)
         .eq("id", order.id);
 
       return NextResponse.json(result, { status: response.status });
@@ -133,12 +131,13 @@ export async function POST(request: NextRequest) {
     // 결제 승인 성공 - 주문 상태 업데이트
     const { error: updateError } = await supabaseAdmin
       .from("orders")
+      // @ts-expect-error - Supabase type issue
       .update({
         payment_status: "paid",
         payment_key: paymentKey,
         status: "payment_confirmed",
         updated_at: new Date().toISOString(),
-      })
+      } as any)
       .eq("id", order.id);
 
     if (updateError) {
@@ -146,10 +145,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 장바구니 비우기
-    await supabaseAdmin
-      .from("cart_items")
-      .delete()
-      .eq("user_id", userId);
+    await supabaseAdmin.from("cart_items").delete().eq("user_id", userId);
 
     // 결제 승인 성공
     console.log("결제 승인 성공:", {

@@ -6,6 +6,8 @@ import { Typography } from "@/components/atoms/Typography";
 import { Button } from "@/components/ui/button";
 import { XCircle } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function CheckoutFailPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -36,11 +38,7 @@ export default function CheckoutFailPage() {
           )}
 
           <div className="flex flex-col gap-3">
-            <Button
-              size="lg"
-              className="w-full"
-              onClick={() => router.push("/checkout")}
-            >
+            <Button size="lg" className="w-full" onClick={() => router.push("/checkout")}>
               다시 시도하기
             </Button>
             <Button
@@ -51,12 +49,7 @@ export default function CheckoutFailPage() {
             >
               장바구니로 돌아가기
             </Button>
-            <Button
-              variant="ghost"
-              size="lg"
-              className="w-full"
-              onClick={() => router.push("/")}
-            >
+            <Button variant="ghost" size="lg" className="w-full" onClick={() => router.push("/")}>
               홈으로 이동
             </Button>
           </div>

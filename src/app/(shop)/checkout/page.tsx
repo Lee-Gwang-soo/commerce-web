@@ -24,6 +24,8 @@ declare global {
   }
 }
 
+export const dynamic = "force-dynamic";
+
 export default function CheckoutPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -39,9 +41,7 @@ export default function CheckoutPage() {
   const selectedIdsParam = searchParams.get("selectedIds");
   const selectedIds = selectedIdsParam ? selectedIdsParam.split(",") : [];
   const itemsToOrder =
-    selectedIds.length > 0
-      ? cartItems.filter((item) => selectedIds.includes(item.id))
-      : cartItems;
+    selectedIds.length > 0 ? cartItems.filter((item) => selectedIds.includes(item.id)) : cartItems;
 
   // 주문자 정보 상태
   const [customerInfo, setCustomerInfo] = useState({
@@ -157,9 +157,7 @@ export default function CheckoutPage() {
       });
 
       // 토스페이먼츠 결제 연동 (Script 방식)
-      const tossPayments = window.TossPayments(
-        process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!
-      );
+      const tossPayments = window.TossPayments(process.env.NEXT_PUBLIC_TOSS_CLIENT_KEY!);
 
       await tossPayments.requestPayment("카드", {
         amount: finalAmount,
@@ -259,9 +257,7 @@ export default function CheckoutPage() {
                   <Input
                     id="name"
                     value={customerInfo.name}
-                    onChange={(e) =>
-                      setCustomerInfo({ ...customerInfo, name: e.target.value })
-                    }
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
                     placeholder="이름을 입력하세요"
                   />
                 </div>
@@ -271,9 +267,7 @@ export default function CheckoutPage() {
                     id="email"
                     type="email"
                     value={customerInfo.email}
-                    onChange={(e) =>
-                      setCustomerInfo({ ...customerInfo, email: e.target.value })
-                    }
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
                     placeholder="이메일을 입력하세요"
                   />
                 </div>
@@ -282,9 +276,7 @@ export default function CheckoutPage() {
                   <Input
                     id="phone"
                     value={customerInfo.phone}
-                    onChange={(e) =>
-                      setCustomerInfo({ ...customerInfo, phone: e.target.value })
-                    }
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
                     placeholder="전화번호를 입력하세요"
                   />
                 </div>
@@ -369,11 +361,7 @@ export default function CheckoutPage() {
                 onClick={handleCheckout}
                 disabled={!isSDKLoaded || createOrder.isPending}
               >
-                {!isSDKLoaded
-                  ? "로딩 중..."
-                  : createOrder.isPending
-                  ? "처리 중..."
-                  : "결제하기"}
+                {!isSDKLoaded ? "로딩 중..." : createOrder.isPending ? "처리 중..." : "결제하기"}
               </Button>
 
               <Typography variant="small" color="muted" className="mt-4 text-center">

@@ -40,7 +40,7 @@ const containerVariants = cva("flex items-center justify-center", {
 });
 
 export interface LoadingProps
-  extends React.HTMLAttributes<HTMLDivElement>,
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "color">,
     VariantProps<typeof loadingVariants>,
     VariantProps<typeof containerVariants> {
   text?: string;
@@ -50,17 +50,16 @@ export interface LoadingProps
 const Loading = forwardRef<HTMLDivElement, LoadingProps>(
   ({ className, size, color, direction, text, fullScreen, ...props }, ref) => {
     const content = (
-      <div
-        className={cn(containerVariants({ direction }), className)}
-        ref={ref}
-        {...props}
-      >
-        <Loader2 className={cn(loadingVariants({ size, color }))} />
-        {text && (
-          <span className="text-sm font-medium text-muted-foreground">
-            {text}
-          </span>
-        )}
+      <div className={cn(containerVariants({ direction }), className)} ref={ref} {...props}>
+        <Loader2
+          className={cn(
+            loadingVariants({
+              size,
+              color: color as "default" | "primary" | "secondary" | "white" | "black",
+            })
+          )}
+        />
+        {text && <span className="text-sm font-medium text-muted-foreground">{text}</span>}
       </div>
     );
 

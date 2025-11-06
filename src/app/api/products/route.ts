@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
     const categories = searchParams.get("categories"); // 콤마로 구분된 카테고리들
+    const excludeIds = searchParams.get("exclude"); // 제외할 상품 ID들 (콤마로 구분)
     const search = searchParams.get("search");
     const sort = searchParams.get("sort") || "created_at";
     const order = searchParams.get("order") || "desc";
@@ -16,9 +17,7 @@ export async function GET(request: NextRequest) {
 
     const offset = (page - 1) * limit;
 
-    let query = supabaseAdmin
-      .from("products")
-      .select("*", { count: "exact" });
+    let query = supabaseAdmin.from("products").select("*", { count: "exact" });
 
     // Category filter (OR 조건으로 처리)
     if (categories) {
@@ -28,16 +27,24 @@ export async function GET(request: NextRequest) {
       }
     }
 
+    // Exclude specific product IDs
+    if (excludeIds) {
+      const excludeArray = excludeIds.split(",").filter(Boolean);
+      if (excludeArray.length > 0) {
+        query = query.not("id", "in", `(${excludeArray.join(",")})`);
+      }
+    }
+
     // Search filter (상품명 + 설명)
     if (search) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
     }
 
-    // 신상품 필터 (3개월 이내)
+    // 신상품 필터 (2개월 이내)
     if (isNew) {
-      const threeMonthsAgo = new Date();
-      threeMonthsAgo.setMonth(threeMonthsAgo.getMonth() - 3);
-      query = query.gte("created_at", threeMonthsAgo.toISOString());
+      const twoMonthsAgo = new Date();
+      twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2);
+      query = query.gte("created_at", twoMonthsAgo.toISOString());
     }
 
     // 가격 범위 필터
@@ -55,12 +62,12 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Sorting
+    // Sorting (안정적인 정렬을 위해 보조 키로 id 추가)
     const validSorts = ["created_at", "price", "name", "review_count", "sales_count"];
     const sortField = validSorts.includes(sort) ? sort : "created_at";
     const sortOrder = order === "asc" ? { ascending: true } : { ascending: false };
 
-    query = query.order(sortField, sortOrder);
+    query = query.order(sortField, sortOrder).order("id", { ascending: true });
 
     // Pagination
     query = query.range(offset, offset + limit - 1);

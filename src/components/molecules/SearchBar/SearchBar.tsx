@@ -7,27 +7,24 @@ import { Search, X, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 
-const searchBarVariants = cva(
-  "relative flex items-center border rounded-md bg-background",
-  {
-    variants: {
-      size: {
-        sm: "h-8",
-        md: "h-10",
-        lg: "h-12",
-      },
-      variant: {
-        default: "border-input",
-        outlined: "border-2 border-primary",
-        filled: "bg-muted border-transparent",
-      },
+const searchBarVariants = cva("relative flex items-center border rounded-md bg-background", {
+  variants: {
+    size: {
+      sm: "h-8",
+      md: "h-10",
+      lg: "h-12",
     },
-    defaultVariants: {
-      size: "md",
-      variant: "default",
+    variant: {
+      default: "border-input",
+      outlined: "border-2 border-primary",
+      filled: "bg-muted border-transparent",
     },
-  }
-);
+  },
+  defaultVariants: {
+    size: "md",
+    variant: "default",
+  },
+});
 
 export interface SearchBarProps
   extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "size">,
@@ -101,9 +98,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
     const hasValue = Boolean(currentValue && String(currentValue).length > 0);
 
     return (
-      <div
-        className={cn("relative flex items-center gap-2", containerClassName)}
-      >
+      <div className={cn("relative flex items-center gap-2", containerClassName)}>
         <div className={cn(searchBarVariants({ size, variant }), className)}>
           {/* Search Icon */}
           {showSearchIcon && (
@@ -122,10 +117,7 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
             className={cn(
               "border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0",
               showSearchIcon && "pl-10",
-              showClearButton &&
-                clearButtonPosition === "inside" &&
-                hasValue &&
-                "pr-10"
+              showClearButton && clearButtonPosition === "inside" && hasValue && "pr-10"
             )}
             value={currentValue}
             onChange={handleChange}
@@ -136,38 +128,32 @@ const SearchBar = forwardRef<HTMLInputElement, SearchBarProps>(
           />
 
           {/* Clear Button (Inside) */}
-          {showClearButton &&
-            clearButtonPosition === "inside" &&
-            hasValue &&
-            !loading && (
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-1 h-6 w-6 p-0 hover:bg-muted"
-                onClick={handleClear}
-                aria-label="Clear search"
-              >
-                <X className="h-3 w-3" />
-              </Button>
-            )}
-        </div>
-
-        {/* Clear Button (Outside) */}
-        {showClearButton &&
-          clearButtonPosition === "outside" &&
-          hasValue &&
-          !loading && (
+          {showClearButton && clearButtonPosition === "inside" && hasValue && !loading && (
             <Button
               type="button"
-              variant="outline"
+              variant="ghost"
               size="sm"
+              className="absolute right-1 h-6 w-6 p-0 hover:bg-muted"
               onClick={handleClear}
               aria-label="Clear search"
             >
-              <X className="h-4 w-4" />
+              <X className="h-3 w-3" />
             </Button>
           )}
+        </div>
+
+        {/* Clear Button (Outside) */}
+        {showClearButton && clearButtonPosition === "outside" && hasValue && !loading && (
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleClear}
+            aria-label="Clear search"
+          >
+            <X className="h-4 w-4" />
+          </Button>
+        )}
 
         {/* Search Button (Outside) */}
         {onSearch && showSearchButton && (

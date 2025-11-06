@@ -1,9 +1,7 @@
 import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import { productsApi } from "@/lib/api/products";
 import {
-  mockProducts,
   getProductById,
-  getFeaturedProducts,
   getLatestProducts,
   getRelatedProducts,
   searchProducts,
@@ -135,8 +133,10 @@ export const useInfiniteProducts = (params?: {
     initialPageParam: 1,
     staleTime: 1000 * 60 * 5, // 5분
     select: (data) => {
-      // 페이지들의 데이터를 평탄화
-      return data.pages.flatMap((page) => page.data);
+      // 페이지들의 데이터를 평탄화하되 totalCount는 유지
+      const totalCount = data.pages[0]?.totalCount || 0;
+      const products = data.pages.flatMap((page) => page.data);
+      return { products, totalCount };
     },
   });
 };
@@ -162,15 +162,10 @@ export const useProductBySlug = (slug: string) => {
 };
 
 // 관련 상품 조회 훅
-export const useRelatedProducts = (
-  productId: string,
-  categoryId: string,
-  limit = 4
-) => {
+export const useRelatedProducts = (productId: string, categoryId: string, limit = 4) => {
   return useQuery({
     queryKey: ["products", "related", productId, categoryId, limit],
-    queryFn: () =>
-      Promise.resolve(getRelatedProducts(productId, categoryId, limit)),
+    queryFn: () => Promise.resolve(getRelatedProducts(productId, categoryId, limit)),
     enabled: !!productId && !!categoryId,
     staleTime: 1000 * 60 * 15, // 15분
   });
@@ -180,7 +175,7 @@ export const useRelatedProducts = (
 export const useFeaturedProducts = (limit = 8) => {
   return useQuery({
     queryKey: ["products", "featured", limit],
-    queryFn: () => Promise.resolve(getFeaturedProducts(limit)),
+    queryFn: () => productsApi.getFeaturedProducts(limit),
     staleTime: 1000 * 60 * 15, // 15분
   });
 };
@@ -221,5 +216,43 @@ export const useProductCountByCategory = () => {
     queryKey: ["products", "count", "by-category"],
     queryFn: productsApi.getProductCountByCategory,
     staleTime: 1000 * 60 * 30, // 30분
+  });
+};
+
+// 장바구니 기반 추천 상품 조회 훅
+export const useCartRecommendedProducts = (
+  cartItems: Array<{ product: { id: string; category: string } }>,
+  limit = 3
+) => {
+  // 장바구니 상품의 카테고리 추출 (중복 제거)
+  const categories = Array.from(new Set(cartItems.map((item) => item.product.category)));
+  // 장바구니 상품 ID들
+  const excludeIds = cartItems.map((item) => item.product.id);
+
+  return useQuery({
+    queryKey: ["products", "cart-recommended", categories, excludeIds, limit],
+    queryFn: async () => {
+      if (categories.length === 0) return [];
+
+      const queryParams = new URLSearchParams({
+        categories: categories.join(","),
+        exclude: excludeIds.join(","),
+        limit: limit.toString(),
+        sort: "sales_count", // 판매량 순
+        order: "desc",
+        page: "1",
+      });
+
+      const response = await fetch(`/api/products?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error("추천 상품 조회 실패");
+      }
+
+      const result = await response.json();
+      return result.data || [];
+    },
+    enabled: cartItems.length > 0, // 장바구니에 아이템이 있을 때만 실행
+    staleTime: 1000 * 60 * 10, // 10분
+    gcTime: 1000 * 60 * 30, // 30분
   });
 };

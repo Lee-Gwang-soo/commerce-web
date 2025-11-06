@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/atoms/Typography";
 import { Lock } from "lucide-react";
 
-interface AuthRequiredModalProps {
+export interface AuthRequiredModalProps {
   isOpen: boolean;
   onClose?: () => void;
 }
@@ -25,10 +25,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={handleConfirm}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={handleConfirm} />
 
       {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
@@ -44,7 +41,7 @@ export function AuthRequiredModal({ isOpen, onClose }: AuthRequiredModalProps) {
           </Typography>
 
           {/* Message */}
-          <Typography variant="body" className="text-gray-600 mb-8 leading-relaxed">
+          <Typography variant="p" className="text-gray-600 mb-8 leading-relaxed">
             로그인하셔야 본 서비스를 이용하실 수 있습니다.
           </Typography>
 

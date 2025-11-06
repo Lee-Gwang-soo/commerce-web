@@ -21,7 +21,9 @@ export const authApi = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "회원가입에 실패했습니다.");
+      const err = new Error(result.message || "회원가입에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return result;
@@ -40,7 +42,9 @@ export const authApi = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "로그인에 실패했습니다.");
+      const err = new Error(result.message || "로그인에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return result;
@@ -58,7 +62,9 @@ export const authApi = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "로그아웃에 실패했습니다.");
+      const err = new Error(result.message || "로그아웃에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return result;
@@ -77,7 +83,9 @@ export const authApi = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "사용자 정보를 가져올 수 없습니다.");
+      const err = new Error(result.message || "사용자 정보를 가져올 수 없습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return result.data;
@@ -99,7 +107,9 @@ export const authApi = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "회원정보 수정에 실패했습니다.");
+      const err = new Error(result.message || "회원정보 수정에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return result;
@@ -122,16 +132,16 @@ export const authApi = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "비밀번호 변경에 실패했습니다.");
+      const err = new Error(result.message || "비밀번호 변경에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return result;
   },
 
   // 비밀번호 확인
-  verifyPassword: async (
-    password: string
-  ): Promise<{ success: boolean; message: string }> => {
+  verifyPassword: async (password: string): Promise<{ success: boolean; message: string }> => {
     const response = await fetch("/api/auth/verify-password", {
       method: "POST",
       headers: {
@@ -144,7 +154,9 @@ export const authApi = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "비밀번호 확인에 실패했습니다.");
+      const err = new Error(result.message || "비밀번호 확인에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return result;
@@ -163,7 +175,9 @@ export const authApi = {
     const result = await response.json();
 
     if (!response.ok) {
-      throw new Error(result.message || "회원 탈퇴에 실패했습니다.");
+      const err = new Error(result.message || "회원 탈퇴에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return result;

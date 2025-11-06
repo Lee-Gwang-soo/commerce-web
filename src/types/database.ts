@@ -1,5 +1,5 @@
-// Supabase 스키마에서 자동 생성되는 타입들을 위한 기본 구조
-// 실제 사용 시에는 `supabase gen types typescript` 명령어로 생성합니다
+// Supabase Database Types
+// Generated based on actual database schema
 
 export interface Database {
   public: {
@@ -13,8 +13,8 @@ export interface Database {
           email: string;
           phone: string;
           address: string;
-          marketing_agreed: boolean;
-          benefits_agreed: boolean;
+          marketing_agreed: boolean | null;
+          benefits_agreed: boolean | null;
           created_at: string;
           updated_at: string;
         };
@@ -26,8 +26,8 @@ export interface Database {
           email: string;
           phone: string;
           address: string;
-          marketing_agreed?: boolean;
-          benefits_agreed?: boolean;
+          marketing_agreed?: boolean | null;
+          benefits_agreed?: boolean | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -39,78 +39,8 @@ export interface Database {
           email?: string;
           phone?: string;
           address?: string;
-          marketing_agreed?: boolean;
-          benefits_agreed?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      profiles: {
-        Row: {
-          id: string;
-          email: string;
-          full_name: string | null;
-          avatar_url: string | null;
-          phone: string | null;
-          address: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id: string;
-          email: string;
-          full_name?: string | null;
-          avatar_url?: string | null;
-          phone?: string | null;
-          address?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          email?: string;
-          full_name?: string | null;
-          avatar_url?: string | null;
-          phone?: string | null;
-          address?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-      };
-      categories: {
-        Row: {
-          id: string;
-          name: string;
-          description: string | null;
-          slug: string;
-          image_url: string | null;
-          parent_id: string | null;
-          sort_order: number;
-          is_active: boolean;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          name: string;
-          description?: string | null;
-          slug: string;
-          image_url?: string | null;
-          parent_id?: string | null;
-          sort_order?: number;
-          is_active?: boolean;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          name?: string;
-          description?: string | null;
-          slug?: string;
-          image_url?: string | null;
-          parent_id?: string | null;
-          sort_order?: number;
-          is_active?: boolean;
+          marketing_agreed?: boolean | null;
+          benefits_agreed?: boolean | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -119,63 +49,42 @@ export interface Database {
         Row: {
           id: string;
           name: string;
-          description: string | null;
-          short_description: string | null;
-          sku: string;
+          category: string;
           price: number;
           sale_price: number | null;
-          stock_quantity: number;
-          category_id: string;
+          description: string | null;
           images: string[];
-          tags: string[];
-          is_active: boolean;
-          is_featured: boolean;
-          weight: number | null;
-          dimensions: Record<string, any> | null;
-          meta_title: string | null;
-          meta_description: string | null;
+          stock: number | null;
+          review_count: number | null;
+          sales_count: number | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           name: string;
-          description?: string | null;
-          short_description?: string | null;
-          sku: string;
+          category: string;
           price: number;
           sale_price?: number | null;
-          stock_quantity?: number;
-          category_id: string;
+          description?: string | null;
           images?: string[];
-          tags?: string[];
-          is_active?: boolean;
-          is_featured?: boolean;
-          weight?: number | null;
-          dimensions?: Record<string, any> | null;
-          meta_title?: string | null;
-          meta_description?: string | null;
+          stock?: number | null;
+          review_count?: number | null;
+          sales_count?: number | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           name?: string;
-          description?: string | null;
-          short_description?: string | null;
-          sku?: string;
+          category?: string;
           price?: number;
           sale_price?: number | null;
-          stock_quantity?: number;
-          category_id?: string;
+          description?: string | null;
           images?: string[];
-          tags?: string[];
-          is_active?: boolean;
-          is_featured?: boolean;
-          weight?: number | null;
-          dimensions?: Record<string, any> | null;
-          meta_title?: string | null;
-          meta_description?: string | null;
+          stock?: number | null;
+          review_count?: number | null;
+          sales_count?: number | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -184,54 +93,51 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          status:
-            | "pending"
-            | "confirmed"
-            | "shipped"
-            | "delivered"
-            | "cancelled";
+          status: string;
           total_amount: number;
-          shipping_address: Record<string, any>;
-          billing_address: Record<string, any>;
-          payment_method: string;
-          payment_status: "pending" | "paid" | "failed" | "refunded";
-          notes: string | null;
+          customer_name: string | null;
+          customer_email: string | null;
+          customer_phone: string | null;
+          shipping_address: string | null;
+          shipping_postcode: string | null;
+          payment_method: string | null;
+          payment_key: string | null;
+          order_id: string | null;
+          payment_status: string | null;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
           user_id: string;
-          status?:
-            | "pending"
-            | "confirmed"
-            | "shipped"
-            | "delivered"
-            | "cancelled";
+          status: string;
           total_amount: number;
-          shipping_address: Record<string, any>;
-          billing_address: Record<string, any>;
-          payment_method: string;
-          payment_status?: "pending" | "paid" | "failed" | "refunded";
-          notes?: string | null;
+          customer_name?: string | null;
+          customer_email?: string | null;
+          customer_phone?: string | null;
+          shipping_address?: string | null;
+          shipping_postcode?: string | null;
+          payment_method?: string | null;
+          payment_key?: string | null;
+          order_id?: string | null;
+          payment_status?: string | null;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
           user_id?: string;
-          status?:
-            | "pending"
-            | "confirmed"
-            | "shipped"
-            | "delivered"
-            | "cancelled";
+          status?: string;
           total_amount?: number;
-          shipping_address?: Record<string, any>;
-          billing_address?: Record<string, any>;
-          payment_method?: string;
-          payment_status?: "pending" | "paid" | "failed" | "refunded";
-          notes?: string | null;
+          customer_name?: string | null;
+          customer_email?: string | null;
+          customer_phone?: string | null;
+          shipping_address?: string | null;
+          shipping_postcode?: string | null;
+          payment_method?: string | null;
+          payment_key?: string | null;
+          order_id?: string | null;
+          payment_status?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -262,150 +168,148 @@ export interface Database {
           created_at?: string;
         };
       };
+      reviews: {
+        Row: {
+          id: string;
+          product_id: string;
+          user_id: string;
+          user_name: string;
+          content: string;
+          images: string[];
+          created_at: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          id?: string;
+          product_id: string;
+          user_id: string;
+          user_name: string;
+          content: string;
+          images?: string[];
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          id?: string;
+          product_id?: string;
+          user_id?: string;
+          user_name?: string;
+          content?: string;
+          images?: string[];
+          created_at?: string | null;
+          updated_at?: string | null;
+        };
+      };
       cart_items: {
         Row: {
           id: string;
           user_id: string;
           product_id: string;
           quantity: number;
-          created_at: string;
-          updated_at: string;
+          created_at: string | null;
+          updated_at: string | null;
         };
         Insert: {
           id?: string;
           user_id: string;
           product_id: string;
           quantity: number;
-          created_at?: string;
-          updated_at?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
         };
         Update: {
           id?: string;
           user_id?: string;
           product_id?: string;
           quantity?: number;
-          created_at?: string;
-          updated_at?: string;
+          created_at?: string | null;
+          updated_at?: string | null;
         };
       };
-      wishlists: {
+      wishlist: {
         Row: {
           id: string;
           user_id: string;
           product_id: string;
-          created_at: string;
+          created_at: string | null;
         };
         Insert: {
           id?: string;
           user_id: string;
           product_id: string;
-          created_at?: string;
+          created_at?: string | null;
         };
         Update: {
           id?: string;
           user_id?: string;
           product_id?: string;
-          created_at?: string;
+          created_at?: string | null;
         };
       };
-      reviews: {
+      users: {
         Row: {
           id: string;
-          user_id: string;
-          product_id: string;
-          order_id: string | null;
-          rating: number;
-          title: string | null;
-          content: string;
-          images: string[];
-          is_verified: boolean;
+          email: string;
           created_at: string;
           updated_at: string;
         };
         Insert: {
           id?: string;
-          user_id: string;
-          product_id: string;
-          order_id?: string | null;
-          rating: number;
-          title?: string | null;
-          content: string;
-          images?: string[];
-          is_verified?: boolean;
+          email: string;
           created_at?: string;
           updated_at?: string;
         };
         Update: {
           id?: string;
-          user_id?: string;
-          product_id?: string;
-          order_id?: string | null;
-          rating?: number;
-          title?: string | null;
-          content?: string;
-          images?: string[];
-          is_verified?: boolean;
+          email?: string;
           created_at?: string;
           updated_at?: string;
         };
       };
     };
-    Views: {
-      [_ in never]: never;
-    };
-    Functions: {
-      [_ in never]: never;
-    };
-    Enums: {
-      [_ in never]: never;
-    };
   };
 }
 
-// 편의를 위한 타입 별칭들
-export type CommerceUser = Database["public"]["Tables"]["commerce_user"]["Row"];
-export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
-export type Category = Database["public"]["Tables"]["categories"]["Row"];
-export type Product = Database["public"]["Tables"]["products"]["Row"];
-export type Order = Database["public"]["Tables"]["orders"]["Row"];
-export type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
-export type CartItem = Database["public"]["Tables"]["cart_items"]["Row"];
-export type Wishlist = Database["public"]["Tables"]["wishlists"]["Row"];
-export type Review = Database["public"]["Tables"]["reviews"]["Row"];
+// Helper types
+export type Tables<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Row"];
+export type TablesInsert<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Insert"];
+export type TablesUpdate<T extends keyof Database["public"]["Tables"]> =
+  Database["public"]["Tables"][T]["Update"];
 
-// Insert 타입들
-export type CommerceUserInsert = Database["public"]["Tables"]["commerce_user"]["Insert"];
-export type ProfileInsert = Database["public"]["Tables"]["profiles"]["Insert"];
-export type CategoryInsert =
-  Database["public"]["Tables"]["categories"]["Insert"];
-export type ProductInsert = Database["public"]["Tables"]["products"]["Insert"];
-export type OrderInsert = Database["public"]["Tables"]["orders"]["Insert"];
-export type OrderItemInsert =
-  Database["public"]["Tables"]["order_items"]["Insert"];
-export type CartItemInsert =
-  Database["public"]["Tables"]["cart_items"]["Insert"];
-export type WishlistInsert =
-  Database["public"]["Tables"]["wishlists"]["Insert"];
-export type ReviewInsert = Database["public"]["Tables"]["reviews"]["Insert"];
+// Specific table types
+export type Product = Tables<"products">;
+export type ProductInsert = TablesInsert<"products">;
+export type ProductUpdate = TablesUpdate<"products">;
 
-// Update 타입들
-export type CommerceUserUpdate = Database["public"]["Tables"]["commerce_user"]["Update"];
-export type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
-export type CategoryUpdate =
-  Database["public"]["Tables"]["categories"]["Update"];
-export type ProductUpdate = Database["public"]["Tables"]["products"]["Update"];
-export type OrderUpdate = Database["public"]["Tables"]["orders"]["Update"];
-export type OrderItemUpdate =
-  Database["public"]["Tables"]["order_items"]["Update"];
-export type CartItemUpdate =
-  Database["public"]["Tables"]["cart_items"]["Update"];
-export type WishlistUpdate =
-  Database["public"]["Tables"]["wishlists"]["Update"];
-export type ReviewUpdate = Database["public"]["Tables"]["reviews"]["Update"];
+export type Order = Tables<"orders">;
+export type OrderInsert = TablesInsert<"orders">;
+export type OrderUpdate = TablesUpdate<"orders">;
 
-// API Request/Response 타입들
+export type OrderItem = Tables<"order_items">;
+export type OrderItemInsert = TablesInsert<"order_items">;
+export type OrderItemUpdate = TablesUpdate<"order_items">;
+
+export type Review = Tables<"reviews">;
+export type ReviewInsert = TablesInsert<"reviews">;
+export type ReviewUpdate = TablesUpdate<"reviews">;
+
+export type CartItem = Tables<"cart_items">;
+export type CartItemInsert = TablesInsert<"cart_items">;
+export type CartItemUpdate = TablesUpdate<"cart_items">;
+
+export type Wishlist = Tables<"wishlist">;
+export type WishlistInsert = TablesInsert<"wishlist">;
+export type WishlistUpdate = TablesUpdate<"wishlist">;
+
+export type CommerceUser = Tables<"commerce_user">;
+export type CommerceUserInsert = TablesInsert<"commerce_user">;
+export type CommerceUserUpdate = TablesUpdate<"commerce_user">;
+
+// Auth-related types
 export interface RegisterRequest {
-  userId: string;
+  user_id: string;
   password: string;
   name: string;
   email: string;
@@ -416,41 +320,35 @@ export interface RegisterRequest {
 }
 
 export interface LoginRequest {
-  userId: string;
+  user_id: string;
   password: string;
 }
 
 export interface UpdateUserRequest {
   email?: string;
-  password?: string;
-  name?: string;
   phone?: string;
   address?: string;
-  marketing_agreed?: boolean;
-  benefits_agreed?: boolean;
+  password?: string;
+  current_password?: string;
 }
 
-export interface AuthResponse {
-  success: boolean;
-  message: string;
-  data?: {
-    id: string;
-    userId: string;
-    name: string;
-    email: string;
-  };
-  token?: string;
-}
-
+// API 응답용 UserData (camelCase)
 export interface UserData {
   id: string;
-  userId: string;
+  userId: string; // API 응답에서 camelCase로 변환됨
   name: string;
   email: string;
   phone: string;
   address: string;
-  marketing_agreed: boolean;
-  benefits_agreed: boolean;
+  marketing_agreed: boolean | null;
+  benefits_agreed: boolean | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface AuthResponse {
+  success: boolean;
+  message?: string;
+  user?: UserData;
+  data?: UserData;
 }

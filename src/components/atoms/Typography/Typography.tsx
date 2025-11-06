@@ -47,7 +47,7 @@ const typographyVariants = cva("", {
 });
 
 export interface TypographyProps
-  extends React.HTMLAttributes<HTMLElement>,
+  extends Omit<React.HTMLAttributes<HTMLElement>, "color">,
     VariantProps<typeof typographyVariants> {
   as?:
     | "h1"
@@ -68,10 +68,7 @@ export interface TypographyProps
 }
 
 const Typography = forwardRef<HTMLElement, TypographyProps>(
-  (
-    { className, variant, align, color, as, truncate, children, ...props },
-    ref
-  ) => {
+  ({ className, variant, align, color, as, truncate, children, ...props }, ref) => {
     // variant에 따라 기본 태그 결정
     const getDefaultTag = () => {
       if (as) return as;
@@ -100,7 +97,18 @@ const Typography = forwardRef<HTMLElement, TypographyProps>(
     return (
       <Component
         className={cn(
-          typographyVariants({ variant, align, color }),
+          typographyVariants({
+            variant,
+            align,
+            color: color as
+              | "default"
+              | "primary"
+              | "secondary"
+              | "muted"
+              | "destructive"
+              | "success"
+              | "warning",
+          }),
           truncate && "truncate",
           className
         )}

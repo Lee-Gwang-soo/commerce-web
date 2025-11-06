@@ -6,6 +6,8 @@ import { Layout } from "@/components/templates/Layout";
 import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/atoms/Typography";
 
+export const dynamic = "force-dynamic";
+
 export default function RegisterCompletePage() {
   const searchParams = useSearchParams();
   const name = searchParams.get("name") || "회원";
@@ -35,8 +37,7 @@ export default function RegisterCompletePage() {
                 {name}님 환영합니다.
               </Typography>
               <Typography variant="p" className="text-gray-600 mb-6">
-                회원가입이 완료되었습니다. 로그인 버튼을 눌러서 로그인해주시기
-                바랍니다.
+                회원가입이 완료되었습니다. 로그인 버튼을 눌러서 로그인해주시기 바랍니다.
               </Typography>
             </div>
 

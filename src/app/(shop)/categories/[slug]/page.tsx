@@ -1,7 +1,8 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
+import { useInView } from "react-intersection-observer";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { ProductGrid } from "@/components/organisms/ProductGrid";
@@ -11,6 +12,7 @@ import { Typography } from "@/components/atoms/Typography";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { useInfiniteProducts } from "@/hooks/products/use-products";
+import { useProductActions } from "@/hooks/products/use-product-actions";
 import { CATEGORIES, getCategoryInfo } from "@/lib/constants/categories";
 import type { Category } from "@/types/product";
 import type {
@@ -19,17 +21,18 @@ import type {
 } from "@/components/molecules/ProductFilters/ProductFilters";
 
 // 카테고리 매핑
-const categoryMap: Record<
-  string,
-  { id: string; name: string; description: string }
-> = CATEGORIES.reduce((acc, cat) => {
-  acc[cat.slug] = {
-    id: cat.slug,
-    name: cat.label,
-    description: cat.description,
-  };
-  return acc;
-}, {} as Record<string, { id: string; name: string; description: string }>);
+const categoryMap: Record<string, { id: string; name: string; description: string }> =
+  CATEGORIES.reduce(
+    (acc, cat) => {
+      acc[cat.slug] = {
+        id: cat.slug,
+        name: cat.label,
+        description: cat.description,
+      };
+      return acc;
+    },
+    {} as Record<string, { id: string; name: string; description: string }>
+  );
 
 // 서브카테고리는 일단 빈 배열로 (필요시 나중에 추가)
 const subcategoryMap: Record<string, FilterOption[]> = {};
@@ -37,15 +40,14 @@ const subcategoryMap: Record<string, FilterOption[]> = {};
 export default function CategoryPage() {
   const params = useParams();
   const slug = params.slug as string;
+  const { handleAddToCart, handleToggleWishlist } = useProductActions();
 
   // 카테고리 정보
   const category = categoryMap[slug];
   const subcategories = subcategoryMap[slug] || [];
 
   // 필터 상태
-  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>(
-    []
-  );
+  const [selectedSubcategories, setSelectedSubcategories] = useState<string[]>([]);
   const [selectedPriceRange, setSelectedPriceRange] = useState<PriceRange>({
     min: 0,
     max: 1000000,
@@ -53,19 +55,29 @@ export default function CategoryPage() {
   const [sortBy, setSortBy] = useState("latest");
 
   // 필터 적용된 상품 조회
-  const {
-    data: products = [],
-    isLoading,
-    error,
-    fetchNextPage,
-    hasNextPage,
-    isFetchingNextPage,
-  } = useInfiniteProducts({
-    categories: [category?.id, ...selectedSubcategories].filter(Boolean),
-    priceRange: selectedPriceRange,
-    sortBy,
-    limit: 12,
+  const { data, isLoading, error, fetchNextPage, hasNextPage, isFetchingNextPage } =
+    useInfiniteProducts({
+      categories: [category?.id, ...selectedSubcategories].filter(Boolean),
+      priceRange: selectedPriceRange,
+      sortBy,
+      limit: 12,
+    });
+
+  const products = data?.products || [];
+  const totalCount = data?.totalCount || 0;
+
+  // Infinite scroll을 위한 intersection observer
+  const { ref, inView } = useInView({
+    threshold: 0,
+    rootMargin: "100px",
   });
+
+  // 스크롤이 끝에 도달하면 다음 페이지 로드
+  useEffect(() => {
+    if (inView && hasNextPage && !isFetchingNextPage) {
+      fetchNextPage();
+    }
+  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   // 활성 필터 수 계산
   const activeFiltersCount = useMemo(() => {
@@ -118,8 +130,6 @@ export default function CategoryPage() {
     );
   }
 
-  const totalProducts = products.length;
-
   return (
     <Layout>
       <PageLayout
@@ -151,33 +161,26 @@ export default function CategoryPage() {
             {/* 필터 요약 및 정렬 */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
               <div className="flex flex-col gap-2">
-                <Typography variant="muted">
-                  총 {totalProducts}개 상품
-                </Typography>
+                <Typography variant="muted">총 {totalCount}개 상품</Typography>
 
                 {/* 활성 필터 표시 */}
                 {activeFiltersCount > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {selectedSubcategories.map((subcategoryId) => {
-                      const subcategory = subcategories.find(
-                        (cat) => cat.id === subcategoryId
-                      );
+                      const subcategory = subcategories.find((cat) => cat.id === subcategoryId);
                       return subcategory ? (
                         <Badge
                           key={subcategoryId}
                           variant="secondary"
                           className="cursor-pointer"
-                          onClick={() =>
-                            removeFilter("subcategory", subcategoryId)
-                          }
+                          onClick={() => removeFilter("subcategory", subcategoryId)}
                         >
                           {subcategory.label} ×
                         </Badge>
                       ) : null;
                     })}
 
-                    {(selectedPriceRange.min > 0 ||
-                      selectedPriceRange.max < 1000000) && (
+                    {(selectedPriceRange.min > 0 || selectedPriceRange.max < 1000000) && (
                       <Badge
                         variant="secondary"
                         className="cursor-pointer"
@@ -191,11 +194,7 @@ export default function CategoryPage() {
                 )}
               </div>
 
-              <ProductSort
-                value={sortBy}
-                onValueChange={setSortBy}
-                showLabel={false}
-              />
+              <ProductSort value={sortBy} onValueChange={setSortBy} showLabel={false} />
             </div>
 
             {/* 상품 그리드 */}
@@ -208,13 +207,24 @@ export default function CategoryPage() {
               showEmptyAction={activeFiltersCount > 0}
               emptyActionText="필터 초기화"
               onEmptyAction={handleClearFilters}
+              onAddToCart={handleAddToCart}
+              onAddToWishlist={handleToggleWishlist}
               columns="auto"
               gap="lg"
-              showLoadMore={hasNextPage}
-              onLoadMore={fetchNextPage}
-              loadMoreLoading={isFetchingNextPage}
-              loadMoreText="더 많은 상품 보기"
+              showLoadMore={false}
             />
+
+            {/* Infinite scroll trigger */}
+            {hasNextPage && (
+              <div ref={ref} className="flex justify-center py-8">
+                {isFetchingNextPage && (
+                  <div className="flex items-center gap-2">
+                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-purple-600" />
+                    <Typography variant="muted">상품을 불러오는 중...</Typography>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </PageLayout>

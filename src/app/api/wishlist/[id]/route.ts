@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 // DELETE - 찜목록에서 상품 제거
@@ -8,18 +8,17 @@ export async function DELETE(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+    const userId = session.id; // UUID (commerce_user.id)
 
     const { id } = await params;
-
 
     // 찜목록 아이템 삭제
     const { error } = await supabaseAdmin
@@ -36,10 +35,7 @@ export async function DELETE(
       );
     }
 
-    return NextResponse.json(
-      { message: "찜목록에서 제거되었습니다." },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "찜목록에서 제거되었습니다." }, { status: 200 });
   } catch (error) {
     console.error("Wishlist DELETE error:", error);
     return NextResponse.json(

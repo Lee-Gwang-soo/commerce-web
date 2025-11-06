@@ -1,0 +1,36 @@
+# Dependencies
+node_modules
+.next
+out
+dist
+build
+
+# Testing
+coverage
+.turbo
+
+# Misc
+.DS_Store
+*.pem
+*.log
+
+# Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Generated
+.next
+.vercel
+.cache
+*.tsbuildinfo
+
+# Database
+database_backup_*.sql

@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import bcrypt from "bcryptjs";
+import type { CommerceUser } from "@/types/database";
+import { transformUserForResponse } from "@/lib/utils/transformUser";
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { userId, password, name, email, phone, address, marketing_agreed, benefits_agreed } = body;
+    const { user_id, password, name, email, phone, address, marketing_agreed, benefits_agreed } =
+      body;
 
-    if (!userId || !password || !name || !email || !phone || !address) {
+    if (!user_id || !password || !name || !email || !phone || !address) {
       return NextResponse.json(
         {
           code: "INVALID_REQUEST",
@@ -17,11 +20,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: existingUser, error: checkError } = await supabase
+    const { data: existingUser, error: checkError } = await supabaseAdmin
       .from("commerce_user")
       .select("user_id")
-      .eq("user_id", userId)
-      .single();
+      .eq("user_id", user_id)
+      .maybeSingle();
 
     if (existingUser) {
       return NextResponse.json(
@@ -33,11 +36,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: existingEmail, error: emailCheckError } = await supabase
+    const { data: existingEmail, error: emailCheckError } = await supabaseAdmin
       .from("commerce_user")
       .select("email")
       .eq("email", email)
-      .single();
+      .maybeSingle();
 
     if (existingEmail) {
       return NextResponse.json(
@@ -51,22 +54,20 @@ export async function POST(request: NextRequest) {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseAdmin
       .from("commerce_user")
-      .insert([
-        {
-          user_id: userId,
-          password: hashedPassword,
-          name,
-          email,
-          phone,
-          address,
-          marketing_agreed: marketing_agreed || false,
-          benefits_agreed: benefits_agreed || false,
-        },
-      ])
+      .insert({
+        user_id: user_id,
+        password: hashedPassword,
+        name,
+        email,
+        phone,
+        address,
+        marketing_agreed: marketing_agreed || false,
+        benefits_agreed: benefits_agreed || false,
+      } as any)
       .select()
-      .single();
+      .single<CommerceUser>();
 
     if (error) {
       console.error("회원가입 실패:", error);
@@ -89,12 +90,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       message: "회원가입이 완료되었습니다.",
-      data: {
-        id: data.id,
-        userId: data.user_id,
-        name: data.name,
-        email: data.email,
-      },
+      data: transformUserForResponse(data),
     });
   } catch (error) {
     console.error("회원가입 API 오류:", error);

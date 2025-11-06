@@ -9,18 +9,8 @@ import { Badge } from "@/components/ui/badge";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Label } from "@/components/ui/label";
-import {
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Typography } from "@/components/atoms/Typography";
 
 const filterSectionVariants = cva("border-b border-border pb-6 mb-6", {
@@ -51,14 +41,11 @@ export interface ProductFiltersProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof filterSectionVariants> {
   categories?: FilterOption[];
-  brands?: FilterOption[];
   priceRange?: PriceRange;
   maxPrice?: number;
   selectedCategories?: string[];
-  selectedBrands?: string[];
   selectedPriceRange?: PriceRange;
   onCategoryChange?: (categories: string[]) => void;
-  onBrandChange?: (brands: string[]) => void;
   onPriceRangeChange?: (range: PriceRange) => void;
   onClearFilters?: () => void;
   showMobileButton?: boolean;
@@ -70,14 +57,11 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
     {
       className,
       categories = [],
-      brands = [],
       priceRange = { min: 0, max: 1000000 },
       maxPrice = 1000000,
       selectedCategories = [],
-      selectedBrands = [],
       selectedPriceRange = { min: 0, max: 1000000 },
       onCategoryChange,
-      onBrandChange,
       onPriceRangeChange,
       onClearFilters,
       showMobileButton = true,
@@ -89,7 +73,6 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
   ) => {
     const [isOpen, setIsOpen] = useState(false);
     const [categoryOpen, setCategoryOpen] = useState(true);
-    const [brandOpen, setBrandOpen] = useState(true);
     const [priceOpen, setPriceOpen] = useState(true);
 
     const handleCategoryChange = (categoryId: string, checked: boolean) => {
@@ -97,13 +80,6 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
         ? [...selectedCategories, categoryId]
         : selectedCategories.filter((id) => id !== categoryId);
       onCategoryChange?.(newCategories);
-    };
-
-    const handleBrandChange = (brandId: string, checked: boolean) => {
-      const newBrands = checked
-        ? [...selectedBrands, brandId]
-        : selectedBrands.filter((id) => id !== brandId);
-      onBrandChange?.(newBrands);
     };
 
     const handlePriceChange = (values: number[]) => {
@@ -128,7 +104,7 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
       const value = parseInt(localMinPrice) || 0;
       onPriceRangeChange?.({
         min: Math.max(0, Math.min(value, selectedPriceRange.max)),
-        max: selectedPriceRange.max
+        max: selectedPriceRange.max,
       });
     };
 
@@ -136,14 +112,14 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
       const value = parseInt(localMaxPrice) || maxPrice;
       onPriceRangeChange?.({
         min: selectedPriceRange.min,
-        max: Math.min(maxPrice, Math.max(value, selectedPriceRange.min))
+        max: Math.min(maxPrice, Math.max(value, selectedPriceRange.min)),
       });
     };
 
     // Enter 키로도 적용 가능
-    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, type: 'min' | 'max') => {
-      if (e.key === 'Enter') {
-        if (type === 'min') {
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, type: "min" | "max") => {
+      if (e.key === "Enter") {
+        if (type === "min") {
           handleMinPriceBlur();
         } else {
           handleMaxPriceBlur();
@@ -158,25 +134,16 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
           <Collapsible open={categoryOpen} onOpenChange={setCategoryOpen}>
             <div className={cn(filterSectionVariants({ spacing }))}>
               <CollapsibleTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-between p-0 h-auto font-semibold"
-                >
+                <Button variant="ghost" className="w-full justify-between p-0 h-auto font-semibold">
                   <Typography variant="h6">카테고리</Typography>
                   <ChevronDown
-                    className={cn(
-                      "h-4 w-4 transition-transform",
-                      categoryOpen && "rotate-180"
-                    )}
+                    className={cn("h-4 w-4 transition-transform", categoryOpen && "rotate-180")}
                   />
                 </Button>
               </CollapsibleTrigger>
               <CollapsibleContent className="mt-4 space-y-3">
                 {categories.map((category) => (
-                  <div
-                    key={category.id}
-                    className="flex items-center space-x-2"
-                  >
+                  <div key={category.id} className="flex items-center space-x-2">
                     <Checkbox
                       id={`category-${category.id}`}
                       checked={selectedCategories.includes(category.id)}
@@ -189,10 +156,8 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                       className="flex-1 text-sm cursor-pointer"
                     >
                       {category.label}
-                      {typeof category.count === 'number' && (
-                        <span className="ml-2 text-muted-foreground">
-                          ({category.count})
-                        </span>
+                      {typeof category.count === "number" && (
+                        <span className="ml-2 text-muted-foreground">({category.count})</span>
                       )}
                     </Label>
                   </div>
@@ -206,16 +171,10 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
         <Collapsible open={priceOpen} onOpenChange={setPriceOpen}>
           <div className={cn(filterSectionVariants({ spacing }))}>
             <CollapsibleTrigger asChild>
-              <Button
-                variant="ghost"
-                className="w-full justify-between p-0 h-auto font-semibold"
-              >
+              <Button variant="ghost" className="w-full justify-between p-0 h-auto font-semibold">
                 <Typography variant="h6">가격</Typography>
                 <ChevronDown
-                  className={cn(
-                    "h-4 w-4 transition-transform",
-                    priceOpen && "rotate-180"
-                  )}
+                  className={cn("h-4 w-4 transition-transform", priceOpen && "rotate-180")}
                 />
               </Button>
             </CollapsibleTrigger>
@@ -223,7 +182,11 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
               {/* 가격 프리셋 버튼 */}
               <div className="grid grid-cols-2 gap-2">
                 <Button
-                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === maxPrice ? "default" : "outline"}
+                  variant={
+                    selectedPriceRange.min === 0 && selectedPriceRange.max === maxPrice
+                      ? "default"
+                      : "outline"
+                  }
                   size="sm"
                   onClick={() => onPriceRangeChange?.({ min: 0, max: maxPrice })}
                   className="text-xs"
@@ -231,7 +194,11 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                   전체
                 </Button>
                 <Button
-                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 10000 ? "default" : "outline"}
+                  variant={
+                    selectedPriceRange.min === 0 && selectedPriceRange.max === 10000
+                      ? "default"
+                      : "outline"
+                  }
                   size="sm"
                   onClick={() => onPriceRangeChange?.({ min: 0, max: 10000 })}
                   className="text-xs"
@@ -239,7 +206,11 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                   ~1만원
                 </Button>
                 <Button
-                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 30000 ? "default" : "outline"}
+                  variant={
+                    selectedPriceRange.min === 0 && selectedPriceRange.max === 30000
+                      ? "default"
+                      : "outline"
+                  }
                   size="sm"
                   onClick={() => onPriceRangeChange?.({ min: 0, max: 30000 })}
                   className="text-xs"
@@ -247,7 +218,11 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                   ~3만원
                 </Button>
                 <Button
-                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 50000 ? "default" : "outline"}
+                  variant={
+                    selectedPriceRange.min === 0 && selectedPriceRange.max === 50000
+                      ? "default"
+                      : "outline"
+                  }
                   size="sm"
                   onClick={() => onPriceRangeChange?.({ min: 0, max: 50000 })}
                   className="text-xs"
@@ -255,7 +230,11 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                   ~5만원
                 </Button>
                 <Button
-                  variant={selectedPriceRange.min === 0 && selectedPriceRange.max === 100000 ? "default" : "outline"}
+                  variant={
+                    selectedPriceRange.min === 0 && selectedPriceRange.max === 100000
+                      ? "default"
+                      : "outline"
+                  }
                   size="sm"
                   onClick={() => onPriceRangeChange?.({ min: 0, max: 100000 })}
                   className="text-xs"
@@ -263,7 +242,11 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                   ~10만원
                 </Button>
                 <Button
-                  variant={selectedPriceRange.min === 100000 && selectedPriceRange.max === maxPrice ? "default" : "outline"}
+                  variant={
+                    selectedPriceRange.min === 100000 && selectedPriceRange.max === maxPrice
+                      ? "default"
+                      : "outline"
+                  }
                   size="sm"
                   onClick={() => onPriceRangeChange?.({ min: 100000, max: maxPrice })}
                   className="text-xs"
@@ -292,7 +275,7 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                           value={localMinPrice}
                           onChange={(e) => setLocalMinPrice(e.target.value)}
                           onBlur={handleMinPriceBlur}
-                          onKeyDown={(e) => handleKeyDown(e, 'min')}
+                          onKeyDown={(e) => handleKeyDown(e, "min")}
                           className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
                           placeholder="0"
                         />
@@ -312,7 +295,7 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                           value={localMaxPrice}
                           onChange={(e) => setLocalMaxPrice(e.target.value)}
                           onBlur={handleMaxPriceBlur}
-                          onKeyDown={(e) => handleKeyDown(e, 'max')}
+                          onKeyDown={(e) => handleKeyDown(e, "max")}
                           className="w-full px-3 py-2 text-sm border border-input rounded-md focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-1"
                           placeholder={maxPrice.toString()}
                         />
@@ -343,52 +326,6 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
             </CollapsibleContent>
           </div>
         </Collapsible>
-
-        {/* 브랜드 필터 */}
-        {brands.length > 0 && (
-          <Collapsible open={brandOpen} onOpenChange={setBrandOpen}>
-            <div className={cn(filterSectionVariants({ spacing }))}>
-              <CollapsibleTrigger asChild>
-                <Button
-                  variant="ghost"
-                  className="w-full justify-between p-0 h-auto font-semibold"
-                >
-                  <Typography variant="h6">브랜드</Typography>
-                  <ChevronDown
-                    className={cn(
-                      "h-4 w-4 transition-transform",
-                      brandOpen && "rotate-180"
-                    )}
-                  />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-4 space-y-3">
-                {brands.map((brand) => (
-                  <div key={brand.id} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={`brand-${brand.id}`}
-                      checked={selectedBrands.includes(brand.id)}
-                      onCheckedChange={(checked) =>
-                        handleBrandChange(brand.id, checked as boolean)
-                      }
-                    />
-                    <Label
-                      htmlFor={`brand-${brand.id}`}
-                      className="flex-1 text-sm cursor-pointer"
-                    >
-                      {brand.label}
-                      {brand.count && (
-                        <span className="ml-2 text-muted-foreground">
-                          ({brand.count})
-                        </span>
-                      )}
-                    </Label>
-                  </div>
-                ))}
-              </CollapsibleContent>
-            </div>
-          </Collapsible>
-        )}
 
         {/* 필터 초기화 */}
         {activeFiltersCount > 0 && (
@@ -421,18 +358,14 @@ const ProductFilters = forwardRef<HTMLDivElement, ProductFiltersProps>(
                 <SheetHeader>
                   <SheetTitle>상품 필터</SheetTitle>
                 </SheetHeader>
-                <div className="mt-6">
-                  {filterContentJsx}
-                </div>
+                <div className="mt-6">{filterContentJsx}</div>
               </SheetContent>
             </Sheet>
           </div>
         )}
 
         {/* 데스크톱 필터 */}
-        <div className="hidden lg:block">
-          {filterContentJsx}
-        </div>
+        <div className="hidden lg:block">{filterContentJsx}</div>
       </div>
     );
   }
@@ -442,4 +375,3 @@ ProductFilters.displayName = "ProductFilters";
 
 export { ProductFilters, filterSectionVariants };
 export default ProductFilters;
-

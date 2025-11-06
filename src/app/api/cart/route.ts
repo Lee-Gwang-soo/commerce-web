@@ -1,19 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
+import type { CartItem, Product } from "@/types/database";
 
 // GET - 장바구니 조회
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+
+    const userId = session.id; // UUID (commerce_user.id)
 
     // 장바구니 아이템 조회 (상품 정보 포함)
     const { data: cartItems, error } = await supabaseAdmin
@@ -69,15 +71,16 @@ export async function GET(request: NextRequest) {
 // POST - 장바구니에 상품 추가
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+
+    const userId = session.id; // UUID (commerce_user.id)
 
     const body = await request.json();
     const { product_id, quantity = 1 } = body;
@@ -97,10 +100,10 @@ export async function POST(request: NextRequest) {
     }
 
     // 상품 재고 확인
-    const { data: products, error: productError } = await supabaseAdmin
+    const { data: products, error: productError } = (await supabaseAdmin
       .from("products")
       .select("stock")
-      .eq("id", product_id);
+      .eq("id", product_id)) as any;
 
     if (productError || !products || products.length === 0) {
       return NextResponse.json(
@@ -146,10 +149,11 @@ export async function POST(request: NextRequest) {
 
       const { data: updatedItem, error: updateError } = await supabaseAdmin
         .from("cart_items")
-        .update({ quantity: newQuantity, updated_at: new Date().toISOString() })
+        // @ts-expect-error - Supabase type issue
+        .update({ quantity: newQuantity, updated_at: new Date().toISOString() } as any)
         .eq("id", existingItem.id)
         .select()
-        .single();
+        .single<CartItem>();
 
       if (updateError) {
         console.error("장바구니 수량 업데이트 실패:", updateError);
@@ -176,9 +180,9 @@ export async function POST(request: NextRequest) {
         user_id: userId,
         product_id,
         quantity,
-      })
+      } as any)
       .select()
-      .single();
+      .single<CartItem>();
 
     if (insertError) {
       console.error("장바구니 추가 실패:", insertError);
@@ -206,6 +210,51 @@ export async function POST(request: NextRequest) {
       {
         code: "INTERNAL_SERVER_ERROR",
         message: "장바구니 추가 처리 중 오류가 발생했습니다.",
+      },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE - 장바구니 전체 비우기
+export async function DELETE(request: NextRequest) {
+  try {
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
+        { status: 401 }
+      );
+    }
+
+    const userId = session.id; // UUID (commerce_user.id)
+
+    // 사용자의 모든 장바구니 아이템 삭제
+    const { error } = await supabaseAdmin.from("cart_items").delete().eq("user_id", userId);
+
+    if (error) {
+      console.error("장바구니 전체 삭제 실패:", error);
+      return NextResponse.json(
+        {
+          code: "DELETE_FAILED",
+          message: "장바구니 비우기 중 오류가 발생했습니다.",
+          details: error.message,
+        },
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json({
+      success: true,
+      message: "장바구니를 비웠습니다.",
+    });
+  } catch (error) {
+    console.error("장바구니 전체 삭제 API 오류:", error);
+    return NextResponse.json(
+      {
+        code: "INTERNAL_SERVER_ERROR",
+        message: "장바구니 비우기 처리 중 오류가 발생했습니다.",
       },
       { status: 500 }
     );

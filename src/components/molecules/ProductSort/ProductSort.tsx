@@ -73,11 +73,7 @@ const ProductSort = forwardRef<HTMLDivElement, ProductSortProps>(
     ref
   ) => {
     return (
-      <div
-        ref={ref}
-        className={cn(sortVariants({ orientation, size }), className)}
-        {...props}
-      >
+      <div ref={ref} className={cn(sortVariants({ orientation, size }), className)} {...props}>
         {showLabel && (
           <div className="flex items-center gap-2">
             <ArrowUpDown className="h-4 w-4 text-muted-foreground" />
@@ -108,4 +104,3 @@ ProductSort.displayName = "ProductSort";
 
 export { ProductSort, sortVariants, defaultSortOptions };
 export default ProductSort;
-

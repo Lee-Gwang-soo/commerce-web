@@ -13,21 +13,11 @@ interface ProvidersProps {
 export default function Providers({ children }: ProvidersProps) {
   return (
     <ErrorBoundary>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-      >
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
         <QueryProvider>
           <AuthProvider>
             {children}
-            <Toaster
-              position="top-right"
-              expand={false}
-              richColors
-              closeButton
-            />
+            <Toaster position="top-right" expand={false} richColors closeButton />
           </AuthProvider>
         </QueryProvider>
       </ThemeProvider>

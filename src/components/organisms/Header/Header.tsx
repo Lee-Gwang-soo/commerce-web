@@ -20,27 +20,25 @@ import { Typography } from "@/components/atoms/Typography";
 import Banner from "@/components/atoms/Banner";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useCartItemCount } from "@/hooks/cart/use-cart";
+import { useWishlistItemCount } from "@/hooks/wishlist/use-wishlist";
 
-const headerVariants = cva(
-  "sticky top-0 z-50 w-full border-b bg-white shadow-sm",
-  {
-    variants: {
-      variant: {
-        default: "border-gray-200",
-        transparent: "border-transparent bg-transparent shadow-none",
-      },
-      size: {
-        sm: "min-h-14",
-        md: "min-h-16",
-        lg: "min-h-20",
-      },
+const headerVariants = cva("sticky top-0 z-50 w-full border-b bg-white shadow-sm", {
+  variants: {
+    variant: {
+      default: "border-gray-200",
+      transparent: "border-transparent bg-transparent shadow-none",
     },
-    defaultVariants: {
-      variant: "default",
-      size: "md",
+    size: {
+      sm: "min-h-14",
+      md: "min-h-16",
+      lg: "min-h-20",
     },
-  }
-);
+  },
+  defaultVariants: {
+    variant: "default",
+    size: "md",
+  },
+});
 
 interface NavigationItem {
   href: string;
@@ -54,8 +52,9 @@ interface Category {
 }
 
 const navigationItems: NavigationItem[] = [
-  { href: "/categories/new", label: "신상품" },
-  { href: "/categories/best", label: "베스트" },
+  { href: "/products", label: "전체 상품" },
+  { href: "/new", label: "신상품" },
+  { href: "/best", label: "베스트" },
 ];
 
 const categories: Category[] = [
@@ -75,20 +74,11 @@ export interface HeaderProps
 }
 
 const Header = forwardRef<HTMLElement, HeaderProps>(
-  (
-    {
-      className,
-      variant,
-      size,
-      showBanner = true,
-      showSearch = true,
-      onSearchSubmit,
-    },
-    ref
-  ) => {
+  ({ className, variant, size, showBanner = true, showSearch = true, onSearchSubmit }, ref) => {
     const router = useRouter();
     const { user } = useAuth();
     const { data: cartItemCount = 0 } = useCartItemCount();
+    const { data: wishlistItemCount = 0 } = useWishlistItemCount();
     const [categoryOpen, setCategoryOpen] = useState(false);
 
     const handleSearchSubmit = (query: string) => {
@@ -118,10 +108,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
         )}
 
         {/* Main Header */}
-        <header
-          ref={ref}
-          className={cn(headerVariants({ variant, size }), className)}
-        >
+        <header ref={ref} className={cn(headerVariants({ variant, size }), className)}>
           <div className="container mx-auto px-4 py-2">
             {/* Top Row - Auth Links */}
             <div className="flex justify-end border-gray-100">
@@ -165,10 +152,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
               <div className="flex items-center gap-2">
                 {/* Logo */}
                 <Link href="/" className="flex items-center">
-                  <Typography
-                    variant="h4"
-                    className="font-bold text-purple-600"
-                  >
+                  <Typography variant="h4" className="font-bold text-purple-600">
                     Commerce
                   </Typography>
                 </Link>
@@ -178,10 +162,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                   onMouseEnter={() => setCategoryOpen(true)}
                   onMouseLeave={() => setCategoryOpen(false)}
                 >
-                  <DropdownMenu
-                    open={categoryOpen}
-                    onOpenChange={setCategoryOpen}
-                  >
+                  <DropdownMenu open={categoryOpen} onOpenChange={setCategoryOpen}>
                     <DropdownMenuTrigger asChild>
                       <Button
                         variant="ghost"
@@ -194,10 +175,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                     <DropdownMenuContent align="start" className="w-40">
                       {categories.map((category) => (
                         <DropdownMenuItem key={category.slug} asChild>
-                          <Link
-                            href={`/categories/${category.slug}`}
-                            className="cursor-pointer"
-                          >
+                          <Link href={`/categories/${category.slug}`} className="cursor-pointer">
                             {category.label}
                           </Link>
                         </DropdownMenuItem>
@@ -245,6 +223,14 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                 >
                   <Link href="/wishlist">
                     <Heart className="h-6 w-6 text-gray-700 hover:text-purple-600" />
+                    {wishlistItemCount > 0 && (
+                      <Badge
+                        variant="destructive"
+                        className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 text-xs flex items-center justify-center"
+                      >
+                        {wishlistItemCount > 99 ? "99+" : wishlistItemCount}
+                      </Badge>
+                    )}
                   </Link>
                 </Button>
 

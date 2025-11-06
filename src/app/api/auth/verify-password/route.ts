@@ -1,22 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { supabase } from "@/lib/supabase/client";
+import { supabaseAdmin } from "@/lib/supabase/server";
+import { getSession } from "@/lib/auth/session";
 import bcrypt from "bcryptjs";
-import { parse } from "cookie";
 
 export async function POST(request: NextRequest) {
   try {
-    const cookies = parse(request.headers.get("cookie") || "");
-    const sessionId = cookies.user_session;
+    const session = await getSession();
 
-    if (!sessionId) {
+    if (!session) {
       return NextResponse.json(
-        {
-          code: "UNAUTHORIZED",
-          message: "로그인이 필요합니다.",
-        },
+        { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+
+    const sessionId = session.id; // UUID (commerce_user.id)
 
     const body = await request.json();
     const { password } = body;
@@ -31,11 +29,11 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { data: user, error: fetchError } = await supabase
+    const { data: user, error: fetchError } = await supabaseAdmin
       .from("commerce_user")
       .select("password")
       .eq("id", sessionId)
-      .single();
+      .single<{ password: string }>();
 
     if (fetchError || !user) {
       return NextResponse.json(

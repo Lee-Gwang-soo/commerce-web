@@ -4,15 +4,7 @@ import { forwardRef } from "react";
 import { cva, type VariantProps } from "class-variance-authority";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import {
-  Facebook,
-  Instagram,
-  Twitter,
-  Youtube,
-  Mail,
-  Phone,
-  MapPin,
-} from "lucide-react";
+import { Facebook, Instagram, Twitter, Youtube, Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
@@ -116,11 +108,7 @@ const Footer = forwardRef<HTMLElement, FooterProps>(
     };
 
     return (
-      <footer
-        ref={ref}
-        className={cn(footerVariants({ variant, padding }), className)}
-        {...props}
-      >
+      <footer ref={ref} className={cn(footerVariants({ variant, padding }), className)} {...props}>
         <div className="container mx-auto px-4">
           {/* Main Footer Content */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-8">
@@ -131,12 +119,8 @@ const Footer = forwardRef<HTMLElement, FooterProps>(
                   {companyName}
                 </Typography>
               </Link>
-              <Typography
-                variant="muted"
-                className="mb-6 leading-relaxed text-gray-300"
-              >
-                최고의 상품과 서비스로 고객의 만족을 위해 항상 노력하는 이커머스
-                플랫폼입니다.
+              <Typography variant="muted" className="mb-6 leading-relaxed text-gray-300">
+                최고의 상품과 서비스로 고객의 만족을 위해 항상 노력하는 이커머스 플랫폼입니다.
               </Typography>
 
               {/* Contact Info */}
@@ -161,10 +145,7 @@ const Footer = forwardRef<HTMLElement, FooterProps>(
             {/* Link Sections */}
             {linkSections.map((section, index) => (
               <div key={index}>
-                <Typography
-                  variant="h6"
-                  className="mb-4 font-semibold text-white"
-                >
+                <Typography variant="h6" className="mb-4 font-semibold text-white">
                   {section.title}
                 </Typography>
                 <ul className="space-y-3">

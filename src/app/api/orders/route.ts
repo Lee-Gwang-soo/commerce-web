@@ -1,19 +1,20 @@
 import { NextRequest, NextResponse } from "next/server";
-import { cookies } from "next/headers";
+import { getSession } from "@/lib/auth/session";
 import { supabaseAdmin } from "@/lib/supabase/server";
+import type { Product, Order, OrderInsert, OrderItemInsert } from "@/types/database";
 
 // GET - 주문 목록 조회
 export async function GET(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
 
-    if (!userId) {
+    if (!session) {
       return NextResponse.json(
         { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
         { status: 401 }
       );
     }
+    const userId = session.id; // UUID (commerce_user.id)
 
     const { searchParams } = new URL(request.url);
     const page = parseInt(searchParams.get("page") || "1");
@@ -21,9 +22,14 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
 
     // 주문 목록 조회 (order_items 포함)
-    const { data: orders, error, count } = await supabaseAdmin
+    const {
+      data: orders,
+      error,
+      count,
+    } = await supabaseAdmin
       .from("orders")
-      .select(`
+      .select(
+        `
         *,
         order_items (
           id,
@@ -36,7 +42,9 @@ export async function GET(request: NextRequest) {
             category
           )
         )
-      `, { count: 'exact' })
+      `,
+        { count: "exact" }
+      )
       .eq("user_id", userId)
       .order("created_at", { ascending: false })
       .range(offset, offset + limit - 1);
@@ -68,8 +76,15 @@ export async function GET(request: NextRequest) {
 // POST - 주문 생성
 export async function POST(request: NextRequest) {
   try {
-    const cookieStore = await cookies();
-    const userId = cookieStore.get("user_session")?.value;
+    const session = await getSession();
+
+    if (!session) {
+      return NextResponse.json(
+        { code: "UNAUTHORIZED", message: "로그인이 필요합니다." },
+        { status: 401 }
+      );
+    }
+    const userId = session.id; // UUID (commerce_user.id)
 
     if (!userId) {
       return NextResponse.json(
@@ -109,7 +124,10 @@ export async function POST(request: NextRequest) {
     const productIds = cart_items.map((item: any) => item.product_id);
     const { data: products, error: productsError } = await supabaseAdmin
       .from("products")
-      .select("id, name, price, sale_price, stock")
+      .select<
+        "id, name, price, sale_price, stock",
+        Pick<Product, "id" | "name" | "price" | "sale_price" | "stock">
+      >("id, name, price, sale_price, stock")
       .in("id", productIds);
 
     if (productsError || !products) {
@@ -169,9 +187,9 @@ export async function POST(request: NextRequest) {
         shipping_postcode,
         payment_method,
         order_id,
-      })
+      } as any)
       .select()
-      .single();
+      .single<Order>();
 
     if (orderError || !order) {
       console.error("Order creation error:", orderError);
@@ -194,7 +212,7 @@ export async function POST(request: NextRequest) {
 
     const { error: itemsError } = await supabaseAdmin
       .from("order_items")
-      .insert(orderItemsWithOrderId);
+      .insert(orderItemsWithOrderId as any);
 
     if (itemsError) {
       console.error("Order items creation error:", itemsError);
@@ -217,7 +235,8 @@ export async function POST(request: NextRequest) {
       if (product) {
         await supabaseAdmin
           .from("products")
-          .update({ stock: product.stock - item.quantity })
+          // @ts-expect-error - Supabase type issue
+          .update({ stock: product.stock - item.quantity } as any)
           .eq("id", item.product_id);
       }
     }

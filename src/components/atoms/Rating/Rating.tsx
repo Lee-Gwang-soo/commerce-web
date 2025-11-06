@@ -73,8 +73,7 @@ const Rating = forwardRef<HTMLDivElement, RatingProps>(
     const renderStar = (index: number) => {
       const starRating = index + 1;
       const isFilled = normalizedRating >= starRating;
-      const isHalfFilled =
-        !isFilled && normalizedRating >= starRating - 0.5 && precision === 0.5;
+      const isHalfFilled = !isFilled && normalizedRating >= starRating - 0.5 && precision === 0.5;
 
       const handleClick = () => {
         if (interactive && onRatingChange) {
@@ -119,11 +118,7 @@ const Rating = forwardRef<HTMLDivElement, RatingProps>(
     };
 
     return (
-      <div
-        className={cn(ratingVariants({ size, align }), className)}
-        ref={ref}
-        {...props}
-      >
+      <div className={cn(ratingVariants({ size, align }), className)} ref={ref} {...props}>
         {/* Stars */}
         <div className="flex items-center gap-0.5">
           {Array.from({ length: maxRating }, (_, index) => renderStar(index))}
@@ -138,9 +133,7 @@ const Rating = forwardRef<HTMLDivElement, RatingProps>(
 
         {/* Count */}
         {showCount && count !== undefined && (
-          <span className="ml-1 text-sm text-muted-foreground">
-            ({count.toLocaleString()})
-          </span>
+          <span className="ml-1 text-sm text-muted-foreground">({count.toLocaleString()})</span>
         )}
       </div>
     );

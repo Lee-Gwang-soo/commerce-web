@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Typography } from "@/components/atoms/Typography";
 import { AlertCircle, XCircle, AlertTriangle } from "lucide-react";
 
-interface ErrorModalProps {
+export interface ErrorModalProps {
   isOpen: boolean;
   title?: string;
   message: string;
@@ -12,13 +12,7 @@ interface ErrorModalProps {
   type?: "error" | "warning" | "info";
 }
 
-export function ErrorModal({
-  isOpen,
-  title,
-  message,
-  onClose,
-  type = "error",
-}: ErrorModalProps) {
+export function ErrorModal({ isOpen, title, message, onClose, type = "error" }: ErrorModalProps) {
   if (!isOpen) return null;
 
   const config = {
@@ -50,16 +44,15 @@ export function ErrorModal({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
       {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/40 backdrop-blur-sm"
-        onClick={onClose}
-      />
+      <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={onClose} />
 
       {/* Modal */}
       <div className="relative bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all animate-in fade-in zoom-in duration-200">
         <div className="flex flex-col items-center text-center">
           {/* Icon */}
-          <div className={`w-16 h-16 ${bgColor} rounded-full flex items-center justify-center mb-6`}>
+          <div
+            className={`w-16 h-16 ${bgColor} rounded-full flex items-center justify-center mb-6`}
+          >
             <Icon className={`w-8 h-8 ${iconColor}`} />
           </div>
 
@@ -69,7 +62,7 @@ export function ErrorModal({
           </Typography>
 
           {/* Message */}
-          <Typography variant="body" className="text-gray-600 mb-8 leading-relaxed">
+          <Typography variant="p" className="text-gray-600 mb-8 leading-relaxed">
             {message}
           </Typography>
 

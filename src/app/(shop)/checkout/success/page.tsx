@@ -7,6 +7,8 @@ import { Typography } from "@/components/atoms/Typography";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2 } from "lucide-react";
 
+export const dynamic = "force-dynamic";
+
 export default function CheckoutSuccessPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -80,9 +82,7 @@ export default function CheckoutSuccessPage() {
             <Typography variant="h3" className="mb-2">
               결제를 처리하고 있습니다
             </Typography>
-            <Typography variant="muted">
-              잠시만 기다려주세요. 페이지를 벗어나지 마세요.
-            </Typography>
+            <Typography variant="muted">잠시만 기다려주세요. 페이지를 벗어나지 마세요.</Typography>
           </div>
         </div>
       </Layout>
@@ -153,19 +153,10 @@ export default function CheckoutSuccessPage() {
           </div>
 
           <div className="flex flex-col gap-3">
-            <Button
-              size="lg"
-              className="w-full"
-              onClick={() => router.push(`/mypage/orders`)}
-            >
+            <Button size="lg" className="w-full" onClick={() => router.push(`/mypage/orders`)}>
               주문 내역 보기
             </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              className="w-full"
-              onClick={() => router.push("/")}
-            >
+            <Button variant="outline" size="lg" className="w-full" onClick={() => router.push("/")}>
               쇼핑 계속하기
             </Button>
           </div>

@@ -71,13 +71,8 @@ export const useAddToCart = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      product_id,
-      quantity = 1,
-    }: {
-      product_id: string;
-      quantity?: number;
-    }) => cartApi.addToCart(product_id, quantity),
+    mutationFn: ({ product_id, quantity = 1 }: { product_id: string; quantity?: number }) =>
+      cartApi.addToCart(product_id, quantity),
     onSuccess: () => {
       toast.success("상품이 장바구니에 추가되었습니다.");
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -93,13 +88,8 @@ export const useUpdateCartItem = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({
-      itemId,
-      quantity,
-    }: {
-      itemId: string;
-      quantity: number;
-    }) => cartApi.updateCartItem(itemId, quantity),
+    mutationFn: ({ itemId, quantity }: { itemId: string; quantity: number }) =>
+      cartApi.updateCartItem(itemId, quantity),
     onSuccess: () => {
       toast.success("수량이 변경되었습니다.");
       queryClient.invalidateQueries({ queryKey: ["cart"] });
@@ -139,5 +129,21 @@ export const useIsInCart = (productId: string) => {
     },
     enabled: isAuthenticated && !!productId && !!cartItems,
     staleTime: 1000 * 60 * 2, // 2분
+  });
+};
+
+// 장바구니 전체 비우기 훅
+export const useClearCart = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => cartApi.clearCart(),
+    onSuccess: () => {
+      toast.success("장바구니를 비웠습니다.");
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "장바구니 비우기에 실패했습니다.");
+    },
   });
 };

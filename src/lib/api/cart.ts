@@ -33,7 +33,9 @@ export const cartApi = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "장바구니 조회에 실패했습니다.");
+      const err = new Error(error.message || "장바구니 조회에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     const result: ApiResponse<CartItemWithProduct[]> = await response.json();
@@ -53,7 +55,9 @@ export const cartApi = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "장바구니 추가에 실패했습니다.");
+      const err = new Error(error.message || "장바구니 추가에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     const result = await response.json();
@@ -73,7 +77,9 @@ export const cartApi = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "수량 업데이트에 실패했습니다.");
+      const err = new Error(error.message || "수량 업데이트에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     const result = await response.json();
@@ -89,9 +95,29 @@ export const cartApi = {
 
     if (!response.ok) {
       const error = await response.json();
-      throw new Error(error.message || "장바구니 삭제에 실패했습니다.");
+      const err = new Error(error.message || "장바구니 삭제에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
     }
 
     return;
+  },
+
+  // 장바구니 전체 비우기
+  clearCart: async () => {
+    const response = await fetch("/api/cart", {
+      method: "DELETE",
+      credentials: "include",
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      const err = new Error(error.message || "장바구니 비우기에 실패했습니다.") as any;
+      err.status = response.status;
+      throw err;
+    }
+
+    const result = await response.json();
+    return result;
   },
 };

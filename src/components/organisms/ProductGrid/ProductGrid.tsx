@@ -34,21 +34,18 @@ const productGridVariants = cva("", {
   },
 });
 
-const emptyStateVariants = cva(
-  "flex flex-col items-center justify-center py-12 px-4 text-center",
-  {
-    variants: {
-      size: {
-        sm: "py-8",
-        md: "py-12",
-        lg: "py-16",
-      },
+const emptyStateVariants = cva("flex flex-col items-center justify-center py-12 px-4 text-center", {
+  variants: {
+    size: {
+      sm: "py-8",
+      md: "py-12",
+      lg: "py-16",
     },
-    defaultVariants: {
-      size: "md",
-    },
-  }
-);
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
 
 export interface ProductGridProps
   extends React.HTMLAttributes<HTMLDivElement>,
@@ -106,11 +103,7 @@ const ProductGrid = forwardRef<HTMLDivElement, ProductGridProps>(
     // Loading State
     if (loading && products.length === 0) {
       return (
-        <div
-          className={cn(emptyStateVariants(), className)}
-          ref={ref}
-          {...props}
-        >
+        <div className={cn(emptyStateVariants(), className)} ref={ref} {...props}>
           <Loading size="lg" text="상품을 불러오는 중..." />
         </div>
       );
@@ -119,11 +112,7 @@ const ProductGrid = forwardRef<HTMLDivElement, ProductGridProps>(
     // Error State
     if (error) {
       return (
-        <div
-          className={cn(emptyStateVariants(), className)}
-          ref={ref}
-          {...props}
-        >
+        <div className={cn(emptyStateVariants(), className)} ref={ref} {...props}>
           <Typography variant="h5" color="destructive" className="mb-2">
             오류가 발생했습니다
           </Typography>
@@ -138,11 +127,7 @@ const ProductGrid = forwardRef<HTMLDivElement, ProductGridProps>(
     // Empty State
     if (products.length === 0) {
       return (
-        <div
-          className={cn(emptyStateVariants(), className)}
-          ref={ref}
-          {...props}
-        >
+        <div className={cn(emptyStateVariants(), className)} ref={ref} {...props}>
           <Typography variant="h5" className="mb-2">
             {emptyMessage}
           </Typography>
@@ -179,11 +164,7 @@ const ProductGrid = forwardRef<HTMLDivElement, ProductGridProps>(
         {/* Load More Button */}
         {showLoadMore && onLoadMore && (
           <div className="flex justify-center mt-8">
-            <Button
-              variant="outline"
-              onClick={onLoadMore}
-              disabled={loadMoreLoading}
-            >
+            <Button variant="outline" onClick={onLoadMore} disabled={loadMoreLoading}>
               {loadMoreLoading ? "로딩 중..." : loadMoreText}
             </Button>
           </div>

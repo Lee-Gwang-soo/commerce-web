@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { Layout } from "@/components/templates/Layout";
 import { Button } from "@/components/ui/button";
@@ -10,21 +10,38 @@ import { Typography } from "@/components/atoms/Typography";
 import { Eye, EyeOff } from "lucide-react";
 import { useLogin } from "@/hooks/auth/useAuth";
 
+const SAVED_USER_ID_KEY = "saved_user_id";
+
 export default function LoginPage() {
   const [userId, setUserId] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [saveUserId, setSaveUserId] = useState(false);
 
   const { mutate: login, isPending } = useLogin();
+
+  // 컴포넌트 마운트 시 저장된 아이디 불러오기
+  useEffect(() => {
+    const savedUserId = localStorage.getItem(SAVED_USER_ID_KEY);
+    if (savedUserId) {
+      setUserId(savedUserId);
+      setSaveUserId(true);
+    }
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     login(
-      { userId, password },
+      { user_id: userId, password },
       {
-        onError: (error) => {
-          alert(error.message || "로그인에 실패했습니다.");
+        onSuccess: () => {
+          // 로그인 성공 시 아이디 저장/삭제 처리
+          if (saveUserId) {
+            localStorage.setItem(SAVED_USER_ID_KEY, userId);
+          } else {
+            localStorage.removeItem(SAVED_USER_ID_KEY);
+          }
         },
       }
     );
@@ -72,17 +89,22 @@ export default function LoginPage() {
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
                 >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4" />
-                  ) : (
-                    <Eye className="h-4 w-4" />
-                  )}
+                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
             </div>
 
-            {/* Links */}
-            <div className="flex justify-end">
+            {/* Save ID & Links */}
+            <div className="flex justify-between items-center">
+              <label className="flex items-center space-x-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={saveUserId}
+                  onChange={(e) => setSaveUserId(e.target.checked)}
+                  className="w-4 h-4 text-purple-600 border-gray-300 rounded focus:ring-purple-500"
+                />
+                <span className="text-sm text-gray-700">아이디 저장</span>
+              </label>
               <Link
                 href="/forgot-password"
                 className="text-sm text-gray-500 hover:text-gray-700 hover:underline"
@@ -114,9 +136,7 @@ export default function LoginPage() {
             <div className="relative my-6">
               <Separator />
               <div className="absolute inset-0 flex justify-center">
-                <span className="bg-white px-4 text-sm text-gray-500">
-                  간편 로그인
-                </span>
+                <span className="bg-white px-4 text-sm text-gray-500">간편 로그인</span>
               </div>
             </div>
 

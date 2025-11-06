@@ -25,37 +25,31 @@ const quantityVariants = cva("flex items-center border rounded-md", {
   },
 });
 
-const buttonVariants = cva(
-  "flex items-center justify-center border-0 rounded-none",
-  {
-    variants: {
-      size: {
-        sm: "h-6 w-6",
-        md: "h-8 w-8",
-        lg: "h-10 w-10",
-      },
+const buttonVariants = cva("flex items-center justify-center border-0 rounded-none", {
+  variants: {
+    size: {
+      sm: "h-6 w-6",
+      md: "h-8 w-8",
+      lg: "h-10 w-10",
     },
-    defaultVariants: {
-      size: "md",
-    },
-  }
-);
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
 
-const inputVariants = cva(
-  "border-0 text-center focus-visible:ring-0 focus-visible:ring-offset-0",
-  {
-    variants: {
-      size: {
-        sm: "h-6 text-sm px-1",
-        md: "h-8 text-base px-2",
-        lg: "h-10 text-lg px-3",
-      },
+const inputVariants = cva("border-0 text-center focus-visible:ring-0 focus-visible:ring-offset-0", {
+  variants: {
+    size: {
+      sm: "h-6 text-sm px-1",
+      md: "h-8 text-base px-2",
+      lg: "h-10 text-lg px-3",
     },
-    defaultVariants: {
-      size: "md",
-    },
-  }
-);
+  },
+  defaultVariants: {
+    size: "md",
+  },
+});
 
 export interface QuantityProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "onChange">,
@@ -139,11 +133,7 @@ const Quantity = forwardRef<HTMLDivElement, QuantityProps>(
     const canIncrement = value < max && !disabled;
 
     return (
-      <div
-        className={cn(quantityVariants({ size, variant }), className)}
-        ref={ref}
-        {...props}
-      >
+      <div className={cn(quantityVariants({ size, variant }), className)} ref={ref} {...props}>
         {/* Decrement Button */}
         <Button
           type="button"

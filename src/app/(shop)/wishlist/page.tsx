@@ -9,10 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Price } from "@/components/atoms/Price";
 import { Badge } from "@/components/ui/badge";
 import { ShoppingCart, X, Heart } from "lucide-react";
-import {
-  useWishlistItems,
-  useRemoveFromWishlist,
-} from "@/hooks/wishlist/use-wishlist";
+import { useWishlistItems, useRemoveFromWishlist } from "@/hooks/wishlist/use-wishlist";
 import { useAddToCart } from "@/hooks/cart/use-cart";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
@@ -46,13 +43,13 @@ export default function WishlistPage() {
   if (!isAuthenticated) {
     return (
       <Layout>
-        <div className="container mx-auto px-4 py-16">
-          <div className="text-center max-w-md mx-auto">
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className=" max-w-md mx-auto">
             <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-            <Typography variant="h3" className="mb-4">
+            <Typography variant="h3" className="mb-4 text-center">
               로그인이 필요합니다
             </Typography>
-            <Typography variant="muted" className="mb-6">
+            <Typography variant="muted" className="mb-6 text-center">
               찜목록을 확인하려면 로그인해주세요.
             </Typography>
             <Button onClick={() => router.push("/login")}>로그인하기</Button>
@@ -70,9 +67,7 @@ export default function WishlistPage() {
           <div className="flex items-center justify-center min-h-[400px]">
             <div className="text-center">
               <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-primary mx-auto mb-4"></div>
-              <Typography variant="muted">
-                찜목록을 불러오는 중...
-              </Typography>
+              <Typography variant="muted">찜목록을 불러오는 중...</Typography>
             </div>
           </div>
         </div>
@@ -98,19 +93,12 @@ export default function WishlistPage() {
 
   return (
     <Layout>
-      <PageLayout
-        breadcrumbs={[
-          { label: "홈", href: "/" },
-          { label: "찜목록" },
-        ]}
-      >
+      <PageLayout breadcrumbs={[{ label: "홈", href: "/" }, { label: "찜목록" }]}>
         <div className="mb-8">
           <Typography variant="h1" className="mb-2">
             찜목록
           </Typography>
-          <Typography variant="muted">
-            {wishlistItems.length}개의 상품
-          </Typography>
+          <Typography variant="muted">{wishlistItems.length}개의 상품</Typography>
         </div>
 
         {wishlistItems.length === 0 ? (
@@ -130,8 +118,7 @@ export default function WishlistPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {wishlistItems.map((item) => {
               const product = item.product;
-              const hasDiscount =
-                product.sale_price && product.sale_price < product.price;
+              const hasDiscount = product.sale_price && product.sale_price < product.price;
               const isOutOfStock = product.stock <= 0;
 
               return (
@@ -158,14 +145,9 @@ export default function WishlistPage() {
                         className="object-cover group-hover:scale-105 transition-transform duration-300"
                       />
                       {hasDiscount && (
-                        <Badge
-                          variant="destructive"
-                          className="absolute top-2 left-2"
-                        >
+                        <Badge variant="destructive" className="absolute top-2 left-2">
                           {Math.round(
-                            ((product.price - product.sale_price!) /
-                              product.price) *
-                              100
+                            ((product.price - product.sale_price!) / product.price) * 100
                           )}
                           % 할인
                         </Badge>
@@ -183,11 +165,7 @@ export default function WishlistPage() {
                   {/* 상품 정보 */}
                   <div className="p-4">
                     <Link href={`/products/${product.id}`}>
-                      <Typography
-                        variant="small"
-                        color="muted"
-                        className="mb-1"
-                      >
+                      <Typography variant="small" color="muted" className="mb-1">
                         {product.category}
                       </Typography>
                       <Typography
@@ -211,11 +189,7 @@ export default function WishlistPage() {
                       className="w-full"
                       size="sm"
                       onClick={() => handleAddToCart(product.id, item.id)}
-                      disabled={
-                        isOutOfStock ||
-                        addToCart.isPending ||
-                        removeFromWishlist.isPending
-                      }
+                      disabled={isOutOfStock || addToCart.isPending || removeFromWishlist.isPending}
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
                       장바구니 담기

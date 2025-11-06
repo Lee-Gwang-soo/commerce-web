@@ -9,6 +9,11 @@ import { ProductGrid } from "@/components/organisms/ProductGrid";
 import Banner from "@/components/atoms/Banner";
 import { useProducts } from "@/hooks/product/useProducts";
 import { useAddToCart } from "@/hooks/cart/use-cart";
+import {
+  useWishlistItems,
+  useAddToWishlist,
+  useRemoveFromWishlist,
+} from "@/hooks/wishlist/use-wishlist";
 import { useAuthStore } from "@/store/authStore";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -24,14 +29,7 @@ function HeroBannerSection() {
   ];
 
   return (
-    <Banner
-      isHero
-      images={heroImages}
-      autoRotate
-      showNavigation
-      interval={5000}
-      className="mb-0"
-    />
+    <Banner isHero images={heroImages} autoRotate showNavigation interval={5000} className="mb-0" />
   );
 }
 
@@ -51,10 +49,7 @@ function CategoriesSection() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
           {CATEGORIES.map((category) => (
-            <Link
-              key={category.slug}
-              href={`/categories/${category.slug}`}
-            >
+            <Link key={category.slug} href={`/categories/${category.slug}`}>
               <Card className="text-center p-8 hover:shadow-xl transition-all cursor-pointer group bg-white border-2 border-gray-200 hover:border-purple-400 h-full">
                 <CardContent className="p-0">
                   <div className="text-6xl mb-4 group-hover:scale-110 transition-transform">
@@ -82,6 +77,11 @@ export default function HomePage() {
   const { isAuthenticated } = useAuthStore();
   const addToCart = useAddToCart();
 
+  // 찜목록 관련
+  const { data: wishlistItems } = useWishlistItems();
+  const addToWishlist = useAddToWishlist();
+  const removeFromWishlist = useRemoveFromWishlist();
+
   // 최신 상품 조회 (8개, 최신순)
   const { data: latestProductsData, isLoading: latestLoading } = useProducts({
     page: 1,
@@ -101,6 +101,9 @@ export default function HomePage() {
   const featuredProducts = featuredProductsData?.data || [];
   const latestProducts = latestProductsData?.data || [];
 
+  // 찜목록 아이템 ID 배열 생성
+  const wishlistProductIds = wishlistItems?.map((item) => item.product.id) || [];
+
   // 장바구니 담기 핸들러
   const handleAddToCart = (productId: string) => {
     if (!isAuthenticated) {
@@ -110,6 +113,22 @@ export default function HomePage() {
     }
 
     addToCart.mutate({ product_id: productId, quantity: 1 });
+  };
+
+  // 찜목록 토글 핸들러
+  const handleToggleWishlist = (productId: string) => {
+    if (!isAuthenticated) {
+      toast.error("로그인이 필요합니다.");
+      router.push("/login");
+      return;
+    }
+
+    const wishlistItem = wishlistItems?.find((item) => item.product.id === productId);
+    if (wishlistItem) {
+      removeFromWishlist.mutate(wishlistItem.id);
+    } else {
+      addToWishlist.mutate(productId);
+    }
   };
 
   return (
@@ -150,6 +169,8 @@ export default function HomePage() {
               emptyMessage="추천 상품이 없습니다"
               emptyDescription="다양한 상품들을 준비 중입니다"
               onAddToCart={handleAddToCart}
+              onAddToWishlist={handleToggleWishlist}
+              wishlistItems={wishlistProductIds}
             />
           </div>
         </section>
@@ -183,6 +204,8 @@ export default function HomePage() {
               emptyMessage="신상품이 없습니다"
               emptyDescription="새로운 상품들을 준비 중입니다"
               onAddToCart={handleAddToCart}
+              onAddToWishlist={handleToggleWishlist}
+              wishlistItems={wishlistProductIds}
             />
           </div>
         </section>

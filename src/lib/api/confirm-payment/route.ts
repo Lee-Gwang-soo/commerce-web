@@ -19,23 +19,18 @@ export async function POST(request: NextRequest) {
     }
 
     // 토스페이먼츠 결제 승인 API 호출
-    const response = await fetch(
-      "https://api.tosspayments.com/v1/payments/confirm",
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${Buffer.from(secretKey + ":").toString(
-            "base64"
-          )}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          paymentKey,
-          orderId,
-          amount,
-        }),
-      }
-    );
+    const response = await fetch("https://api.tosspayments.com/v1/payments/confirm", {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${Buffer.from(secretKey + ":").toString("base64")}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        paymentKey,
+        orderId,
+        amount,
+      }),
+    });
 
     const result = await response.json();
 

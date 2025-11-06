@@ -15,6 +15,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { AlertTriangle, ShoppingBag, Trash2, Plus, Minus } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useCartItems, useUpdateCartItem, useRemoveFromCart } from "@/hooks/cart/use-cart";
+import { useCartRecommendedProducts } from "@/hooks/products/use-products";
+import { ProductCard } from "@/components/molecules/ProductCard";
 
 export default function CartPage() {
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
@@ -24,6 +26,10 @@ export default function CartPage() {
   // const { data: cartTotal = 0 } = useCartTotal();
   const updateCartItem = useUpdateCartItem();
   const removeFromCart = useRemoveFromCart();
+
+  // 추천 상품 조회 (장바구니 로드 후에만 실행)
+  const { data: recommendedProducts = [], isLoading: isLoadingRecommended } =
+    useCartRecommendedProducts(cartItems, 3);
 
   // 전체 선택/해제
   const handleSelectAll = (checked: boolean) => {
@@ -289,14 +295,37 @@ export default function CartPage() {
             </Card>
 
             {/* 추천 상품 */}
-            <div className="mt-8">
-              <Typography variant="h5" className="mb-4">
-                이런 상품은 어떠세요?
-              </Typography>
-              <Typography variant="muted" className="text-center py-8">
-                추천 상품 영역 (구현 예정)
-              </Typography>
-            </div>
+            {cartItems.length > 0 && (
+              <div className="mt-8">
+                <Typography variant="h5" className="mb-4">
+                  이런 상품은 어떠세요?
+                </Typography>
+
+                {isLoadingRecommended ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {[...Array(3)].map((_, i) => (
+                      <Card key={i} className="animate-pulse">
+                        <CardContent className="p-4">
+                          <div className="aspect-square bg-gray-200 rounded-lg mb-3" />
+                          <div className="h-4 bg-gray-200 rounded mb-2" />
+                          <div className="h-4 bg-gray-200 rounded w-2/3" />
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : recommendedProducts.length > 0 ? (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {recommendedProducts.map((product: any) => (
+                      <ProductCard key={product.id} product={product} showActions />
+                    ))}
+                  </div>
+                ) : (
+                  <Typography variant="muted" className="text-center py-8">
+                    추천 상품이 없습니다
+                  </Typography>
+                )}
+              </div>
+            )}
           </div>
 
           {/* 주문 요약 */}

@@ -7,6 +7,7 @@ export async function GET(request: NextRequest) {
     const page = parseInt(searchParams.get("page") || "1");
     const limit = parseInt(searchParams.get("limit") || "20");
     const categories = searchParams.get("categories"); // 콤마로 구분된 카테고리들
+    const excludeIds = searchParams.get("exclude"); // 제외할 상품 ID들 (콤마로 구분)
     const search = searchParams.get("search");
     const sort = searchParams.get("sort") || "created_at";
     const order = searchParams.get("order") || "desc";
@@ -23,6 +24,14 @@ export async function GET(request: NextRequest) {
       const categoryArray = categories.split(",").filter(Boolean);
       if (categoryArray.length > 0) {
         query = query.in("category", categoryArray);
+      }
+    }
+
+    // Exclude specific product IDs
+    if (excludeIds) {
+      const excludeArray = excludeIds.split(",").filter(Boolean);
+      if (excludeArray.length > 0) {
+        query = query.not("id", "in", `(${excludeArray.join(",")})`);
       }
     }
 

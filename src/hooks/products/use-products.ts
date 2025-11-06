@@ -218,3 +218,41 @@ export const useProductCountByCategory = () => {
     staleTime: 1000 * 60 * 30, // 30분
   });
 };
+
+// 장바구니 기반 추천 상품 조회 훅
+export const useCartRecommendedProducts = (
+  cartItems: Array<{ product: { id: string; category: string } }>,
+  limit = 3
+) => {
+  // 장바구니 상품의 카테고리 추출 (중복 제거)
+  const categories = [...new Set(cartItems.map((item) => item.product.category))];
+  // 장바구니 상품 ID들
+  const excludeIds = cartItems.map((item) => item.product.id);
+
+  return useQuery({
+    queryKey: ["products", "cart-recommended", categories, excludeIds, limit],
+    queryFn: async () => {
+      if (categories.length === 0) return [];
+
+      const queryParams = new URLSearchParams({
+        categories: categories.join(","),
+        exclude: excludeIds.join(","),
+        limit: limit.toString(),
+        sort: "sales_count", // 판매량 순
+        order: "desc",
+        page: "1",
+      });
+
+      const response = await fetch(`/api/products?${queryParams.toString()}`);
+      if (!response.ok) {
+        throw new Error("추천 상품 조회 실패");
+      }
+
+      const result = await response.json();
+      return result.data || [];
+    },
+    enabled: cartItems.length > 0, // 장바구니에 아이템이 있을 때만 실행
+    staleTime: 1000 * 60 * 10, // 10분
+    gcTime: 1000 * 60 * 30, // 30분
+  });
+};

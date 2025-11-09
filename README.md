@@ -2,9 +2,10 @@
 
 > Next.js 14, Supabase, React Query를 기반으로 한 풀스택 전자상거래 플랫폼
 
-[![CI](https://github.com/YOUR_USERNAME/commerce_web/actions/workflows/ci.yml/badge.svg)](https://github.com/YOUR_USERNAME/commerce_web/actions/workflows/ci.yml)
+[![CI](https://github.com/Lee-Gwang-soo/commerce-web/actions/workflows/ci.yml/badge.svg)](https://github.com/Lee-Gwang-soo/commerce-web/actions/workflows/ci.yml)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)](https://www.typescriptlang.org/)
 [![Next.js](https://img.shields.io/badge/Next.js-14.2-black)](https://nextjs.org/)
+[![Vercel](https://img.shields.io/badge/Deploy-Vercel-black)](https://vercel.com)
 
 ## 📋 프로젝트 개요
 
@@ -25,6 +26,40 @@
 ---
 
 ## 🚀 최근 작업 현황
+
+### ✨ 2025-11-06: Vercel 배포 준비 완료
+
+#### 1. 배포 설정 구축
+
+- ✅ **`.env.example` 생성**: 환경 변수 템플릿
+- ✅ **`vercel.json` 설정**: 서울 리전, 빌드 설정, 헤더 최적화
+- ✅ **DEPLOYMENT.md 작성**: 전체 배포 가이드 및 트러블슈팅
+- ✅ **Husky + lint-staged 활성화**: Pre-commit 훅 정상 작동
+- ✅ **GitHub Actions CI/CD**: 자동 테스트 및 빌드 검증
+
+#### 2. 찜하기 버튼 기능 완전 개선
+
+- ✅ **Link 이벤트 충돌 해결**: wishlist 버튼을 Link 외부로 분리
+- ✅ **실시간 상태 반영**: Optimistic Update로 클릭 즉시 UI 변경
+- ✅ **Toggle 기능**: 찜 추가/제거 자동 전환
+- ✅ **아이콘 상시 표시**: 모든 페이지에서 찜하기 버튼 항상 표시
+  - 찜한 상태: 빨간색 채워진 하트 ❤️
+  - 안 찜한 상태: 빈 하트 🤍
+
+#### 3. 장바구니 일괄 삭제 최적화
+
+- ✅ **Promise.all 병렬 처리**: 선택된 상품들을 동시 삭제
+- ✅ **단일 토스트 메시지**: "N개 상품을 삭제했습니다."
+- ✅ **전체 삭제 API**: DELETE /api/cart 엔드포인트 추가
+- ✅ **사용자 경험 개선**: 빠른 응답 속도 및 명확한 피드백
+
+#### 4. 상품 페이지 통합 개선
+
+- ✅ **전체상품 페이지**: 장바구니/찜하기 버튼 정상 작동
+- ✅ **카테고리 페이지**: 장바구니/찜하기 버튼 정상 작동
+- ✅ **신상품 페이지**: 장바구니/찜하기 버튼 정상 작동
+- ✅ **베스트 페이지**: 장바구니/찜하기 버튼 정상 작동
+- ✅ **useProductActions 훅**: 통합 액션 핸들러 및 상태 관리
 
 ### ✨ 2025-10-30: 세션 관리 통일 & 리뷰 시스템 완성
 
@@ -603,29 +638,66 @@ src/
 
 ### 환경 변수 (.env.local)
 
+`.env.example` 파일을 복사하여 `.env.local`을 생성하고 실제 값을 입력하세요:
+
+```bash
+# .env.example 복사
+cp .env.example .env.local
+```
+
+**필수 환경 변수:**
+
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your_anon_key_here
+SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+
+# Application
 NEXT_PUBLIC_APP_URL=http://localhost:3000
-NEXT_PUBLIC_TOSS_CLIENT_KEY=test_ck_...
-TOSS_SECRET_KEY=test_sk_...
+
+# Toss Payments (Test Mode)
+NEXT_PUBLIC_TOSS_CLIENT_KEY=test_ck_YOUR_TEST_CLIENT_KEY
+TOSS_SECRET_KEY=test_sk_YOUR_TEST_SECRET_KEY
 ```
 
 ### 설치 및 실행
 
 ```bash
-# 의존성 설치
+# 1. 의존성 설치
 npm install
 
-# 개발 서버 실행
+# 2. 환경 변수 설정
+cp .env.example .env.local
+# .env.local 파일을 편집하여 실제 값 입력
+
+# 3. 개발 서버 실행
 npm run dev
 
-# 빌드
+# 4. 빌드 (배포 전 테스트)
 npm run build
 
-# 프로덕션 실행
+# 5. 프로덕션 실행
 npm start
+```
+
+### 코드 품질 검사
+
+```bash
+# ESLint 검사
+npm run lint
+
+# ESLint 자동 수정
+npm run lint:fix
+
+# TypeScript 타입 체크
+npm run type-check
+
+# Prettier 검사
+npm run prettier:check
+
+# Prettier 자동 포맷팅
+npm run prettier
 ```
 
 ### 코딩 규칙
@@ -688,6 +760,45 @@ b6838ac - feat: 완전한 인증 시스템 및 회원정보 관리 구현
 
 ---
 
+## 🚀 배포
+
+### Vercel 배포
+
+전체 배포 가이드는 [DEPLOYMENT.md](./DEPLOYMENT.md)를 참조하세요.
+
+**빠른 배포:**
+
+```bash
+# 1. GitHub에 푸시
+git push origin main
+
+# 2. Vercel에서 자동 배포 시작
+# https://vercel.com/dashboard
+
+# 3. 환경 변수 설정
+# Vercel Dashboard > Settings > Environment Variables
+```
+
+**필수 환경 변수 (Vercel):**
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+- `SUPABASE_SERVICE_ROLE_KEY`
+- `NEXT_PUBLIC_APP_URL` (https://your-domain.vercel.app)
+- `NEXT_PUBLIC_TOSS_CLIENT_KEY` (프로덕션: live*ck*...)
+- `TOSS_SECRET_KEY` (프로덕션: live*sk*...)
+
+### CI/CD 파이프라인
+
+GitHub Actions로 자동화:
+
+- ✅ Lint & Format Check
+- ✅ TypeScript Type Check
+- ✅ Build Verification
+- ✅ Husky Pre-commit Hooks
+
+---
+
 ## 📚 참고 자료
 
 - [Next.js 14 문서](https://nextjs.org/docs)
@@ -695,6 +806,8 @@ b6838ac - feat: 완전한 인증 시스템 및 회원정보 관리 구현
 - [TanStack Query 문서](https://tanstack.com/query/latest)
 - [shadcn/ui 문서](https://ui.shadcn.com)
 - [Tailwind CSS 문서](https://tailwindcss.com/docs)
+- [Vercel 문서](https://vercel.com/docs)
+- [Toss Payments 문서](https://developers.tosspayments.com/)
 
 ---
 
@@ -709,8 +822,12 @@ tree src/ -L 2
 
 # 개발 서버 실행
 npm run dev
+
+# 배포 전 빌드 테스트
+npm run build
 ```
 
 **다음 작업 제안 요청 예시**:
 
 - "최근 커밋을 확인하고 다음 작업을 제안해줘"
+- "Vercel 배포 상태를 확인하고 문제점을 찾아줘"

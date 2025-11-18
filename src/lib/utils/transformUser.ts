@@ -12,6 +12,7 @@ export function transformUserForResponse(user: CommerceUser) {
     email: user.email,
     phone: user.phone,
     address: user.address,
+    address_detail: user.address_detail,
     marketing_agreed: user.marketing_agreed,
     benefits_agreed: user.benefits_agreed,
     created_at: user.created_at,

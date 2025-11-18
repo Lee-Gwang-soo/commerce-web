@@ -17,6 +17,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "Commerce Web - 모던 이커머스 플랫폼",
   description: "Next.js 14와 Supabase로 구축된 현대적인 이커머스 웹사이트",
+  icons: {
+    icon: "/icon.svg",
+  },
 };
 
 export const dynamic = "force-dynamic";

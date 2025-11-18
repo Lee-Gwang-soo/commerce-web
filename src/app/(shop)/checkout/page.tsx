@@ -49,6 +49,7 @@ export default function CheckoutPage() {
     email: "",
     phone: "",
     address: "",
+    addressDetail: "",
     postcode: "",
   });
 
@@ -60,6 +61,7 @@ export default function CheckoutPage() {
         email: user.email || "",
         phone: user.phone || "",
         address: user.address || "",
+        addressDetail: user.address_detail || "",
         postcode: "",
       });
     }
@@ -151,6 +153,7 @@ export default function CheckoutPage() {
         customer_email: customerInfo.email,
         customer_phone: customerInfo.phone,
         shipping_address: customerInfo.address,
+        shipping_address_detail: customerInfo.addressDetail || undefined,
         shipping_postcode: customerInfo.postcode || undefined,
         payment_method: "토스페이먼츠",
         order_id: orderId,
@@ -315,6 +318,20 @@ export default function CheckoutPage() {
                       })
                     }
                     placeholder="주소를 입력하세요"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="addressDetail">상세 주소</Label>
+                  <Input
+                    id="addressDetail"
+                    value={customerInfo.addressDetail}
+                    onChange={(e) =>
+                      setCustomerInfo({
+                        ...customerInfo,
+                        addressDetail: e.target.value,
+                      })
+                    }
+                    placeholder="상세 주소를 입력하세요 (예: 101동 101호)"
                   />
                 </div>
               </div>

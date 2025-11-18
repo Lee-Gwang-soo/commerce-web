@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
     const { data: user, error: fetchError } = await supabaseAdmin
       .from("commerce_user")
       .select(
-        "id, user_id, name, email, phone, address, marketing_agreed, benefits_agreed, created_at, updated_at"
+        "id, user_id, name, email, phone, address, address_detail, marketing_agreed, benefits_agreed, created_at, updated_at"
       )
       .eq("id", userId)
       .single<CommerceUser>();

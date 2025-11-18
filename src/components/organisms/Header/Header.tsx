@@ -5,7 +5,7 @@ import { cva, type VariantProps } from "class-variance-authority";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
-import { ShoppingCart, Heart, ChevronDown } from "lucide-react";
+import { ShoppingCart, Heart, ChevronDown, Search, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
@@ -15,6 +15,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { SearchBar } from "@/components/molecules/SearchBar";
+import { MobileSearchModal } from "@/components/molecules/MobileSearchModal";
 import { NavigationItem } from "@/components/molecules/NavigationItem";
 import { Typography } from "@/components/atoms/Typography";
 import Banner from "@/components/atoms/Banner";
@@ -80,6 +81,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
     const { data: cartItemCount = 0 } = useCartItemCount();
     const { data: wishlistItemCount = 0 } = useWishlistItemCount();
     const [categoryOpen, setCategoryOpen] = useState(false);
+    const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
 
     const handleSearchSubmit = (query: string) => {
       onSearchSubmit?.(query);
@@ -110,14 +112,14 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
         {/* Main Header */}
         <header ref={ref} className={cn(headerVariants({ variant, size }), className)}>
           <div className="container mx-auto px-4 py-2">
-            {/* Top Row - Auth Links */}
-            <div className="flex justify-end border-gray-100">
+            {/* Top Row - Auth Links - Hidden on Mobile */}
+            <div className="hidden md:flex justify-end border-gray-100">
               <div className="flex items-center space-x-1 text-sm">
                 {user ? (
                   <Button
                     variant="ghost"
                     size="sm"
-                    className="text-gray-600 hover:text-purple-600 px-3 py-1 text-xs"
+                    className="text-gray-600 hover:text-purple-600 px-3 py-1 text-sm"
                     asChild
                   >
                     <Link href="/mypage">마이페이지</Link>
@@ -127,7 +129,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-purple-600 hover:text-purple-600 px-3 py-1 text-xs"
+                      className="text-purple-600 hover:text-purple-600 px-3 py-1 text-sm"
                       asChild
                     >
                       <Link href="/register">회원가입</Link>
@@ -136,7 +138,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                     <Button
                       variant="ghost"
                       size="sm"
-                      className="text-gray-600 px-3 py-1 text-xs"
+                      className="text-gray-600 px-3 py-1 text-sm"
                       asChild
                     >
                       <Link href="/login">로그인</Link>
@@ -147,46 +149,44 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
             </div>
 
             {/* Bottom Row - Main Navigation */}
-            <div className="flex items-center gap-3 lg:gap-4 pb-2 py-2">
-              {/* Left Section: Logo + Menu + Category */}
-              <div className="flex items-center gap-2">
-                {/* Logo */}
-                <Link href="/" className="flex items-center">
-                  <Typography variant="h4" className="font-bold text-purple-600">
-                    Commerce
-                  </Typography>
-                </Link>
+            <div className="flex items-center gap-2 md:gap-3 lg:gap-4 pb-2 py-2">
+              {/* Logo */}
+              <Link href="/" className="flex items-center shrink-0">
+                <Typography variant="h4" className="font-bold text-purple-600 text-lg md:text-xl">
+                  Commerce
+                </Typography>
+              </Link>
 
-                {/* Category Dropdown */}
-                <div
-                  onMouseEnter={() => setCategoryOpen(true)}
-                  onMouseLeave={() => setCategoryOpen(false)}
-                >
-                  <DropdownMenu open={categoryOpen} onOpenChange={setCategoryOpen}>
-                    <DropdownMenuTrigger asChild>
-                      <Button
-                        variant="ghost"
-                        className="flex items-center gap-1 px-3 py-2 h-auto font-medium text-gray-700 hover:text-purple-600 "
-                      >
-                        카테고리
-                        <ChevronDown className="h-4 w-4" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-40">
-                      {categories.map((category) => (
-                        <DropdownMenuItem key={category.slug} asChild>
-                          <Link href={`/categories/${category.slug}`} className="cursor-pointer">
-                            {category.label}
-                          </Link>
-                        </DropdownMenuItem>
-                      ))}
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
+              {/* Category Dropdown - Hidden on Mobile */}
+              <div
+                className="hidden md:block"
+                onMouseEnter={() => setCategoryOpen(true)}
+                onMouseLeave={() => setCategoryOpen(false)}
+              >
+                <DropdownMenu open={categoryOpen} onOpenChange={setCategoryOpen}>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      className="flex items-center gap-1 px-3 py-2 h-auto font-medium text-gray-700 hover:text-purple-600"
+                    >
+                      카테고리
+                      <ChevronDown className="h-4 w-4" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="start" className="w-40">
+                    {categories.map((category) => (
+                      <DropdownMenuItem key={category.slug} asChild>
+                        <Link href={`/categories/${category.slug}`} className="cursor-pointer">
+                          {category.label}
+                        </Link>
+                      </DropdownMenuItem>
+                    ))}
+                  </DropdownMenuContent>
+                </DropdownMenu>
               </div>
 
-              {/* Center Section: Navigation */}
-              <nav className="flex items-center gap-4 lg:gap-6">
+              {/* Navigation - Hidden on Mobile */}
+              <nav className="hidden md:flex items-center gap-4 lg:gap-6">
                 {navigationItems.map((item, index) => (
                   <Link
                     key={index}
@@ -198,9 +198,9 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                 ))}
               </nav>
 
-              {/* Search Bar */}
+              {/* Search Bar - Desktop Only */}
               {showSearch && (
-                <div className="flex ml-auto w-64 lg:w-80">
+                <div className="hidden md:flex ml-auto w-64 lg:w-80">
                   <SearchBar
                     placeholder="상품을 검색해보세요..."
                     onSearch={handleSearchSubmit}
@@ -211,8 +211,37 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                 </div>
               )}
 
+              {/* Spacer for Mobile */}
+              <div className="flex-1 md:hidden" />
+
               {/* Right Section: Actions */}
-              <div className="flex items-center gap-1 ml-10px">
+              <div className="flex items-center gap-2 md:gap-3">
+                {/* My Page - Mobile Only */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="md:hidden p-2 hover:bg-gray-100"
+                  asChild
+                  aria-label="My Page"
+                >
+                  <Link href={user ? "/mypage" : "/login"}>
+                    <User className="h-5 w-5 text-gray-700" />
+                  </Link>
+                </Button>
+
+                {/* Search Button - Mobile Only */}
+                {showSearch && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="md:hidden p-2 hover:bg-gray-100"
+                    onClick={() => setMobileSearchOpen(true)}
+                    aria-label="Search"
+                  >
+                    <Search className="h-5 w-5 text-gray-700" />
+                  </Button>
+                )}
+
                 {/* Wishlist */}
                 <Button
                   variant="ghost"
@@ -222,7 +251,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                   aria-label="Wishlist"
                 >
                   <Link href="/wishlist">
-                    <Heart className="h-6 w-6 text-gray-700 hover:text-purple-600" />
+                    <Heart className="h-5 w-5 md:h-6 md:w-6 text-gray-700 hover:text-purple-600" />
                     {wishlistItemCount > 0 && (
                       <Badge
                         variant="destructive"
@@ -243,7 +272,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
                   aria-label="Shopping cart"
                 >
                   <Link href="/cart">
-                    <ShoppingCart className="h-6 w-6 text-gray-700 hover:text-purple-600" />
+                    <ShoppingCart className="h-5 w-5 md:h-6 md:w-6 text-gray-700 hover:text-purple-600" />
                     {cartItemCount > 0 && (
                       <Badge
                         variant="destructive"
@@ -258,6 +287,13 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
             </div>
           </div>
         </header>
+
+        {/* Mobile Search Modal */}
+        <MobileSearchModal
+          isOpen={mobileSearchOpen}
+          onClose={() => setMobileSearchOpen(false)}
+          onSearch={handleSearchSubmit}
+        />
       </>
     );
   }

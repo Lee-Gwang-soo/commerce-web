@@ -13,6 +13,7 @@ export interface Database {
           email: string;
           phone: string;
           address: string;
+          address_detail: string | null;
           marketing_agreed: boolean | null;
           benefits_agreed: boolean | null;
           created_at: string;
@@ -26,6 +27,7 @@ export interface Database {
           email: string;
           phone: string;
           address: string;
+          address_detail?: string | null;
           marketing_agreed?: boolean | null;
           benefits_agreed?: boolean | null;
           created_at?: string;
@@ -39,6 +41,7 @@ export interface Database {
           email?: string;
           phone?: string;
           address?: string;
+          address_detail?: string | null;
           marketing_agreed?: boolean | null;
           benefits_agreed?: boolean | null;
           created_at?: string;
@@ -99,6 +102,7 @@ export interface Database {
           customer_email: string | null;
           customer_phone: string | null;
           shipping_address: string | null;
+          shipping_address_detail: string | null;
           shipping_postcode: string | null;
           payment_method: string | null;
           payment_key: string | null;
@@ -116,6 +120,7 @@ export interface Database {
           customer_email?: string | null;
           customer_phone?: string | null;
           shipping_address?: string | null;
+          shipping_address_detail?: string | null;
           shipping_postcode?: string | null;
           payment_method?: string | null;
           payment_key?: string | null;
@@ -133,6 +138,7 @@ export interface Database {
           customer_email?: string | null;
           customer_phone?: string | null;
           shipping_address?: string | null;
+          shipping_address_detail?: string | null;
           shipping_postcode?: string | null;
           payment_method?: string | null;
           payment_key?: string | null;
@@ -315,6 +321,7 @@ export interface RegisterRequest {
   email: string;
   phone: string;
   address: string;
+  address_detail?: string | null;
   marketing_agreed?: boolean;
   benefits_agreed?: boolean;
 }
@@ -328,6 +335,7 @@ export interface UpdateUserRequest {
   email?: string;
   phone?: string;
   address?: string;
+  address_detail?: string | null;
   password?: string;
   current_password?: string;
 }
@@ -340,6 +348,8 @@ export interface UserData {
   email: string;
   phone: string;
   address: string;
+  address_detail?: string | null;
+  addressDetail?: string | null; // camelCase 버전도 지원
   marketing_agreed: boolean | null;
   benefits_agreed: boolean | null;
   created_at: string;

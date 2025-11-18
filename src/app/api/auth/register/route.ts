@@ -7,8 +7,17 @@ import { transformUserForResponse } from "@/lib/utils/transformUser";
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { user_id, password, name, email, phone, address, marketing_agreed, benefits_agreed } =
-      body;
+    const {
+      user_id,
+      password,
+      name,
+      email,
+      phone,
+      address,
+      address_detail,
+      marketing_agreed,
+      benefits_agreed,
+    } = body;
 
     if (!user_id || !password || !name || !email || !phone || !address) {
       return NextResponse.json(
@@ -63,6 +72,7 @@ export async function POST(request: NextRequest) {
         email,
         phone,
         address,
+        address_detail: address_detail || null,
         marketing_agreed: marketing_agreed || false,
         benefits_agreed: benefits_agreed || false,
       } as any)

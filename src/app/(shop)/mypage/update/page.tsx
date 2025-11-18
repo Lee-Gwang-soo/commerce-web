@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -86,7 +86,7 @@ type UpdateFormData = z.infer<typeof updateSchema>;
 
 export default function UpdatePage() {
   const router = useRouter();
-  const { user, isAuthenticated, isHydrated } = useAuthStore();
+  const { isAuthenticated, isHydrated } = useAuthStore();
   const [showPassword, setShowPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -98,7 +98,11 @@ export default function UpdatePage() {
     message: "",
     title: "",
   });
-  const [successModal, setSuccessModal] = useState({
+  const [updateSuccessModal, setUpdateSuccessModal] = useState({
+    isOpen: false,
+    message: "",
+  });
+  const [deleteSuccessModal, setDeleteSuccessModal] = useState({
     isOpen: false,
     message: "",
   });
@@ -109,13 +113,10 @@ export default function UpdatePage() {
   const { mutate: deleteAccount, isPending: isDeleting } = useMutation({
     mutationFn: () => authApi.deleteAccount(),
     onSuccess: () => {
-      setSuccessModal({
+      setDeleteSuccessModal({
         isOpen: true,
         message: "회원 탈퇴가 완료되었습니다.",
       });
-      setTimeout(() => {
-        router.push("/");
-      }, 1500);
     },
     onError: (error: Error) => {
       setErrorModal({
@@ -149,67 +150,82 @@ export default function UpdatePage() {
         email: currentUser.email,
         phone: currentUser.phone,
         address: currentUser.address,
-        addressDetail: currentUser.addressDetail || "",
+        addressDetail: currentUser.address_detail || "",
       });
       setSelectedAddress(currentUser.address);
     }
   }, [isHydrated, isAuthenticated, currentUser, reset]);
 
-  const openAddressModal = () => {
+  const openAddressModal = useCallback(() => {
     setShowAddressModal(true);
-  };
+  }, []);
 
-  const handleAddressSelect = (data: AddressData) => {
-    setSelectedAddress(data.address);
-    setValue("address", data.address, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-    setShowAddressModal(false);
-  };
+  const handleAddressSelect = useCallback(
+    (data: AddressData) => {
+      setSelectedAddress(data.address);
+      setValue("address", data.address, {
+        shouldValidate: true,
+        shouldDirty: true,
+      });
+      setShowAddressModal(false);
+    },
+    [setValue]
+  );
 
-  const onSubmit = (data: UpdateFormData) => {
-    const updateData: any = {
-      email: data.email,
-      phone: data.phone,
-      address: data.address,
-      address_detail: data.addressDetail || null,
-    };
+  const onSubmit = useCallback(
+    (data: UpdateFormData) => {
+      const updateData: any = {
+        email: data.email,
+        phone: data.phone,
+        address: data.address,
+        address_detail: data.addressDetail || null,
+      };
 
-    // 비밀번호 변경이 있는 경우
-    if (data.currentPassword && data.newPassword) {
-      updateData.currentPassword = data.currentPassword;
-      updateData.newPassword = data.newPassword;
-    }
+      // 비밀번호 변경이 있는 경우
+      if (data.currentPassword && data.newPassword) {
+        updateData.currentPassword = data.currentPassword;
+        updateData.newPassword = data.newPassword;
+      }
 
-    updateUser(updateData, {
-      onSuccess: () => {
-        setSuccessModal({
-          isOpen: true,
-          message: "회원정보가 수정되었습니다.",
-        });
-        setTimeout(() => {
-          router.push("/mypage");
-        }, 3000);
-      },
-      onError: (error) => {
-        setErrorModal({
-          isOpen: true,
-          message: error.message || "회원정보 수정에 실패했습니다.",
-          title: "수정 실패",
-        });
-      },
-    });
-  };
+      updateUser(updateData, {
+        onSuccess: () => {
+          setUpdateSuccessModal({
+            isOpen: true,
+            message: "회원정보가 수정되었습니다.",
+          });
+        },
+        onError: (error) => {
+          setErrorModal({
+            isOpen: true,
+            message: error.message || "회원정보 수정에 실패했습니다.",
+            title: "수정 실패",
+          });
+        },
+      });
+    },
+    [updateUser]
+  );
 
-  const handleDeleteAccount = () => {
+  const handleDeleteAccount = useCallback(() => {
     setShowDeleteConfirm(true);
-  };
+  }, []);
 
-  const confirmDelete = () => {
+  const confirmDelete = useCallback(() => {
     setShowDeleteConfirm(false);
     deleteAccount();
-  };
+  }, [deleteAccount]);
+
+  // 회원정보 수정 성공 후 페이지 이동
+  const handleUpdateSuccessClose = useCallback(() => {
+    setUpdateSuccessModal({ isOpen: false, message: "" });
+    router.push("/mypage");
+  }, [router]);
+
+  // 회원 탈퇴 성공 후 페이지 이동
+  const handleDeleteSuccessClose = useCallback(() => {
+    setDeleteSuccessModal({ isOpen: false, message: "" });
+    router.push("/");
+  }, [router]);
 
   // Hydration 대기 중
   if (!isHydrated) {
@@ -251,7 +267,12 @@ export default function UpdatePage() {
               {/* 이름 (읽기 전용) */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">이름</label>
-                <Input value={currentUser.name} readOnly className="bg-gray-50" />
+                <Input
+                  value={currentUser.name}
+                  readOnly
+                  autoComplete="user-name"
+                  className="bg-gray-50"
+                />
               </div>
 
               {/* 현재 비밀번호 */}
@@ -264,12 +285,14 @@ export default function UpdatePage() {
                     {...register("currentPassword")}
                     type={showPassword ? "text" : "password"}
                     placeholder="현재 비밀번호"
+                    autoComplete="current-password"
                     className="pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    aria-label={showPassword ? "비밀번호 숨기기" : "비밀번호 표시"}
                   >
                     {showPassword ? (
                       <EyeOff className="h-4 w-4 text-gray-400" />
@@ -291,12 +314,14 @@ export default function UpdatePage() {
                     {...register("newPassword")}
                     type={showNewPassword ? "text" : "password"}
                     placeholder="새 비밀번호 (8자 이상)"
+                    autoComplete="new-password"
                     className="pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowNewPassword(!showNewPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    aria-label={showNewPassword ? "비밀번호 숨기기" : "비밀번호 표시"}
                   >
                     {showNewPassword ? (
                       <EyeOff className="h-4 w-4 text-gray-400" />
@@ -320,12 +345,14 @@ export default function UpdatePage() {
                     {...register("confirmPassword")}
                     type={showConfirmPassword ? "text" : "password"}
                     placeholder="새 비밀번호 확인"
+                    autoComplete="new-password"
                     className="pr-10"
                   />
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                     className="absolute right-3 top-1/2 transform -translate-y-1/2"
+                    aria-label={showConfirmPassword ? "비밀번호 숨기기" : "비밀번호 표시"}
                   >
                     {showConfirmPassword ? (
                       <EyeOff className="h-4 w-4 text-gray-400" />
@@ -342,7 +369,12 @@ export default function UpdatePage() {
               {/* 이메일 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">이메일</label>
-                <Input {...register("email")} type="email" placeholder="example@email.com" />
+                <Input
+                  {...register("email")}
+                  type="email"
+                  placeholder="example@email.com"
+                  autoComplete="email"
+                />
                 {errors.email && (
                   <p className="text-red-500 text-sm mt-1">{errors.email.message}</p>
                 )}
@@ -351,7 +383,12 @@ export default function UpdatePage() {
               {/* 전화번호 */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">전화번호</label>
-                <Input {...register("phone")} placeholder="숫자만 입력해주세요" />
+                <Input
+                  {...register("phone")}
+                  type="tel"
+                  placeholder="숫자만 입력해주세요"
+                  autoComplete="tel"
+                />
                 {errors.phone && (
                   <p className="text-red-500 text-sm mt-1">{errors.phone.message}</p>
                 )}
@@ -412,6 +449,7 @@ export default function UpdatePage() {
                     <Input
                       {...register("addressDetail")}
                       placeholder="동/호수를 입력해주세요 (예: 101동 101호)"
+                      autoComplete="address-line2"
                       className="w-full h-11"
                       disabled={!selectedAddress}
                     />
@@ -480,11 +518,19 @@ export default function UpdatePage() {
         type="error"
       />
 
-      {/* Success Modal */}
+      {/* Update Success Modal */}
       <ErrorModal
-        isOpen={successModal.isOpen}
-        message={successModal.message}
-        onClose={() => setSuccessModal({ isOpen: false, message: "" })}
+        isOpen={updateSuccessModal.isOpen}
+        message={updateSuccessModal.message}
+        onClose={handleUpdateSuccessClose}
+        type="info"
+      />
+
+      {/* Delete Success Modal */}
+      <ErrorModal
+        isOpen={deleteSuccessModal.isOpen}
+        message={deleteSuccessModal.message}
+        onClose={handleDeleteSuccessClose}
         type="info"
       />
 

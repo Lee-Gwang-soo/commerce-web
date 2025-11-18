@@ -24,12 +24,41 @@ import Link from "next/link";
 function HeroBannerSection() {
   const heroImages = [
     "https://images.unsplash.com/photo-1542838132-92c53300491e?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=500&q=80",
-    "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=500&q=80",
-    "https://images.unsplash.com/photo-1556909114-5ce10c3e8068?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=500&q=80",
+    "https://images.unsplash.com/photo-1498049794561-7780e7231661?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=500&q=80",
+    "https://images.unsplash.com/photo-1441986300917-64674bd600d8?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=1200&h=500&q=80",
+  ];
+
+  const bannerContents = [
+    {
+      title: "신선한 식재료",
+      subtitle: "빠른 배송으로 신선하게",
+      buttonText: "지금 쇼핑하기",
+      buttonLink: "/categories/FOOD",
+    },
+    {
+      title: "최신 전자기기",
+      subtitle: "합리적인 가격으로 만나보세요",
+      buttonText: "전자기기 보러가기",
+      buttonLink: "/categories/ELECTRONIC",
+    },
+    {
+      title: "트렌디한 패션",
+      subtitle: "나만의 스타일을 완성하세요",
+      buttonText: "패션 둘러보기",
+      buttonLink: "/categories/FASHION",
+    },
   ];
 
   return (
-    <Banner isHero images={heroImages} autoRotate showNavigation interval={5000} className="mb-0" />
+    <Banner
+      isHero
+      images={heroImages}
+      bannerContents={bannerContents}
+      autoRotate
+      showNavigation
+      interval={5000}
+      className="mb-0"
+    />
   );
 }
 

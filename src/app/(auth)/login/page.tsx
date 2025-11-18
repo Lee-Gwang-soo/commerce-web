@@ -105,12 +105,12 @@ export default function LoginPage() {
                 />
                 <span className="text-sm text-gray-700">아이디 저장</span>
               </label>
-              <Link
+              {/* <Link
                 href="/forgot-password"
                 className="text-sm text-gray-500 hover:text-gray-700 hover:underline"
               >
                 아이디 찾기 | 비밀번호 찾기
-              </Link>
+              </Link> */}
             </div>
 
             {/* Login Button */}
@@ -133,15 +133,15 @@ export default function LoginPage() {
             </Button>
 
             {/* Divider */}
-            <div className="relative my-6">
+            {/* <div className="relative my-6">
               <Separator />
               <div className="absolute inset-0 flex justify-center">
                 <span className="bg-white px-4 text-sm text-gray-500">간편 로그인</span>
               </div>
-            </div>
+            </div> */}
 
             {/* Social Login */}
-            <div className="pt-4 space-y-3">
+            {/* <div className="pt-4 space-y-3">
               <Button
                 type="button"
                 className="w-full h-12 bg-green-500 hover:bg-green-600 text-white font-medium"
@@ -157,7 +157,7 @@ export default function LoginPage() {
                 <span className="text-lg mr-2">●</span>
                 카카오로 계속하기
               </Button>
-            </div>
+            </div> */}
           </form>
         </div>
       </div>

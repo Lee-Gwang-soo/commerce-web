@@ -40,6 +40,7 @@ export async function PUT(request: NextRequest) {
       email,
       phone,
       address,
+      address_detail,
       currentPassword,
       newPassword,
       marketing_agreed,
@@ -111,6 +112,7 @@ export async function PUT(request: NextRequest) {
     // 나머지 필드 업데이트
     if (phone !== undefined) updateData.phone = phone;
     if (address !== undefined) updateData.address = address;
+    if (address_detail !== undefined) updateData.address_detail = address_detail;
     if (marketing_agreed !== undefined) updateData.marketing_agreed = marketing_agreed;
     if (benefits_agreed !== undefined) updateData.benefits_agreed = benefits_agreed;
 
@@ -124,7 +126,7 @@ export async function PUT(request: NextRequest) {
       .update(updateData as any)
       .eq("id", sessionId)
       .select(
-        "id, user_id, name, email, phone, address, marketing_agreed, benefits_agreed, created_at, updated_at"
+        "id, user_id, name, email, phone, address, address_detail, marketing_agreed, benefits_agreed, created_at, updated_at"
       )
       .returns<CommerceUser[]>();
 

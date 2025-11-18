@@ -29,11 +29,19 @@ const bannerVariants = cva("w-full relative overflow-hidden", {
   },
 });
 
+export interface BannerContent {
+  title: string;
+  subtitle: string;
+  buttonText?: string;
+  buttonLink?: string;
+}
+
 export interface BannerProps
   extends React.HTMLAttributes<HTMLDivElement>,
     VariantProps<typeof bannerVariants> {
   messages?: string[];
   images?: string[];
+  bannerContents?: BannerContent[];
   autoRotate?: boolean;
   showClose?: boolean;
   showNavigation?: boolean;
@@ -49,6 +57,7 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
       size,
       messages = ["🎉 신규 회원가입 시 10% 할인 쿠폰 지급!", "🚚 무료배송 이벤트 진행 중"],
       images = [],
+      bannerContents = [],
       autoRotate = true,
       showClose = true,
       showNavigation = true,
@@ -125,21 +134,45 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
           <div className="relative z-10 flex items-center justify-center h-full">
             <div className="w-full mx-auto px-4 sm:px-6 lg:px-8">
               <div className="max-w-6xl mx-auto text-center text-white space-y-6">
-                <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-lg">
-                  신선한 식재료
-                </h1>
-                <p className="text-lg sm:text-xl md:text-2xl leading-relaxed opacity-95 drop-shadow-md">
-                  빠른 배송으로 신선하게
-                </p>
-                <div className="pt-4">
-                  <Button
-                    size="lg"
-                    className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
-                    onClick={() => router.push("/products")}
-                  >
-                    지금 쇼핑하기
-                  </Button>
-                </div>
+                {bannerContents.length > 0 ? (
+                  <>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-lg">
+                      {bannerContents[currentIndex]?.title || "신선한 식재료"}
+                    </h1>
+                    <p className="text-lg sm:text-xl md:text-2xl leading-relaxed opacity-95 drop-shadow-md">
+                      {bannerContents[currentIndex]?.subtitle || "빠른 배송으로 신선하게"}
+                    </p>
+                    <div className="pt-4">
+                      <Button
+                        size="lg"
+                        className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                        onClick={() =>
+                          router.push(bannerContents[currentIndex]?.buttonLink || "/products")
+                        }
+                      >
+                        {bannerContents[currentIndex]?.buttonText || "지금 쇼핑하기"}
+                      </Button>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold leading-tight drop-shadow-lg">
+                      신선한 식재료
+                    </h1>
+                    <p className="text-lg sm:text-xl md:text-2xl leading-relaxed opacity-95 drop-shadow-md">
+                      빠른 배송으로 신선하게
+                    </p>
+                    <div className="pt-4">
+                      <Button
+                        size="lg"
+                        className="bg-white text-gray-900 hover:bg-gray-100 px-8 py-4 text-lg font-semibold shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:scale-105"
+                        onClick={() => router.push("/products")}
+                      >
+                        지금 쇼핑하기
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -241,7 +274,7 @@ const Banner = forwardRef<HTMLDivElement, BannerProps>(
                   className="text-white hover:bg-white/20 p-2 rounded transition-colors"
                   aria-label="배너 닫기"
                 >
-                  <X className="h-4 w-4" />
+                  <X className="h-5 w-5" />
                 </button>
               )}
             </div>

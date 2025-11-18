@@ -22,6 +22,7 @@ export interface Order {
   customer_email: string;
   customer_phone: string;
   shipping_address: string;
+  shipping_address_detail?: string;
   shipping_postcode?: string;
   payment_method: string;
   payment_key?: string;
@@ -40,6 +41,7 @@ export interface CreateOrderRequest {
   customer_email: string;
   customer_phone: string;
   shipping_address: string;
+  shipping_address_detail?: string;
   shipping_postcode?: string;
   payment_method: string;
   order_id: string; // 토스 페이먼츠용 orderId

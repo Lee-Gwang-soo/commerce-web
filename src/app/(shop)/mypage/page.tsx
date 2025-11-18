@@ -145,7 +145,7 @@ export default function MyPage() {
         cancelText="취소"
         onConfirm={confirmLogout}
         onCancel={() => setShowLogoutConfirm(false)}
-        type="warning"
+        type="default"
       />
     </Layout>
   );

@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Typography } from "@/components/atoms/Typography";
 import { CircleCheck } from "lucide-react";
 import { useRegister } from "@/hooks/auth/useAuth";
+import { KakaoAddressSearch, type AddressData } from "@/components/molecules/KakaoAddressSearch";
 
 // Zod 스키마 정의
 const signupSchema = z
@@ -28,6 +29,7 @@ const signupSchema = z
       .min(1, "휴대폰 번호를 입력해주세요")
       .regex(/^[0-9]+$/, "숫자만 입력해주세요"),
     address: z.string().min(1, "주소를 입력해주세요"),
+    addressDetail: z.string().optional(),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "비밀번호가 일치하지 않습니다",
@@ -82,6 +84,7 @@ export default function RegisterPage() {
       email: "",
       phone: "",
       address: "",
+      addressDetail: "",
     },
   });
 
@@ -124,9 +127,9 @@ export default function RegisterPage() {
   };
 
   // 주소 선택 완료
-  const handleAddressSelect = (address: string) => {
-    setSelectedAddress(address);
-    setValue("address", address, {
+  const handleAddressSelect = (data: AddressData) => {
+    setSelectedAddress(data.address);
+    setValue("address", data.address, {
       shouldValidate: true,
       shouldDirty: true,
       shouldTouch: true,
@@ -149,6 +152,7 @@ export default function RegisterPage() {
         email: data.email,
         phone: data.phone,
         address: data.address,
+        address_detail: data.addressDetail || null,
         marketing_agreed: agreements.marketing,
         benefits_agreed: agreements.benefits,
       },
@@ -275,26 +279,87 @@ export default function RegisterPage() {
               </div>
 
               {/* 주소 */}
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+              <div className="space-y-3">
+                <label className="block text-sm font-medium text-gray-700">
                   주소 <span className="text-red-500">*</span>
                 </label>
+
+                {/* 주소 검색 버튼 */}
                 <Button
                   type="button"
                   variant="outline"
                   onClick={openAddressModal}
-                  className="w-full justify-start"
+                  className="w-full justify-center gap-2 h-11 font-medium"
                 >
-                  주소 검색
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="18"
+                    height="18"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                  </svg>
+                  우편번호 찾기
                 </Button>
+
                 {/* RHF 주소 값 동기화를 위한 hidden input */}
                 <input type="hidden" {...register("address")} value={selectedAddress} />
-                {selectedAddress && <p className="text-sm text-gray-600 mt-2">{selectedAddress}</p>}
-                <p className="text-xs text-gray-500 mt-1">
-                  배송지에 따라 상품 정보가 달라질 수 있습니다.
-                </p>
+
+                {/* 주소 표시 영역 */}
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                      기본 주소
+                    </label>
+                    <div
+                      className={`w-full px-3 py-2.5 rounded-md border ${
+                        selectedAddress
+                          ? "bg-gray-50 border-gray-200 text-gray-900"
+                          : "bg-white border-gray-300 text-gray-400"
+                      } text-sm`}
+                    >
+                      {selectedAddress || "주소 검색 버튼을 눌러 주소를 입력해주세요"}
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-medium text-gray-600 mb-1.5">
+                      상세 주소
+                    </label>
+                    <Input
+                      {...register("addressDetail")}
+                      placeholder="동/호수를 입력해주세요 (예: 101동 101호)"
+                      className="w-full h-11"
+                      disabled={!selectedAddress}
+                    />
+                  </div>
+                </div>
+
                 {errors.address && (
-                  <p className="text-red-500 text-sm mt-1">{errors.address.message}</p>
+                  <div className="text-red-500 text-sm flex items-center gap-1">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <circle cx="12" cy="12" r="10" />
+                      <line x1="12" y1="8" x2="12" y2="12" />
+                      <line x1="12" y1="16" x2="12.01" y2="16" />
+                    </svg>
+                    {errors.address.message}
+                  </div>
                 )}
               </div>
 
@@ -346,66 +411,11 @@ export default function RegisterPage() {
       </div>
 
       {/* 주소 검색 모달 */}
-      {showAddressModal && (
-        <AddressModal onClose={() => setShowAddressModal(false)} onSelect={handleAddressSelect} />
-      )}
+      <KakaoAddressSearch
+        isOpen={showAddressModal}
+        onClose={() => setShowAddressModal(false)}
+        onComplete={handleAddressSelect}
+      />
     </Layout>
-  );
-}
-
-// 주소 검색 모달 컴포넌트
-function AddressModal({
-  onClose,
-  onSelect,
-}: {
-  onClose: () => void;
-  onSelect: (address: string) => void;
-}) {
-  const [searchTerm, setSearchTerm] = useState("");
-  const [results, setResults] = useState<string[]>([]);
-
-  const handleSearch = () => {
-    // 임시 더미 데이터 (실제로는 카카오 API 연동)
-    const dummyResults = [
-      "서울특별시 강남구 테헤란로 123",
-      "서울특별시 강남구 역삼동 456",
-      "서울특별시 강남구 삼성동 789",
-    ];
-    setResults(dummyResults);
-  };
-
-  return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg p-6 w-96 max-h-96 overflow-y-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h3 className="text-lg font-semibold">주소 검색</h3>
-          <button onClick={onClose} className="text-gray-500 hover:text-gray-700">
-            ✕
-          </button>
-        </div>
-        <div className="space-y-4">
-          <div className="flex gap-2">
-            <Input
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="주소를 입력하세요"
-              className="flex-1"
-            />
-            <Button onClick={handleSearch}>검색</Button>
-          </div>
-          <div className="space-y-2">
-            {results.map((address, index) => (
-              <div
-                key={index}
-                className="p-2 border rounded cursor-pointer hover:bg-gray-50"
-                onClick={() => onSelect(address)}
-              >
-                {address}
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
   );
 }

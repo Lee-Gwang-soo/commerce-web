@@ -1,16 +1,20 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
 import { reviewApi, CreateReviewInput, UpdateReviewInput } from "@/lib/api/review";
 import { useAuthStore } from "@/store/authStore";
 import { toast } from "sonner";
 
-// 내 리뷰 목록 조회
+// 내 리뷰 목록 조회 (무한 스크롤)
 export const useMyReviews = () => {
   const { isAuthenticated } = useAuthStore();
 
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["reviews", "my"],
-    queryFn: () => reviewApi.getMyReviews(),
+    queryFn: ({ pageParam = 1 }) => reviewApi.getMyReviews(pageParam, 10),
     enabled: isAuthenticated,
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      return lastPage.pagination.hasMore ? lastPage.pagination.page + 1 : undefined;
+    },
     staleTime: 0,
     gcTime: 1000 * 60 * 5,
   });

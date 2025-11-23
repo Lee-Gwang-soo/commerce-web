@@ -14,6 +14,7 @@ interface UseProductsParams {
   search?: string;
   sort?: string;
   order?: "asc" | "desc";
+  onSale?: boolean;
 }
 
 // Fetch products list
@@ -21,7 +22,7 @@ export const useProducts = (
   params: UseProductsParams = {},
   options?: Omit<UseQueryOptions<ProductsResponse>, "queryKey" | "queryFn">
 ) => {
-  const { page = 1, limit = 20, category, search, sort, order } = params;
+  const { page = 1, limit = 20, category, search, sort, order, onSale } = params;
 
   const queryParams = new URLSearchParams();
   queryParams.set("page", page.toString());
@@ -30,6 +31,7 @@ export const useProducts = (
   if (search) queryParams.set("search", search);
   if (sort) queryParams.set("sort", sort);
   if (order) queryParams.set("order", order);
+  if (onSale) queryParams.set("onSale", "true");
 
   return useQuery<ProductsResponse>({
     queryKey: ["products", params],

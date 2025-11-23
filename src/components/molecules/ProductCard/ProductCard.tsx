@@ -162,12 +162,12 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
 
               {/* Badges */}
               {showBadges && (
-                <div className="absolute left-3 top-3 flex flex-col gap-2 z-10 pointer-events-none">
+                <div className="absolute left-2 top-2 md:left-3 md:top-3 flex flex-col gap-1.5 md:gap-2 z-10 pointer-events-none max-w-[calc(100%-1rem)] md:max-w-[calc(100%-1.5rem)]">
                   {is_featured && (
                     <Badge
                       variant="secondary"
                       size="sm"
-                      className="bg-blue-100 text-blue-700 border-blue-200"
+                      className="bg-blue-100 text-blue-700 border-blue-200 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 whitespace-nowrap"
                     >
                       추천
                     </Badge>
@@ -176,7 +176,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
                     <Badge
                       variant="destructive"
                       size="sm"
-                      className="bg-red-100 text-red-700 border-red-200 whitespace-nowrap"
+                      className="bg-red-100 text-red-700 border-red-200 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 whitespace-nowrap font-semibold"
                     >
                       {discountRate}% 할인
                     </Badge>
@@ -185,7 +185,7 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
                     <Badge
                       variant="secondary"
                       size="sm"
-                      className="bg-gray-100 text-gray-700 border-gray-200"
+                      className="bg-gray-100 text-gray-700 border-gray-200 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 whitespace-nowrap"
                     >
                       품절
                     </Badge>
@@ -244,16 +244,19 @@ const ProductCard = forwardRef<HTMLDivElement, ProductCardProps>(
             </Typography>
 
             {/* Price Row: Original Price + Discount Badge OR Just Price */}
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 md:gap-2 flex-wrap">
               {hasDiscount ? (
                 <>
-                  <Typography variant="small" className="text-gray-400 line-through">
+                  <Typography
+                    variant="small"
+                    className="text-gray-400 line-through text-xs md:text-sm"
+                  >
                     ₩{price.toLocaleString()}
                   </Typography>
                   <Badge
                     variant="destructive"
                     size="sm"
-                    className="bg-red-100 text-red-700 border-red-200"
+                    className="bg-red-100 text-red-700 border-red-200 text-[10px] md:text-xs px-1.5 md:px-2 py-0.5 whitespace-nowrap font-semibold"
                   >
                     {discountRate}% 할인
                   </Badge>

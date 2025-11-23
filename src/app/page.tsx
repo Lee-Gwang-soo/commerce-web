@@ -119,11 +119,12 @@ export default function HomePage() {
     order: "desc",
   });
 
-  // 할인 상품 조회 (8개, 리뷰 많은 순) - featured 대신 사용
+  // 할인 상품 조회 (8개, 할인율 높은 순)
   const { data: featuredProductsData, isLoading: featuredLoading } = useProducts({
     page: 1,
     limit: 8,
-    sort: "review_count",
+    onSale: true,
+    sort: "discount",
     order: "desc",
   });
 

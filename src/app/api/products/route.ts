@@ -12,6 +12,7 @@ export async function GET(request: NextRequest) {
     const sort = searchParams.get("sort") || "created_at";
     const order = searchParams.get("order") || "desc";
     const isNew = searchParams.get("new") === "true"; // 신상품 필터
+    const onSale = searchParams.get("onSale") === "true"; // 할인 상품 필터
     const minPrice = searchParams.get("minPrice");
     const maxPrice = searchParams.get("maxPrice");
 
@@ -47,6 +48,11 @@ export async function GET(request: NextRequest) {
       query = query.gte("created_at", twoMonthsAgo.toISOString());
     }
 
+    // 할인 상품 필터 (sale_price가 null이 아닌 경우만 먼저 필터링)
+    if (onSale) {
+      query = query.not("sale_price", "is", null);
+    }
+
     // 가격 범위 필터
     if (minPrice) {
       const min = parseInt(minPrice);
@@ -62,11 +68,59 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Sorting (안정적인 정렬을 위해 보조 키로 id 추가)
+    // Sorting
     const validSorts = ["created_at", "price", "name", "review_count", "sales_count"];
     const sortField = validSorts.includes(sort) ? sort : "created_at";
     const sortOrder = order === "asc" ? { ascending: true } : { ascending: false };
 
+    // 할인 상품을 할인율로 정렬할 경우 먼저 모든 데이터를 가져와서 정렬
+    if (onSale && sort === "discount") {
+      const { data: allProducts, error, count } = await query;
+
+      if (error) {
+        console.error("상품 목록 조회 실패:", error);
+        return NextResponse.json(
+          {
+            code: "FETCH_FAILED",
+            message: "상품 목록 조회 중 오류가 발생했습니다.",
+            details: error.message,
+          },
+          { status: 500 }
+        );
+      }
+
+      // 할인율 계산 및 정렬 (sale_price < price인 것만 필터링)
+      const productsWithDiscount = ((allProducts as any[]) || [])
+        .filter(
+          (product: any) =>
+            product.sale_price !== null &&
+            product.sale_price !== undefined &&
+            product.sale_price < product.price
+        )
+        .map((product: any) => ({
+          ...product,
+          discountRate: Math.round(((product.price - product.sale_price) / product.price) * 100),
+        }))
+        .sort((a: any, b: any) => {
+          if (order === "asc") {
+            return a.discountRate - b.discountRate;
+          }
+          return b.discountRate - a.discountRate;
+        });
+
+      // 페이지네이션 적용
+      const paginatedProducts = productsWithDiscount.slice(offset, offset + limit);
+
+      return NextResponse.json({
+        success: true,
+        data: paginatedProducts,
+        total: productsWithDiscount.length,
+        page,
+        limit,
+      });
+    }
+
+    // 일반 정렬
     query = query.order(sortField, sortOrder).order("id", { ascending: true });
 
     // Pagination

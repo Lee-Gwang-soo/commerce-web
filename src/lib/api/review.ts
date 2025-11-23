@@ -27,6 +27,16 @@ export interface UpdateReviewInput {
   images?: string[];
 }
 
+export interface MyReviewsResponse {
+  reviews: Review[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    hasMore: boolean;
+  };
+}
+
 export const reviewApi = {
   // 리뷰 작성
   createReview: async (input: CreateReviewInput): Promise<Review> => {
@@ -44,9 +54,13 @@ export const reviewApi = {
     return response.json();
   },
 
-  // 내 리뷰 목록 조회
-  getMyReviews: async (): Promise<Review[]> => {
-    const response = await fetch("/api/reviews");
+  // 내 리뷰 목록 조회 (무한 스크롤)
+  getMyReviews: async (page: number = 1, limit: number = 10): Promise<MyReviewsResponse> => {
+    const params = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+    const response = await fetch(`/api/reviews?${params}`);
 
     if (!response.ok) {
       const error = await response.json();

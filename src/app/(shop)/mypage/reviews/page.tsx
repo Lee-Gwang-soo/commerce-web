@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
@@ -16,9 +16,12 @@ import { Review } from "@/lib/api/review";
 
 export default function MyReviewsPage() {
   const router = useRouter();
-  const { data: reviews, isLoading } = useMyReviews();
+  const { data, isLoading, hasNextPage, fetchNextPage, isFetchingNextPage } = useMyReviews();
   const updateReview = useUpdateReview();
   const deleteReview = useDeleteReview();
+
+  // 무한 스크롤을 위한 ref
+  const observerRef = useRef<HTMLDivElement>(null);
 
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
@@ -107,6 +110,27 @@ export default function MyReviewsPage() {
     setEditImages((prev) => prev.filter((_, i) => i !== index));
   };
 
+  // 무한 스크롤 Intersection Observer
+  useEffect(() => {
+    if (!observerRef.current) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
+          fetchNextPage();
+        }
+      },
+      { threshold: 0.1 }
+    );
+
+    observer.observe(observerRef.current);
+
+    return () => observer.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // 모든 페이지의 리뷰를 하나의 배열로 합치기
+  const reviews = data?.pages.flatMap((page) => page.reviews) || [];
+
   if (isLoading) {
     return (
       <Layout>
@@ -138,7 +162,7 @@ export default function MyReviewsPage() {
           </div>
 
           {/* 리뷰 목록 */}
-          {!reviews || reviews.length === 0 ? (
+          {reviews.length === 0 && !isLoading ? (
             <Card>
               <CardContent className="p-12 text-center">
                 <Typography variant="h5" className="mb-4">
@@ -314,6 +338,16 @@ export default function MyReviewsPage() {
                   </CardContent>
                 </Card>
               ))}
+
+              {/* 무한 스크롤 트리거 */}
+              <div ref={observerRef} className="h-10 flex items-center justify-center">
+                {isFetchingNextPage && <Loading size="sm" text="리뷰를 더 불러오는 중..." />}
+                {!hasNextPage && reviews.length > 0 && (
+                  <Typography variant="small" color="muted" className="text-center py-8">
+                    모든 리뷰를 불러왔습니다.
+                  </Typography>
+                )}
+              </div>
             </div>
           )}
         </div>

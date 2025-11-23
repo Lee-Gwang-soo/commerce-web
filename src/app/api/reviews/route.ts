@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
   }
 }
 
-// 내 리뷰 목록 조회
+// 내 리뷰 목록 조회 (무한 스크롤)
 export async function GET(request: NextRequest) {
   try {
     const session = await getSession();
@@ -96,8 +96,18 @@ export async function GET(request: NextRequest) {
 
     const userUUID = session.id; // UUID 사용
 
-    // 내 리뷰 목록 조회 (상품 정보 포함)
-    const { data: reviews, error } = await supabaseAdmin
+    // 쿼리 파라미터에서 페이지네이션 정보 추출
+    const { searchParams } = new URL(request.url);
+    const page = parseInt(searchParams.get("page") || "1");
+    const limit = parseInt(searchParams.get("limit") || "10");
+    const offset = (page - 1) * limit;
+
+    // 내 리뷰 목록 조회 (상품 정보 포함, 페이지네이션)
+    const {
+      data: reviews,
+      error,
+      count,
+    } = await supabaseAdmin
       .from("reviews")
       .select(
         `
@@ -109,17 +119,27 @@ export async function GET(request: NextRequest) {
           price,
           sale_price
         )
-      `
+      `,
+        { count: "exact" }
       )
       .eq("user_id", userUUID)
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: false })
+      .range(offset, offset + limit - 1);
 
     if (error) {
       console.error("Reviews fetch error:", error);
       return NextResponse.json({ error: "리뷰 목록 조회에 실패했습니다." }, { status: 500 });
     }
 
-    return NextResponse.json(reviews);
+    return NextResponse.json({
+      reviews,
+      pagination: {
+        page,
+        limit,
+        total: count || 0,
+        hasMore: count ? offset + limit < count : false,
+      },
+    });
   } catch (error) {
     console.error("Reviews API error:", error);
     return NextResponse.json({ error: "서버 오류가 발생했습니다." }, { status: 500 });

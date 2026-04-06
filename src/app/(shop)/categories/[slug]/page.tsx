@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
+import Link from "next/link";
 import { useState, useMemo, useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 import { Layout } from "@/components/templates/Layout";
@@ -121,7 +122,7 @@ export default function CategoryPage() {
               요청하신 카테고리가 존재하지 않거나 삭제되었을 수 있습니다.
             </Typography>
             <Button asChild>
-              <a href="/products">전체 상품 보기</a>
+              <Link href="/products">전체 상품 보기</Link>
             </Button>
           </div>
         </PageLayout>

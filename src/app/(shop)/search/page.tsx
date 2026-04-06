@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import Link from "next/link";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
@@ -244,7 +245,7 @@ export default function SearchPage() {
             </Typography>
 
             <Button asChild>
-              <a href="/products">전체 상품 보기</a>
+              <Link href="/products">전체 상품 보기</Link>
             </Button>
           </div>
         )}

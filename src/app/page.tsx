@@ -187,7 +187,7 @@ export default function HomePage() {
                 asChild
                 className="border-gray-300 text-gray-700 hover:bg-gray-50"
               >
-                <a href="/products?featured=true">전체보기</a>
+                <Link href="/products?featured=true">전체보기</Link>
               </Button>
             </div>
 
@@ -222,7 +222,7 @@ export default function HomePage() {
                 asChild
                 className="border-gray-300 text-gray-700 hover:bg-gray-50"
               >
-                <a href="/products?sort=latest">전체보기</a>
+                <Link href="/products?sort=latest">전체보기</Link>
               </Button>
             </div>
 

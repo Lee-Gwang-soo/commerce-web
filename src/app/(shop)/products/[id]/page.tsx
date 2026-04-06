@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from "react";
 import { useParams, useRouter } from "next/navigation";
+import Link from "next/link";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { ProductImageGallery } from "@/components/molecules/ProductImageGallery";
@@ -168,7 +169,7 @@ export default function ProductDetailPage() {
               요청하신 상품이 존재하지 않거나 삭제되었을 수 있습니다.
             </Typography>
             <Button asChild>
-              <a href="/products">전체 상품 보기</a>
+              <Link href="/products">전체 상품 보기</Link>
             </Button>
           </div>
         </div>

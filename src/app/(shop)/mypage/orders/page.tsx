@@ -104,7 +104,7 @@ export default function OrdersPage() {
         ]}
       >
         <div className="mb-8">
-          <Typography variant="h1" className="mb-2">
+          <Typography variant="h2" className="mb-2">
             주문 내역
           </Typography>
           <Typography variant="muted">총 {ordersData?.total || 0}개의 주문</Typography>

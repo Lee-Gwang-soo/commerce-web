@@ -1,29 +1,79 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Layout } from "@/components/templates/Layout";
 import { PageLayout } from "@/components/templates/PageLayout";
 import { Typography } from "@/components/atoms/Typography";
 import { Button } from "@/components/ui/button";
 import { Price } from "@/components/atoms/Price";
 import { Badge } from "@/components/ui/badge";
-import { ShoppingCart, X, Heart } from "lucide-react";
+import { ShoppingCart, X, Heart, CheckCircle } from "lucide-react";
 import { useWishlistItems, useRemoveFromWishlist } from "@/hooks/wishlist/use-wishlist";
-import { useAddToCart } from "@/hooks/cart/use-cart";
 import { useAuthStore } from "@/store/authStore";
+import { cartApi } from "@/lib/api/cart";
 import { toast } from "sonner";
 import Link from "next/link";
 import Image from "next/image";
+
+interface CartPopupState {
+  top: number;
+  left: number;
+  width: number;
+}
 
 export default function WishlistPage() {
   const router = useRouter();
   const { isAuthenticated, isHydrated } = useAuthStore();
   const { data: wishlistItems = [], isLoading } = useWishlistItems();
   const removeFromWishlist = useRemoveFromWishlist();
-  const addToCart = useAddToCart();
+  const queryClient = useQueryClient();
 
-  // Hydration 대기 중
+  const [cartPopup, setCartPopup] = useState<CartPopupState | null>(null);
+  const popupTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const addToCartMutation = useMutation({
+    mutationFn: ({ product_id, quantity }: { product_id: string; quantity: number }) =>
+      cartApi.addToCart(product_id, quantity),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "장바구니 추가에 실패했습니다.");
+    },
+  });
+
+  useEffect(() => {
+    return () => {
+      if (popupTimerRef.current) clearTimeout(popupTimerRef.current);
+    };
+  }, []);
+
+  const handleAddToCart = (productId: string, e: React.MouseEvent<HTMLButtonElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+
+    addToCartMutation.mutate(
+      { product_id: productId, quantity: 1 },
+      {
+        onSuccess: () => {
+          setCartPopup({
+            top: rect.bottom + 8,
+            left: rect.left,
+            width: rect.width,
+          });
+          if (popupTimerRef.current) clearTimeout(popupTimerRef.current);
+          popupTimerRef.current = setTimeout(() => setCartPopup(null), 5000);
+        },
+      }
+    );
+  };
+
+  const handleClosePopup = () => {
+    if (popupTimerRef.current) clearTimeout(popupTimerRef.current);
+    setCartPopup(null);
+  };
+
   if (!isHydrated) {
     return (
       <Layout>
@@ -39,12 +89,11 @@ export default function WishlistPage() {
     );
   }
 
-  // 로그인 체크
   if (!isAuthenticated) {
     return (
       <Layout>
         <div className="container mx-auto px-4 py-16 text-center">
-          <div className=" max-w-md mx-auto">
+          <div className="max-w-md mx-auto">
             <Heart className="w-16 h-16 mx-auto mb-4 text-gray-300" />
             <Typography variant="h3" className="mb-4 text-center">
               로그인이 필요합니다
@@ -59,7 +108,6 @@ export default function WishlistPage() {
     );
   }
 
-  // 로딩 상태
   if (isLoading) {
     return (
       <Layout>
@@ -74,22 +122,6 @@ export default function WishlistPage() {
       </Layout>
     );
   }
-
-  const handleRemoveFromWishlist = (itemId: string) => {
-    removeFromWishlist.mutate(itemId);
-  };
-
-  const handleAddToCart = (productId: string, itemId: string) => {
-    addToCart.mutate(
-      { product_id: productId, quantity: 1 },
-      {
-        onSuccess: () => {
-          // 장바구니에 추가 후 찜목록에서 제거
-          removeFromWishlist.mutate(itemId);
-        },
-      }
-    );
-  };
 
   return (
     <Layout>
@@ -126,9 +158,9 @@ export default function WishlistPage() {
                   key={item.id}
                   className="group relative border rounded-lg overflow-hidden hover:shadow-lg transition-shadow"
                 >
-                  {/* 삭제 버튼 */}
+                  {/* 찜목록 제거 버튼 */}
                   <button
-                    onClick={() => handleRemoveFromWishlist(item.id)}
+                    onClick={() => removeFromWishlist.mutate(item.id)}
                     className="absolute top-2 right-2 z-10 bg-white rounded-full p-2 shadow-md hover:bg-gray-100 transition-colors"
                     aria-label="찜목록에서 제거"
                   >
@@ -184,12 +216,11 @@ export default function WishlistPage() {
                       className="mb-3"
                     />
 
-                    {/* 장바구니 담기 버튼 */}
                     <Button
                       className="w-full"
                       size="sm"
-                      onClick={() => handleAddToCart(product.id, item.id)}
-                      disabled={isOutOfStock || addToCart.isPending || removeFromWishlist.isPending}
+                      onClick={(e) => handleAddToCart(product.id, e)}
+                      disabled={isOutOfStock || addToCartMutation.isPending}
                     >
                       <ShoppingCart className="w-4 h-4 mr-2" />
                       장바구니 담기
@@ -201,6 +232,60 @@ export default function WishlistPage() {
           </div>
         )}
       </PageLayout>
+
+      {/* 장바구니 추가 팝업 */}
+      {cartPopup && (
+        <>
+          <style>{`
+            @keyframes cartTimerShrink {
+              from { width: 100%; }
+              to { width: 0%; }
+            }
+          `}</style>
+          <div
+            style={{
+              position: "fixed",
+              top: cartPopup.top,
+              left: cartPopup.left,
+              width: Math.max(cartPopup.width, 220),
+              zIndex: 50,
+            }}
+            className="bg-white rounded-xl shadow-2xl overflow-hidden border border-gray-100 animate-in fade-in slide-in-from-top-2 duration-200"
+          >
+            <div className="p-4">
+              {/* 메시지 */}
+              <div className="flex items-center gap-2.5 mb-3">
+                <div className="w-7 h-7 bg-green-50 rounded-full flex items-center justify-center shrink-0">
+                  <CheckCircle className="w-4 h-4 text-green-500" />
+                </div>
+                <span className="text-sm font-semibold text-gray-800">
+                  상품이 장바구니에 담겼습니다.
+                </span>
+              </div>
+
+              {/* 장바구니 이동 버튼 */}
+              <button
+                onClick={() => {
+                  handleClosePopup();
+                  router.push("/cart");
+                }}
+                className="w-full flex items-center justify-center gap-1.5 bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-xs font-medium py-2 rounded-lg transition-colors cursor-pointer"
+              >
+                <ShoppingCart className="w-3.5 h-3.5" />
+                장바구니 확인하기
+              </button>
+            </div>
+
+            {/* 타이머 프로그레스 바 */}
+            <div className="h-0.5 bg-gray-100">
+              <div
+                className="h-full bg-purple-300 origin-left"
+                style={{ animation: "cartTimerShrink 5s linear forwards" }}
+              />
+            </div>
+          </div>
+        </>
+      )}
     </Layout>
   );
 }

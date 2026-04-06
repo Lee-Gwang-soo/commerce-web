@@ -110,7 +110,7 @@ export default function OrderDetailPage() {
         ]}
       >
         <div className="mb-8">
-          <Typography variant="h1" className="mb-2">
+          <Typography variant="h2" className="mb-2">
             주문 상세
           </Typography>
           <div className="flex items-center gap-2">

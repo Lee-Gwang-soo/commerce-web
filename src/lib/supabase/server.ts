@@ -15,8 +15,8 @@ export const supabaseAdmin = createClient<Database>(
   }
 );
 
-export const createServerSupabaseClient = () => {
-  const cookieStore = cookies();
+export const createServerSupabaseClient = async () => {
+  const cookieStore = await cookies();
 
   return createServerClient<Database>(
     process.env.NEXT_PUBLIC_SUPABASE_URL || "https://temp-project.supabase.co",

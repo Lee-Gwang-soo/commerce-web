@@ -36,9 +36,9 @@ export async function GET(request: NextRequest) {
       }
     }
 
-    // Search filter (상품명 + 설명)
+    // Search filter (상품명)
     if (search) {
-      query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
+      query = query.ilike("name", `%${search}%`);
     }
 
     // 신상품 필터 (2개월 이내)

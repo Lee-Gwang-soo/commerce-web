@@ -54,9 +54,18 @@
       "Bash(for:*)",
       "Bash(do echo \"=== $file ===\")",
       "Bash(done)",
-      "Bash(echo:*)"
+      "Bash(echo:*)",
+      "Bash(claude mcp list:*)",
+      "Bash(npx tsx:*)",
+      "Bash(git restore:*)",
+      "Bash(npm i:*)",
+      "Bash(git show:*)",
+      "Bash(xargs grep:*)",
+      "Bash(grep -E \"Error:|error TS|✖|✓|Warning.*Error|^$\")"
     ],
     "deny": [],
     "ask": []
-  }
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": ["notionApi"]
 }

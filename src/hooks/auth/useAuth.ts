@@ -3,7 +3,6 @@ import { authApi } from "@/lib/api/auth";
 import { useAuthStore } from "@/store/authStore";
 import type { RegisterRequest, LoginRequest, UpdateUserRequest } from "@/types/database";
 import { useRouter } from "next/navigation";
-import { useCallback } from "react";
 import { toast } from "sonner";
 
 // 인증 상태 hook

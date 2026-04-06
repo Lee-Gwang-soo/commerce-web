@@ -205,7 +205,7 @@ export default function CheckoutPage() {
       />
 
       <PageLayout breadcrumbs={[{ label: "홈", href: "/" }, { label: "주문하기" }]}>
-        <Typography variant="h1" className="mb-8">
+        <Typography variant="h2" className="mb-8">
           주문하기
         </Typography>
 
@@ -345,14 +345,18 @@ export default function CheckoutPage() {
                 결제 정보
               </Typography>
 
-              <div className="space-y-3 mb-4">
-                <div className="flex justify-between">
-                  <Typography variant="muted">상품 금액</Typography>
-                  <Typography>{totalAmount.toLocaleString()}원</Typography>
+              <div className=" mb-4">
+                <div className="flex justify-between items-center gap-4">
+                  <Typography variant="muted" className="shrink-0">
+                    상품 금액
+                  </Typography>
+                  <Typography className="shrink-0">{totalAmount.toLocaleString()}원</Typography>
                 </div>
-                <div className="flex justify-between">
-                  <Typography variant="muted">배송비</Typography>
-                  <Typography>
+                <div className="flex justify-between items-center gap-4">
+                  <Typography variant="muted" className="shrink-0">
+                    배송비
+                  </Typography>
+                  <Typography className="shrink-0">
                     {shippingFee === 0 ? "무료" : `${shippingFee.toLocaleString()}원`}
                   </Typography>
                 </div>

@@ -4,7 +4,7 @@ import { getSession } from "@/lib/auth/session";
 import type { CartItem, Product } from "@/types/database";
 
 // PATCH - 장바구니 아이템 수량 변경
-export async function PATCH(request: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getSession();
 
@@ -16,7 +16,7 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
     }
     const userId = session.id; // UUID (commerce_user.id)
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { quantity } = body;
 
@@ -109,7 +109,10 @@ export async function PATCH(request: NextRequest, { params }: { params: { id: st
 }
 
 // DELETE - 장바구니 아이템 삭제
-export async function DELETE(request: NextRequest, { params }: { params: { id: string } }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Promise<{ id: string }> }
+) {
   try {
     const session = await getSession();
 
@@ -128,7 +131,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { id: s
       );
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     // 장바구니 아이템 조회 (소유자 확인)
     const { data: cartItems, error: fetchError } = (await supabaseAdmin

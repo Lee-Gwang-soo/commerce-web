@@ -17,13 +17,11 @@ import {
 import { SearchBar } from "@/components/molecules/SearchBar";
 import { MobileSearchModal } from "@/components/molecules/MobileSearchModal";
 import { NavigationItem } from "@/components/molecules/NavigationItem";
-import { Typography } from "@/components/atoms/Typography";
 import Banner from "@/components/atoms/Banner";
 import { useAuth } from "@/hooks/auth/useAuth";
 import { useCartItemCount } from "@/hooks/cart/use-cart";
 import { useWishlistItemCount } from "@/hooks/wishlist/use-wishlist";
 import Image from "next/image";
-import logo from "@/logo.svg";
 
 const headerVariants = cva("sticky top-0 z-50 w-full border-b bg-white shadow-sm", {
   variants: {
@@ -154,7 +152,7 @@ const Header = forwardRef<HTMLElement, HeaderProps>(
             <div className="flex items-center gap-2 md:gap-3 lg:gap-4 pb-2 py-2">
               {/* Logo */}
               <Link href="/" className="flex items-center shrink-0">
-                <Image src={logo} alt="Markt" width={160} height={80} priority />
+                <Image src="/logo.svg" alt="Markt" width={160} height={80} priority />
               </Link>
 
               {/* Category Dropdown - Hidden on Mobile */}
